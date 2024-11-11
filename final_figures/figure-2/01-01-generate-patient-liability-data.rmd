@@ -1,0 +1,235 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("ggbeeswarm")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-2"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+nygc_object_list <- readRDS("13-nygc-consortium/rdata_files/03-02-list_of_counts_stat_samplesheet_from_nygc.rds")
+patient_df <- readRDS("13-nygc-consortium/rdata_files/03-05-nygc-patient-sampleinfo-datasheet.rds")
+
+```
+
+### Analysis
+
+- Generate TPM matrix
+
+```{r}
+
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+
+sig_result_df <- sig_result_list$significant_events
+
+
+repeat_containing_introns_df <- sig_result_df[sig_result_df$status == "repeat_containing" & 
+    sig_result_df$region == "intron",]
+
+repeat_containing_introns_df$cohort <- "public-data"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "nygc"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "answerals")] <- "answerals"
+
+repeat_containing_introns_df$tissue_type <- "iPSCs"
+repeat_containing_introns_df$tissue_type[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "postmortem"
+
+counts_matrix <- nygc_object_list$counts
+temp_matrix <- counts_matrix / (width(feature_ranges)[match(rownames(counts_matrix), feature_ranges$hash_id)] / 1e3)
+tpm_matrix <- t(t(temp_matrix) / (colSums(temp_matrix) / 1e6))
+
+
+keep_hash_ids <- feature_ranges_with_repeats$hash_id[match(unique(repeat_containing_introns_df$feature_ids), feature_ranges_with_repeats$feature_id)]
+keep_tpm_matrix <- tpm_matrix[keep_hash_ids,colnames(tpm_matrix) %in% patient_df$column_id]
+
+
+repeat_lengths <- feature_ranges_with_repeats$repeat_width[match(rownames(keep_tpm_matrix), feature_ranges_with_repeats$hash_id)]
+total_repeat_width <- vapply(split(width(unique(repeat_ranges)), unique(repeat_ranges)$span_group), function(x){
+    sum(x) 
+},1)
+
+expected_distribution_of_repeats <- total_repeat_width / sum(width(reduce(unique(feature_ranges_with_repeats), ignore.strand = T)))
+
+
+```
+
+- Generate liability data
+
+
+```{r}
+
+coldata_df_split <- split(patient_df, paste(patient_df$subject_id, patient_df$tissue))
+patient_liability_df <- do.call(rbind, lapply(coldata_df_split, function(temp_df){
+    return_df <- unique(temp_df[,-c(1,2,3,4,5,6,7,8,9,11,19,21)])
+    current_columns <- temp_df$column_id
+    if(nrow(return_df) > 1){
+        if("N/A" %in% return_df$mnd_with_ftd & "Yes" %in% return_df$mnd_with_ftd){
+            return_df <- return_df[return_df$mnd_with_ftd == "Yes",]
+        }else if("N/A" %in% return_df$mnd_with_ftd & "No" %in% return_df$mnd_with_ftd){
+            return_df <- return_df[return_df$mnd_with_ftd == "No",]
+        }else if("tardbp" %in% return_df$type & "sporadic" %in% return_df$type){
+            return_df <- return_df[return_df$type == "tardbp",]
+        }else if("fus" %in% return_df$mutation & "none" %in% return_df$mutation){
+            return_df <- return_df[return_df$mutation == "fus",]
+        }else{
+            stop(message(paste(return_df$subject_id, return_df$tissue)))
+        }
+    }
+    
+    current_tpm_vector <- Reduce("+", lapply(current_columns, function(x){
+        keep_tpm_matrix[,x]  
+    })) / length(current_columns)
+
+    all_introns <- feature_ranges_with_repeats 
+    all_introns$signal <- current_tpm_vector[all_introns$hash_id]
+    all_introns$weighted.signal <- all_introns$signal / (table(all_introns$hash_id)[all_introns$hash_id])
+    all_introns$weighted_signal_per_expansion <- all_introns$weighted.signal / all_introns$expansion_size
+    all_introns <- all_introns[!is.na(all_introns$signal)]
+
+    expected_split <- split(all_introns$weighted.signal, all_introns$span_group)
+    total_expected_signal <- vapply(expected_split, sum, 1)
+    prop_expected <- total_expected_signal / sum(total_expected_signal)
+
+    current_threshold <- 1
+    if(return_df$tissue %in% c("Cortex", "Cortex_Motor", "Cerebellum")){
+        current_threshold <- 0.1
+    }
+
+    return_df$repeat_intron_expr_tpm <- sum(current_tpm_vector[current_tpm_vector > current_threshold])
+    return_df$median_repeat_intron_expr_tpm <- median(current_tpm_vector[current_tpm_vector > current_threshold])
+
+    current_introns <- all_introns[all_introns$hash_id %in% names(current_tpm_vector[current_tpm_vector > current_threshold])]
+
+    width_split <- split(current_introns$repeat_width, current_introns$span_group)
+    total_width <- sum(current_introns$repeat_width)
+    prop_width <- vapply(width_split, sum, 1) / total_width
+
+    signal_split <- split(current_introns$weighted.signal, current_introns$span_group)
+
+    observed_proportion <- vapply(c("trinucleotide", "quadnucleotide", "pentanucleotide", "hexanucleotide"), function(x){
+        if(x %in% names(signal_split)){
+            return(sum(signal_split[[x]]) / sum(current_introns$weighted.signal))
+        }else{
+            return(0)
+        }
+    },1)
+    enrichment <- observed_proportion / prop_expected[names(observed_proportion)]
+
+    overall_mean_signal <- mean(current_introns$weighted.signal)
+    mean_weighted_signal <- vapply(c("trinucleotide", "quadnucleotide", "pentanucleotide", "hexanucleotide"), function(x){
+        if(x %in% current_introns$span_group){
+            return(mean(current_introns$weighted.signal[current_introns$span_group == x]))
+        }else{
+            return(0)
+        }
+    },1)
+
+    share_of_signal <- vapply(c("trinucleotide", "quadnucleotide", "pentanucleotide", "hexanucleotide"), function(x){
+        if(x %in% current_introns$span_group){
+            prop <- sum(width(current_introns[current_introns$span_group == x])) / sum(width(current_introns))
+            return(prop  * (mean_weighted_signal[x] / overall_mean_signal))
+        }else{
+            return(0)
+        }
+    },1)
+
+    within_group_theil <- vapply(c("trinucleotide", "quadnucleotide", "pentanucleotide", "hexanucleotide"), function(x){
+        if(x %in% current_introns$span_group){
+            current_signal <- current_introns$weighted.signal[current_introns$span_group == x]
+            inner_ratio <- current_signal / mean_weighted_signal[x]
+            return(sum(inner_ratio * log(inner_ratio)))
+        }else{
+            return(0)
+        }
+    },1)
+
+    overall_ratios <- vapply(c("trinucleotide", "quadnucleotide", "pentanucleotide", "hexanucleotide"), function(x){
+        if(x %in% current_introns$span_group){
+            return(mean_weighted_signal[x] / overall_mean_signal)
+        }else{
+            return(0)
+        }
+    },1)
+    all_between_repeat_component <- log(overall_ratios) * share_of_signal
+    between_repeat_component <- sum(all_between_repeat_component)
+
+
+    theil_t <- sum(share_of_signal * within_group_theil) + between_repeat_component
+
+    names(enrichment) <- paste(names(enrichment), "enrichment", sep = "_")
+    names(observed_proportion) <- paste(names(observed_proportion), "observed", sep = "_")
+    names(all_between_repeat_component) <- paste(names(all_between_repeat_component), "between_theil", sep = "_")
+
+    new_return_df <- return_df
+    new_return_df$entropy <- theil_t
+    return(cbind(new_return_df[1,], t(as.matrix(enrichment)), t(as.matrix(observed_proportion)), t(as.matrix(all_between_repeat_component))))
+}))
+
+```
+
+- Attach metadata
+
+```{r}
+
+patient_liability_df$tissue <- droplevels(patient_liability_df$tissue)
+
+patient_liability_df$tissue_group <- "spinal_cord"
+patient_liability_df$tissue_group[patient_liability_df$tissue %in% c("Cortex", "Cortex_Motor", "Cerebellum")] <- "brain"
+patient_liability_df$tissue <- factor(patient_liability_df$tissue, levels = c("Spinal_Cord_Cervical", "Spinal_Cord_Thoracic", "Spinal_Cord_Lumbar",
+    "Cortex", "Cortex_Motor", "Cerebellum"))
+
+rownames(patient_liability_df) <- NULL
+
+saveRDS(object = patient_liability_df, file = file.path(save_dir, "01-save-nygc-rci-liabilities-in-patient-samples.rds"))
+
+```

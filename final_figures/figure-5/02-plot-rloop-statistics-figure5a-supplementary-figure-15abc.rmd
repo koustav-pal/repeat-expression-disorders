@@ -1,0 +1,249 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("ggplot2")
+require("ggvenn")
+require("STRINGdb")
+require("parallel")
+require("GenomicFeatures")
+require("Biostrings")
+require("BSgenome.Hsapiens.UCSC.hg38")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-5"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+significant_de_event_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+# final_rloop_ranges <- readRDS("30-sequence-analysis-of-introns/rdata_files/90-01-merged-rloop-ranges-in-differentially-expressed-introns.rds")
+# feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+rloop_density_df <- readRDS("final-figures/figure-5/rdata_files/01-rloop-stats-dataframe.rds")
+
+```
+
+- Select significantly affected genes
+
+```{r}
+
+significant_de_event_df <- significant_de_event_list$significant_events
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+
+```
+
+- Plot R-loop statistics 
+
+```{r}
+
+significant_de_intron_df <- unique(significant_de_event_df[significant_de_event_df$region == "intron",c("feature_ids", "status")])
+significant_de_intron_df$has_rloop <- significant_de_intron_df$feature_ids %in% rloop_density_df$feature_id
+
+rci_rloop_table <- table(has_rloop = significant_de_intron_df$has_rloop, status = significant_de_intron_df$status)
+rci_rloop_df <- as.data.frame(rci_rloop_table)
+rci_rloop_prop <- t(t(rci_rloop_table) / colSums(rci_rloop_table))
+rci_rloop_prop_df <- as.data.frame(rci_rloop_prop)
+rci_rloop_prop_df$frequency <- rci_rloop_df$Freq
+
+#   has_rloop                status      Freq frequency
+# 1     FALSE non_repeat_containing 0.8092761    207186
+# 2      TRUE non_repeat_containing 0.1907239     48828
+# 3     FALSE     repeat_containing 0.3423138      1728
+# 4      TRUE     repeat_containing 0.6576862      3320
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(rci_rloop_prop_df[rci_rloop_prop_df$has_rloop == "TRUE",], aes(x = status, y = Freq))
+ThePlot <- ThePlot + geom_col(aes(fill = status), colour = "#000000")
+ThePlot <- ThePlot + scale_x_discrete("Intron group")
+ThePlot <- ThePlot + scale_y_continuous("proportion of introns with predicted rloops")
+ThePlot <- ThePlot + scale_fill_manual("Intron groups", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("RCI with R-loop in introns")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "02-01-plot-proportion-of-introns-with-rloops.pdf"), ThePlot)
+
+
+rci_df <- significant_de_intron_df[significant_de_intron_df$status == "repeat_containing",]
+non_rci_df <- significant_de_intron_df[significant_de_intron_df$status != "repeat_containing",]
+draw_n <- 1000
+randomised_rloop_freq_df <- do.call(rbind, mclapply(seq(1,10000), function(x){
+    message(x)
+    rci_sample <- rci_df$feature_ids[sample(x = seq_len(nrow(rci_df)), size = draw_n)]
+    nonrci_sample <- non_rci_df$feature_ids[sample(x = seq_len(nrow(non_rci_df)), size = draw_n)]
+    temp_freq_df <- as.data.frame(table(rloop_density_df$status[rloop_density_df$feature_id %in% c(rci_sample, nonrci_sample)]))
+    temp_freq_df$proportion <- temp_freq_df[,2] / draw_n
+    return(temp_freq_df)
+},mc.cores = 6))
+
+randomised_rloop_freq_matrix <- cbind(randomised_rloop_freq_df[randomised_rloop_freq_df[,1] == "repeat_containing",3], 
+    randomised_rloop_freq_df[randomised_rloop_freq_df[,1] == "non_repeat_containing",3])
+
+wilcox.test(randomised_rloop_freq_matrix[,1], randomised_rloop_freq_matrix[,2])
+
+
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(randomised_rloop_freq_df, aes(x = Var1, y = proportion))
+ThePlot <- ThePlot + geom_violin(aes(fill = Var1), colour = "#000000", 
+    lwd = 0.5, position = position_dodge(width = 0.9), scale = "width")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = Var1), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+# ThePlot <- ThePlot + geom_hline(yintercept = log10(316), colour = "#000000",linetype = "dashed")
+ThePlot <- ThePlot + scale_x_discrete("Intron group")
+ThePlot <- ThePlot + scale_y_continuous("proportion of r-loop containing introns")
+ThePlot <- ThePlot + scale_fill_manual("Intron groups", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Proportion of R-loop containing introns (n = 1000)")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "02-05-plot-randomised-proportion-of-rloop-containing-introns.pdf"), ThePlot)
+
+```
+
+
+
+
+```{r}
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(rloop_density_df, aes(x = status, y = log10(rloop_frequency)))
+ThePlot <- ThePlot + geom_violin(aes(fill = status), colour = "#000000", 
+    lwd = 0.5, position = position_dodge(width = 0.9), scale = "width")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = status), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+# ThePlot <- ThePlot + geom_hline(yintercept = log10(316), colour = "#000000",linetype = "dashed")
+ThePlot <- ThePlot + scale_x_discrete("Intron group")
+ThePlot <- ThePlot + scale_y_continuous("log10 mean r-loop length in introns")
+ThePlot <- ThePlot + scale_fill_manual("Intron groups", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("R-loop density in introns")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "02-02-plot-mean-rloop-frequency-in-introns.pdf"), ThePlot)
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(rloop_density_df, aes(x = status, y = log10(density)))
+ThePlot <- ThePlot + geom_violin(aes(fill = status), colour = "#000000", 
+    lwd = 0.5, position = position_dodge(width = 0.9), scale = "width")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = status), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+ThePlot <- ThePlot + geom_hline(yintercept = log10(100), colour = "#000000",linetype = "dashed")
+ThePlot <- ThePlot + scale_x_discrete("Intron group")
+ThePlot <- ThePlot + scale_y_continuous("log10 r-loop density per kb of intron")
+ThePlot <- ThePlot + scale_fill_manual("Intron groups", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("R-loop density in introns")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "02-03-plot-density-of-rloops-in-introns.pdf"), ThePlot)
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(rloop_density_df, aes(x = status, y = log10(mean_rloop_length)))
+ThePlot <- ThePlot + geom_violin(aes(fill = status), colour = "#000000", 
+    lwd = 0.5, position = position_dodge(width = 0.9), scale = "width")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = status), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+# ThePlot <- ThePlot + geom_hline(yintercept = log10(316), colour = "#000000",linetype = "dashed")
+ThePlot <- ThePlot + scale_x_discrete("Intron group")
+ThePlot <- ThePlot + scale_y_continuous("log10 mean r-loop length in introns")
+ThePlot <- ThePlot + scale_fill_manual("Intron groups", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("R-loop density in introns")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "02-04-plot-mean-rloop-length-in-introns.pdf"), ThePlot)
+
+```

@@ -1,0 +1,389 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+We want to understand if Microsatellites are expressed and incorporated into mature mRNAs. Towards this end, we are performing a complete genome-wide investigation of micro-satellite repeats. 
+
+
+### 1.0 Package requirements
+
+
+
+- change to current working directory `/camp/home/palk/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+require("GenomicFeatures")
+require("ggplot2")
+require("dplyr")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Setup directories
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-1"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+source_dir <- file.path(analysis_path, "src")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Declare functions
+
+
+```{r}
+
+summarise_for_barplot <- function(events_df, total_length){
+    require("dplyr")
+    events_df_split <- split(events_df, paste(events_df$study, events_df$contrasts, sep = "_"))
+    frequency_df <- do.call(rbind, lapply(events_df_split, function(temp_df){
+        events_up <- length(unique(temp_df$feature_ids[temp_df$logfc > 0]))
+        events_down <- length(unique(temp_df$feature_ids[temp_df$logfc < 0]))
+        return_df <- data.frame(study = unique(temp_df$study),
+            contrast = unique(temp_df$contrasts),
+            direction = c("up", "down"),
+            frequency = c(events_up, events_down))
+        return_df$proportion <- return_df$frequency / total_length
+        return_df <- return_df %>% 
+            arrange(desc(direction)) %>% 
+            mutate(prop_lab_y = cumsum(proportion) - (0.5 * proportion),
+                freq_lab_y = cumsum(frequency) - (0.5 * frequency)) %>%
+            as.data.frame()
+        return(return_df)
+    }))
+    rownames(frequency_df) <- NULL
+    return(frequency_df)
+}
+
+```
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+sig_results_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
+feature_ranges <- readRDS(file.path("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+sig_result_df <- sig_results_list$significant_events
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+
+```
+
+### 4.1 Plot n of significant differentially expressed events
+
+- Plot density of differential expression
+
+```{r}
+
+all_introns_df <- sig_result_df[sig_result_df$region == "intron",]
+
+all_intron_frequency_df <- summarise_for_barplot(all_introns_df, total_length = length(unique(feature_ranges$feature_id[feature_ranges$type == "intron"])))
+
+all_intron_frequency_df$cohort <- "public-data"
+all_intron_frequency_df$cohort[grepl(x = all_intron_frequency_df$study, pattern = "nygc")] <- "nygc"
+all_intron_frequency_df$cohort[grepl(x = all_intron_frequency_df$study, pattern = "answerals")] <- "answerals"
+all_intron_frequency_df$tissue_type <- "iPSCs"
+all_intron_frequency_df$tissue_type[all_intron_frequency_df$cohort == "nygc"] <- "postmortem"
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+
+all_totals_df <- all_intron_frequency_df %>% 
+group_by(study, contrast) %>%
+mutate(total = sum(frequency)) %>% ungroup() %>%
+dplyr::select(cohort, study, tissue_type, contrast, total) %>%
+unique() %>% as.data.frame
+
+mean_expr_per_cohort <- all_totals_df %>% 
+group_by(cohort) %>%
+mutate(means = mean(total)) %>%
+dplyr::select(cohort, tissue_type, means) %>%
+unique %>% as.data.frame
+
+#        cohort tissue_type     means
+# 1   answerals       iPSCs   8901.50
+# 2 public-data       iPSCs  12347.55
+# 3        nygc  postmortem 190311.00
+
+median_expr_per_cohort <- all_totals_df %>% 
+group_by(tissue_type) %>%
+mutate(means = median(total)) %>%
+dplyr::select(tissue_type, means) %>%
+unique %>% as.data.frame
+
+#   tissue_type    means
+# 1       iPSCs  10679.5
+# 2  postmortem 191702.5
+
+ThePlot <- ggplot(all_intron_frequency_df, 
+    aes(x = log10(frequency)))
+ThePlot <- ThePlot + geom_density(aes(fill = tissue_type), alpha = 0.6, colour = "#000000")
+ThePlot <- ThePlot + geom_vline(data = median_expr_per_cohort, aes(xintercept = log10(means)), linetype = "dashed", colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_continuous("log10 frequency of differential expression")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + scale_fill_brewer("tissue type", palette = "Set1")
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("density of events identified")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-04-supplementary-figure-1E.pdf"), ThePlot)
+
+
+```
+
+- Show significant differentially expressed events under pval < 0.05
+
+```{r}
+
+all_introns_df <- sig_result_df[sig_result_df$region == "intron",]
+
+frequency_df <- summarise_for_barplot(all_introns_df, total_length = length(unique(feature_ranges$feature_id[feature_ranges$type == "intron"])))
+
+plot_frequency_df <- frequency_df
+plot_frequency_df$cohort <- "public-data"
+plot_frequency_df$cohort[grepl(x = plot_frequency_df$study, pattern = "nygc")] <- "nygc"
+plot_frequency_df$cohort[grepl(x = plot_frequency_df$study, pattern = "answerals")] <- "answerals"
+plot_frequency_df$tissue_type <- "iPSCs"
+plot_frequency_df$tissue_type[grepl(x = plot_frequency_df$study, pattern = "nygc")] <- "postmortem"
+
+public_data_frequency_df <- plot_frequency_df[plot_frequency_df$cohort == "public-data",]
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_c9orf72_vs_ctrl"] <- "c9orf72"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_fus_vs_ctrl"] <- "fus"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_c9orf72_vs_iso"] <- "c9orf72"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_sod1_vs_ctrl"] <- "sod1"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_sod1_vs_iso"] <- "sod1"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_vcp_vs_ctrl"] <- "vcp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_d35_mut_vs_wt"] <- "vcp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_tardbp_vs_wt"] <- "tardbp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_tardbp_vs_ctrl"] <- "tardbp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_vcp_vs_wt"] <- "vcp"
+public_data_frequency_df$xaxis <- paste(public_data_frequency_df$study, public_data_frequency_df$contrast, sep = "_")
+
+answerals_frequency_df <- plot_frequency_df[plot_frequency_df$cohort == "answerals",]
+answerals_frequency_df$contrast[answerals_frequency_df$contrast == "fals_vs_control"] <- "familial"
+answerals_frequency_df$contrast[answerals_frequency_df$contrast == "sals_vs_control"] <- "sporadic"
+answerals_frequency_df$xaxis <- paste(answerals_frequency_df$study, answerals_frequency_df$contrast, sep = "_")
+
+
+nygc_frequency_df <- plot_repeat_frequency_df[plot_repeat_frequency_df$cohort == "nygc",]
+nygc_frequency_df$contrast[nygc_frequency_df$contrast == "als_vs_control"] <- "als"
+nygc_frequency_df$contrast[nygc_frequency_df$contrast == "als+ftd_vs_control"] <- "als+ftd"
+
+nygc_frequency_df$xaxis <- paste(nygc_frequency_df$study, nygc_frequency_df$contrast, sep = "_")
+
+
+answerals_frequency_df$xaxis <- factor(answerals_frequency_df$xaxis, 
+    levels = c("answerals_familial", "answerals_sporadic"))
+
+public_data_frequency_df$xaxis <- factor(public_data_frequency_df$xaxis, 
+    levels = c("c9orf72-sareen-2013_c9orf72", "c9orf72-sterneckert-2020_c9orf72", "c9orf72-dafinca-2020_c9orf72", 
+        "c9orf72-catanese-2021_c9orf72", "c9orf72-casteli-2021_c9orf72", "c9orf72-sommer-2022_c9orf72", 
+        "tardbp-melamed-2019_tardbp", "tardbp-dafinca-2020_tardbp", "tardbp-smith-2021_tardbp", "sod1-tardbp-dash-2022_tardbp", "vcp-ziff-2023_tardbp",
+        "sod1-moccia-2014_sod1", "sod1-tardbp-dash-2022_sod1", "sod1-bhinge-2017_sod1", "sod1-wang-2017_sod1",
+        "fus-kapeli-2016_fus", "fus-desantis-2017_fus", "fus-hawkins-2022_fus", "c9orf72-catanese-2021_fus",
+        "vcp-luisier-2018_vcp", "vcp-tyzack-2021_vcp", "vcp-ziff-2023_vcp"))
+
+append_row_df <- public_data_frequency_df[1,]
+append_row_df$xaxis <- "Boo_1"
+append_row_df$xaxis <- factor(append_row_df$xaxis, levels = c("Boo_1"))
+ipsc_frequency_df <- rbind(public_data_frequency_df, append_row_df, answerals_frequency_df)
+
+```
+
+- Plot data
+
+
+```{r}
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12, angle = 90, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+
+append_row_df <- public_data_frequency_df[1,]
+append_row_df$xaxis <- "Boo_2"
+append_row_df$xaxis <- factor(append_row_df$xaxis, levels = c("Boo_2"))
+all_frequency_df <- rbind(ipsc_frequency_df, append_row_df, plot_nygc_frequency_df)
+
+# colours <- c("public-data" = "#DF2935", "answerals" = "#51BBFE", "nygc" = "#FDCA40")
+colours <- c("up" = "#F24236", "down" = "#F7F7F2")
+ThePlot <- ggplot(all_frequency_df, 
+    aes(x = xaxis, y = frequency))
+ThePlot <- ThePlot + geom_col(aes(fill = direction), colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("study")
+ThePlot <- ThePlot + scale_y_continuous("n of DE")
+ThePlot <- ThePlot + scale_fill_manual("DE direction", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Proportion of repeat containing introns DE")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 10, height = 7, file = file.path(plot_dir, "02-02-supplementary-figure-1C.pdf"), ThePlot)
+
+
+```
+
+### 4.2 Plot n of significant differentially expressed repeat containing events
+
+
+- Show significant differentially expressed repeat containing events under pval < 0.05
+
+```{r}
+
+repeat_containing_introns_df <- sig_result_df[sig_result_df$status == "repeat_containing" & 
+    sig_result_df$region == "intron",]
+
+repeat_frequency_df <- summarise_for_barplot(repeat_containing_introns_df, total_length = length(unique(feature_ranges_with_repeats$feature_id[feature_ranges_with_repeats$type == "intron"])))
+
+
+plot_repeat_frequency_df <- repeat_frequency_df
+
+plot_repeat_frequency_df$cohort <- "public-data"
+plot_repeat_frequency_df$cohort[grepl(x = plot_repeat_frequency_df$study, pattern = "nygc")] <- "nygc"
+plot_repeat_frequency_df$cohort[grepl(x = plot_repeat_frequency_df$study, pattern = "answerals")] <- "answerals"
+
+plot_repeat_frequency_df$tissue_type <- "iPSCs"
+plot_repeat_frequency_df$tissue_type[grepl(x = plot_repeat_frequency_df$study, pattern = "nygc")] <- "postmortem"
+
+public_data_frequency_df <- plot_repeat_frequency_df[plot_repeat_frequency_df$cohort == "public-data",]
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_c9orf72_vs_ctrl"] <- "c9orf72"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_fus_vs_ctrl"] <- "fus"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_c9orf72_vs_iso"] <- "c9orf72"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_sod1_vs_ctrl"] <- "sod1"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_sod1_vs_iso"] <- "sod1"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_vcp_vs_ctrl"] <- "vcp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_d35_mut_vs_wt"] <- "vcp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_tardbp_vs_wt"] <- "tardbp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_tardbp_vs_ctrl"] <- "tardbp"
+public_data_frequency_df$contrast[public_data_frequency_df$contrast == "diff_expr_vcp_vs_wt"] <- "vcp"
+public_data_frequency_df$xaxis <- paste(public_data_frequency_df$study, public_data_frequency_df$contrast, sep = "_")
+
+answerals_frequency_df <- plot_repeat_frequency_df[plot_repeat_frequency_df$cohort == "answerals",]
+answerals_frequency_df$contrast[answerals_frequency_df$contrast == "fals_vs_control"] <- "familial"
+answerals_frequency_df$contrast[answerals_frequency_df$contrast == "sals_vs_control"] <- "sporadic"
+answerals_frequency_df$xaxis <- paste(answerals_frequency_df$study, answerals_frequency_df$contrast, sep = "_")
+
+nygc_frequency_df <- plot_repeat_frequency_df[plot_repeat_frequency_df$cohort == "nygc",]
+nygc_frequency_df$contrast[nygc_frequency_df$contrast == "als_vs_control"] <- "als"
+nygc_frequency_df$contrast[nygc_frequency_df$contrast == "als+ftd_vs_control"] <- "als+ftd"
+
+
+nygc_frequency_df$xaxis <- paste(nygc_frequency_df$study, nygc_frequency_df$contrast, sep = "_")
+
+
+answerals_frequency_df$xaxis <- factor(answerals_frequency_df$xaxis, 
+    levels = c("answerals_familial", "answerals_sporadic"))
+
+public_data_frequency_df$xaxis <- factor(public_data_frequency_df$xaxis, 
+    levels = c("c9orf72-sareen-2013_c9orf72", "c9orf72-sterneckert-2020_c9orf72", "c9orf72-dafinca-2020_c9orf72", 
+        "c9orf72-catanese-2021_c9orf72", "c9orf72-casteli-2021_c9orf72", "c9orf72-sommer-2022_c9orf72", 
+        "tardbp-melamed-2019_tardbp", "tardbp-dafinca-2020_tardbp", "tardbp-smith-2021_tardbp", "sod1-tardbp-dash-2022_tardbp", "vcp-ziff-2023_tardbp",
+        "sod1-moccia-2014_sod1", "sod1-tardbp-dash-2022_sod1", "sod1-bhinge-2017_sod1", "sod1-wang-2017_sod1",
+        "fus-kapeli-2016_fus", "fus-desantis-2017_fus", "fus-hawkins-2022_fus", "c9orf72-catanese-2021_fus",
+        "vcp-luisier-2018_vcp", "vcp-tyzack-2021_vcp", "vcp-ziff-2023_vcp"))
+
+append_row_df <- public_data_frequency_df[1,]
+append_row_df$xaxis <- "Boo_1"
+append_row_df$xaxis <- factor(append_row_df$xaxis, levels = c("Boo_1"))
+ipsc_frequency_df <- rbind(public_data_frequency_df, append_row_df, answerals_frequency_df)
+
+
+plot_nygc_frequency_df <- nygc_frequency_df[nygc_frequency_df$contrast != "none",]
+plot_nygc_frequency_df$xaxis <- factor(plot_nygc_frequency_df$xaxis, 
+    levels = c("nygc_Cortex_als", "nygc_Cortex_als+ftd", 
+        "nygc_Cortex_Motor_als", "nygc_Cortex_Motor_als+ftd",
+        "nygc_Cerebellum_als", "nygc_Cerebellum_als+ftd",
+        "nygc_Spinal_Cord_Cervical_als", "nygc_Spinal_Cord_Cervical_als+ftd",
+        "nygc_Spinal_Cord_Thoracic_als", "nygc_Spinal_Cord_Thoracic_als+ftd",
+        "nygc_Spinal_Cord_Lumbar_als", "nygc_Spinal_Cord_Lumbar_als+ftd"))
+
+
+append_row_df <- public_data_frequency_df[1,]
+append_row_df$xaxis <- "Boo_2"
+append_row_df$xaxis <- factor(append_row_df$xaxis, levels = c("Boo_2"))
+all_frequency_df <- rbind(ipsc_frequency_df, append_row_df, plot_nygc_frequency_df)
+
+```
+
+- Plot data
+
+
+```{r}
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12, angle = 90, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+# colours <- c("public-data" = "#DF2935", "answerals" = "#51BBFE", "nygc" = "#FDCA40")
+colours <- c("up" = "#F24236", "down" = "#F7F7F2")
+ThePlot <- ggplot(all_frequency_df, 
+    aes(x = xaxis, y = proportion))
+ThePlot <- ThePlot + geom_col(aes(fill = direction),  colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("study")
+ThePlot <- ThePlot + scale_y_continuous("proportion")
+ThePlot <- ThePlot + scale_fill_manual("DE direction", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Proportion of repeat containing introns DE")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 10, height = 7, file = file.path(plot_dir, "02-03-supplementary-figure-1D.pdf"), ThePlot)
+
+
+```

@@ -1,0 +1,86 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("ggvenn")
+require("DESeq2")
+require("STRINGdb")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-4"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+candidate_genes_df <- readRDS(file.path(save_dir, "02-save-genes-where-the-variation-due-to-their-native-repeat-containing-intron-is-significant.rds"))
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+
+
+```
+
+- Perform gene set enrichment 
+
+```{r}
+
+significant_events <- sig_result_list$significant_events
+
+string_db <- STRINGdb$new(version = "11.5", species = 9606, score_threshold = 200, input_directory = tmp_dir)
+
+enrichment_df <- string_db$get_enrichment(candidate_genes_df$gene_id)
+cell_types <- lapply(str_split(enrichment_df$inputGenes, pattern = ","), function(x){
+    unique(significant_events[significant_events$gene_id %in% x, "tissue_type"])
+})
+enrichment_df$cell_type <- cell_types
+
+enrichment_df <- enrichment_df[enrichment_df$fdr < 0.05,]
+
+saveRDS(object = enrichment_df, file = file.path(save_dir, "02-save-gene-set-enrichment-for-repeat-containing-genes.rds"))
+write.csv(x = enrichment_df[, -ncol(enrichment_df)], file = file.path(output_dir, "02-save-gene-set-enrichment-for-repeat-containing-genes.csv"))
+
+```

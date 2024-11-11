@@ -1,0 +1,175 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+We want to investigate the intersections between postmortem and iPSC-MNs. 
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("ggvenn")
+require("GenomicRanges")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Import data
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-1"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+
+```
+
+### 3.1.2 Report the intersection between RCIs in postmortem and iPSC samples
+
+- Show intersection plot for RCIs
+
+```{r}
+
+sig_als_vs_control_results_df <- sig_result_list$significant_events
+# sig_als_vs_control_results_df <- sig_als_vs_control_results_df[sig_als_vs_control_results_df$pval < 0.05,]
+
+rci_df <- sig_als_vs_control_results_df[sig_als_vs_control_results_df$status == "repeat_containing" &
+    sig_als_vs_control_results_df$region == "intron",]
+
+rci_df$tissue_type[rci_df$tissue_type != "iPSCs"] <- "postmortem"
+
+unique_repeat_df <- unique(rci_df[,c("feature_ids", "tissue_type")])
+repeat_split <- split(unique_repeat_df$feature_ids, unique_repeat_df$tissue_type)
+
+# "AnswerALS" = "#51BBFE",
+colours <- c("iPSCs" = "#DF2935", "postmortem" = "#FDCA40")
+colours <- c("#FDCA40", "#DF2935", "#51BBFE")
+pdf(file.path(plot_dir, "04-01-figure-1F.pdf"), width = 7, height = 7)
+
+ggvenn(repeat_split, c("postmortem", "iPSCs"), fill_color = colours)
+
+dev.off()
+
+```
+
+- Show intersection plot for non-RCIs
+
+```{r}
+
+sig_als_vs_control_results_df <- sig_result_list$significant_events
+# sig_als_vs_control_results_df <- sig_als_vs_control_results_df[sig_als_vs_control_results_df$pval < 0.05,]
+
+nonrci_df <- sig_als_vs_control_results_df[sig_als_vs_control_results_df$status != "repeat_containing" &
+    sig_als_vs_control_results_df$region == "intron",]
+
+nonrci_df$tissue_type[nonrci_df$tissue_type != "iPSCs"] <- "postmortem"
+
+unique_nonrepeat_df <- unique(nonrci_df[,c("feature_ids", "tissue_type")])
+nonrci_split <- split(unique_nonrepeat_df$feature_ids, unique_nonrepeat_df$tissue_type)
+
+# "AnswerALS" = "#51BBFE",
+colours <- c("iPSCs" = "#DF2935", "postmortem" = "#FDCA40")
+colours <- c("#FDCA40", "#DF2935", "#51BBFE")
+pdf(file.path(plot_dir, "04-02-supplementary-figure-1E.pdf"), width = 7, height = 7)
+
+ggvenn(nonrci_split, c("postmortem", "iPSCs"), fill_color = colours)
+
+dev.off()
+
+```
+
+- Is the increased overlap between RCIs a function of length
+
+
+```{r}
+
+unique_rci_df <- data.frame(feature_id = unique(rci_df[,c("feature_ids")]))
+unique_rci_df$length <- width(feature_ranges[match(unique_rci_df$feature_id, feature_ranges$feature_id)])
+# unique_rci_df <- unique_rci_df[unique_rci_df$length > 1000,]
+
+unique_nonrci_df <- data.frame(feature_id = unique(nonrci_df[,c("feature_ids")]))
+unique_nonrci_df$length <- width(feature_ranges[match(unique_nonrci_df$feature_id, feature_ranges$feature_id)])
+# unique_nonrci_df <- unique_nonrci_df[unique_nonrci_df$length > 1000,]
+
+length_quantiles <- quantile(c(unique_nonrci_df$length[unique_nonrci_df$length > 1000], unique_rci_df$length[unique_rci_df$length > 1000]), seq(0,1,0.01))
+
+rci_proportions <- vapply(length_quantiles, function(a_length){
+    current_rci_df <- unique_repeat_df[unique_repeat_df$feature_ids %in% unique_rci_df[unique_rci_df$length <= a_length,"feature_id"],]
+    union_length <- length(union(current_rci_df[current_rci_df$tissue_type == "postmortem", "feature_ids"], 
+            current_rci_df[current_rci_df$tissue_type == "iPSCs", "feature_ids"]))
+    intersect_length <- length(intersect(current_rci_df[current_rci_df$tissue_type == "postmortem", "feature_ids"], 
+            current_rci_df[current_rci_df$tissue_type == "iPSCs", "feature_ids"]))
+    return(intersect_length / union_length)
+},1)
+
+nonrci_proportions <- vapply(length_quantiles, function(a_length){
+    current_nonrci_df <- unique_nonrepeat_df[unique_nonrepeat_df$feature_ids %in% unique_nonrci_df[unique_nonrci_df$length <= a_length,"feature_id"],]
+    union_length <- length(union(current_nonrci_df[current_nonrci_df$tissue_type == "postmortem", "feature_ids"], 
+            current_nonrci_df[current_nonrci_df$tissue_type == "iPSCs", "feature_ids"]))
+    intersect_length <- length(intersect(current_nonrci_df[current_nonrci_df$tissue_type == "postmortem", "feature_ids"], 
+            current_nonrci_df[current_nonrci_df$tissue_type == "iPSCs", "feature_ids"]))
+    return(intersect_length / union_length)
+},1)
+
+plot_df <- rbind(
+    data.frame(group = "rci", length = length_quantiles, prop = rci_proportions),
+    data.frame(group = "nonrci", length = length_quantiles, prop = nonrci_proportions))
+
+```
+
+- Plot scaling between intersection and length
+
+
+```{r}
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+Colours <- c("rci" = "#ff6b6c", "nonrci" = "#f3f9e3")
+ThePlot <- ggplot(plot_df, 
+    aes(x = log10(length), y = prop))
+ThePlot <- ThePlot + geom_line(aes(group = group), lwd = 1.1)
+ThePlot <- ThePlot + geom_line(aes(colour = group))
+# ThePlot <- ThePlot + geom_text(aes(label = frequency), colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_continuous("log10 length of introns")
+ThePlot <- ThePlot + scale_y_continuous("jaccard index")
+ThePlot <- ThePlot + scale_colour_manual("intron group", values = Colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("scaling between length and intersections")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "04-03-supplementary-figure-1F.pdf"), ThePlot)
+
+
+```

@@ -1,0 +1,190 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("ggplot2")
+require("ggvenn")
+require("STRINGdb")
+require("parallel")
+require("GenomicFeatures")
+require("Biostrings")
+require("BSgenome.Hsapiens.UCSC.hg38")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-4"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+all_gene_vs_lfcs_df <- readRDS(file.path(save_dir, "02-als-vs-control-genic-lfc-intronic-lfc-df-with-predictor-groups.rds"))
+significant_de_event_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+
+```
+
+- Select significantly affected genes
+
+
+```{r}
+
+significant_de_event_df <- significant_de_event_list$significant_events
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+
+strong_predictor_lfc_df <- all_gene_vs_lfcs_df[all_gene_vs_lfcs_df$predictor_group == "strong_predictors" & 
+!is.na(all_gene_vs_lfcs_df$predictor_group) & 
+all_gene_vs_lfcs_df$pathogenicity_pval < 0.05 & 
+all_gene_vs_lfcs_df$genic_pval < 0.05 & 
+all_gene_vs_lfcs_df$intron_pval < 0.05,]
+
+```
+
+- Number of introns which are in these genes
+
+```{r}
+
+feature_ranges_with_repeats$hash_id[
+    feature_ranges_with_repeats$gene_id %in% strong_predictor_lfc_df$gene_id & 
+    feature_ranges_with_repeats$feature_id %in% significant_de_event_df$feature_id[significant_de_event_df$region == "intron"]] %>% unique %>% length
+
+
+```
+
+- Plot LFC vs LFC plot for genes and introns
+
+
+```{r}
+
+
+ns_plot_df <- all_gene_vs_lfcs_df[all_gene_vs_lfcs_df$predictor_group == "strong_predictors" & 
+!is.na(all_gene_vs_lfcs_df$predictor_group) & 
+!(all_gene_vs_lfcs_df$pathogenicity_pval < 0.05 & 
+all_gene_vs_lfcs_df$genic_pval < 0.05 & 
+all_gene_vs_lfcs_df$intron_pval < 0.05),]
+ns_plot_df$selection_group <- "not_selected"
+
+
+sig_plot_df <- all_gene_vs_lfcs_df[all_gene_vs_lfcs_df$predictor_group == "strong_predictors" & 
+!is.na(all_gene_vs_lfcs_df$predictor_group) & 
+all_gene_vs_lfcs_df$pathogenicity_pval < 0.05 & 
+all_gene_vs_lfcs_df$genic_pval < 0.05 & 
+all_gene_vs_lfcs_df$intron_pval < 0.05,]
+sig_plot_df$selection_group <- "selected"
+
+
+plot_df <- rbind(sig_plot_df,ns_plot_df)
+
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+Colours <- c("selected" = "#F36F48", "not_selected" = "#FFF9EC")
+# Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(plot_df[plot_df$selection_group == "not_selected",], aes(x = genic_lfc, y = intron_lfc))
+ThePlot <- ThePlot + geom_vline(xintercept = 0, linetype = "dashed")
+ThePlot <- ThePlot + geom_hline(yintercept = 0, linetype = "dashed")
+# ThePlot <- ThePlot + geom_density_2d_filled(alpha = 0.5, contour_var = "ndensity")
+# ThePlot <- ThePlot + scale_fill_viridis(palette = "magma")
+ThePlot <- ThePlot + geom_point(aes(fill = selection_group), shape = 21, alpha = 0.6, colour = "#000000")
+ThePlot <- ThePlot + geom_point(data = plot_df[plot_df$selection_group == "selected",], aes(fill = selection_group), shape = 21, size = 1.5, colour = "#000000")
+# ThePlot <- ThePlot + geom_smooth(method = "lm", formula = y ~ x, colour = "#000000")
+# ThePlot <- ThePlot + geom_density(aes(colour = group))
+# ThePlot <- ThePlot + geom_violin(aes(fill = group), colour = "#000000", 
+#     lwd = 0.5, position = position_dodge(width = 0.9), scale = "width")
+# ThePlot <- ThePlot + geom_boxplot(aes(fill = group), colour = "#000000", 
+#     width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9), outlier.shape = NA)
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_continuous("log2 fold change gene expression (exon)")
+ThePlot <- ThePlot + scale_y_continuous("log2 fold change of intron expression")
+ThePlot <- ThePlot + scale_fill_manual("predictor classification", values = Colours)
+# ThePlot <- ThePlot + scale_colour_manual("status", values = Colours)
+# ThePlot <- ThePlot + scale_fill_brewer("predictor classification", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(status ~ .)
+ThePlot <- ThePlot + ggtitle("read prop scatter plot")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 5, height = 5, file = file.path(plot_dir, "03-02-plot-als-vs-control-lfc-plot-for-selected-strong-predictors-figure-4B.pdf"), ThePlot)
+
+
+```
+
+- Write repeat sequences for testing
+
+```{r}
+
+sorted_good_predictor_lfc_df <- strong_predictor_lfc_df[order(-log10(strong_predictor_lfc_df$pathogenicity_pval), decreasing = T),]
+
+selected_introns <- feature_ranges_with_repeats[feature_ranges_with_repeats$gene_id %in% sorted_good_predictor_lfc_df$gene_id & 
+    feature_ranges_with_repeats$type == "intron"]
+
+selected_repeat_ranges <- repeat_ranges[selected_introns$which_repeat]
+selected_repeat_ranges$hash_id <- selected_introns$hash_id
+coord_start <- start(selected_repeat_ranges) - floor((100 - width(selected_repeat_ranges))/2)
+coord_end <- end(selected_repeat_ranges) + floor((100 - width(selected_repeat_ranges))/2)
+
+start(selected_repeat_ranges) <- coord_start
+end(selected_repeat_ranges) <- coord_end
+
+seqlevelsStyle(selected_repeat_ranges) <- "UCSC"
+all_feature_sequences <- getSeq(BSgenome.Hsapiens.UCSC.hg38, selected_repeat_ranges)
+
+names(all_feature_sequences) <- paste(selected_repeat_ranges$hash_id,names(selected_repeat_ranges), sep = ":")
+
+
+writeXStringSet(x = all_feature_sequences, 
+    filepath = file.path(output_dir, "01_features_containing_repeats_sig_intronic_foldchange_sig_genic_foldchange_ordered_by_pathogenicity.fa"),
+    format = "fasta")
+
+```
+
