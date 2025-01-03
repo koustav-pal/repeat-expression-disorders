@@ -1,0 +1,176 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("ggvenn")
+require("DESeq2")
+require("STRINGdb")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-4"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+repeat_containing_ranges <- repeat_ranges_list$repeat_containing_ranges
+enrichment_df <- readRDS(file.path(save_dir, "02-save-gene-set-enrichment-for-repeat-containing-genes.rds"))
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+significant_events <- sig_result_list$significant_events
+candidate_genes_df <- readRDS(file.path(save_dir, "02-save-genes-where-the-variation-due-to-their-native-repeat-containing-intron-is-significant.rds"))
+
+```
+
+
+- Select terms to plot
+
+```{r}
+
+
+enrichment_df$prop_repeats <- vapply(str_split(enrichment_df$inputGenes, pattern = ","), function(x){
+    length(intersect(x, candidate_genes_df$gene_id))/length(unique(candidate_genes_df$gene_id))
+},1)
+
+strong_predictors <- c("EFO:0004713", "HP:0003808", "HP:0001252",
+    "EFO:0004314", "HP:0011804", "HP:0003011", "EFO:0006941", "HP:0002167", 
+    "EFO:0005921", "EFO:0003892", "HP:0012638", "HP:0011442", "HP:0002817",
+    "HP:0002814")
+moderate_predictors <- c("EFO:0003925", "EFO:0008354", 
+    "HP:0000708", "EFO:0007998", "EFO:0007710", "EFO:0007803",
+    "EFO:0000618", "HP:0100543", "EFO:0005774",
+    "EFO:0010144", "EFO:0009386", "HP:0001288", "HP:0001290", "EFO:0008475",
+    "EFO:0007680", "EFO:0003926", "HP:0100022", "EFO:0004529", "EFO:0005105",
+    "EFO:0004732")
+modest_predictors <- c("EFO:0003926", "EFO:0004875", "EFO:0004731", "EFO:0004337", 
+    "EFO:0008393", "EFO:0005229", "EFO:0005301", 
+    "HP:0000736", "HP:0004408", "HP:0002020", "HP:0001251", 
+    "EFO:0009700", "EFO:0007699", "HP:0008765", "HP:0000738", 
+    "HP:0000486", "HP:0000364", "HP:0000508",  
+    "EFO:0004874", "EFO:0004365", "EFO:0004555", "HP:0001249",
+    "EFO:0007911", "EFO:0004530", "EFO:0005110", 
+    "EFO:0004346", "HP:0031466", "EFO:0009594", "EFO:0005427", 
+    "EFO:0004825", "HP:0002168", "EFO:0011015")
+
+hpo_interesting_df <- enrichment_df[enrichment_df$term %in% c(strong_predictors, moderate_predictors, modest_predictors),]
+hpo_interesting_df$group <- "modest_predictors"
+hpo_interesting_df$group[hpo_interesting_df$term %in% moderate_predictors] <- "moderate_predictors"
+hpo_interesting_df$group[hpo_interesting_df$term %in% strong_predictors] <- "strong_predictors"
+hpo_interesting_df$size <- 1 
+hpo_interesting_df$size[hpo_interesting_df$group == "strong_predictors"] <- 3
+hpo_interesting_df$size[hpo_interesting_df$group == "moderate_predictors"] <- 2
+
+
+```
+
+- Plot HPO gene set enrichment
+
+
+```{r}
+
+hpo_interesting_df$description <- factor(hpo_interesting_df$description, levels = hpo_interesting_df$description[order(hpo_interesting_df$fdr, decreasing = F)])
+
+hpo_split_by_cluster <- split(hpo_interesting_df, hpo_interesting_df$group)
+hpo_split_by_cluster <- hpo_split_by_cluster[c("strong_predictors", "moderate_predictors", "modest_predictors")]
+corrected_plot_order_hpo_df <- do.call(rbind, lapply(seq_along(hpo_split_by_cluster), function(x){
+    offset <- 0
+    if(x > 1){
+        offset <- sum(vapply(seq(from = 1, to = x - 1), function(y){
+            nrow(hpo_split_by_cluster[[y]])
+        },1))
+    }
+    temp_df <- hpo_split_by_cluster[[x]]
+    temp_df$plot_order <- seq(from = 1, to = nrow(temp_df)) + offset
+    temp_df
+}))
+
+vline_df <- do.call(rbind, lapply(seq_along(hpo_split_by_cluster), function(x){
+    offset <- 0
+    if(x > 1){
+        offset <- sum(vapply(seq(from = 1, to = x - 1), function(y){
+            nrow(hpo_split_by_cluster[[y]])
+        },1))
+    }
+    temp_df <- data.frame(xaxis = nrow(hpo_split_by_cluster[[x]]) + 0.5 + offset)
+    temp_df
+}))
+vline_df <- rbind(vline_df, data.frame(xaxis = 0.5))
+
+breaks <- c(corrected_plot_order_hpo_df$plot_order, max(corrected_plot_order_hpo_df$plot_order) + 1)
+break_lab <- c(as.character(corrected_plot_order_hpo_df$description), "")
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 8, angle = 90, hjust = 1),
+    axis.text.y = element_text(size = 8),
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 8),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+Colours <- c("strong_predictors" = "#f36f48", "moderate_predictors" = "#5688C7", "modest_predictors" = "#FDE2E2")
+ThePlot <- ggplot(corrected_plot_order_hpo_df, aes(x = plot_order, y = -log10(fdr)))
+# ThePlot <- ThePlot + geom_vline(xintercept = 0, linetype = "dashed", colour = "#000000")
+ThePlot <- ThePlot + geom_hline(yintercept = -log10(0.05), linetype = "dashed", colour = "#000000")
+ThePlot <- ThePlot + geom_vline(data = vline_df, aes(xintercept = xaxis), linetype = "solid", colour = "#000000")
+ThePlot <- ThePlot + geom_point(aes(fill = as.character(group)), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + scale_x_continuous("description", breaks = breaks, expand = c(0,0), labels = break_lab)
+ThePlot <- ThePlot + scale_y_continuous("-log10(fdr)")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + scale_fill_manual("Predictors", values = Colours)
+# ThePlot <- ThePlot + facet_grid(. ~ cluster, scales = "free_x")
+ThePlot <- ThePlot + ggtitle("gene set enrichment for repeat containing genes")
+ThePlot <- ThePlot + current_theme
+ggsave(height = 5, width = 10, file = file.path(plot_dir, "03-01-plot-HPO-gene-set-enrichment-figure-4A.pdf"), ThePlot)
+
+saveRDS(object = corrected_plot_order_hpo_df, file = file.path(save_dir, "03-hpo-interesting-terms-with-group-assignment-and-plot-order.rds"))
+
+```

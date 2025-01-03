@@ -1,0 +1,245 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+Investigate length distribution of microsatellites
+
+
+### 1.0 Package requirements
+
+
+
+- change to current working directory `/camp/home/palk/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+require("GenomicFeatures")
+require("ggplot2")
+require("dplyr")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Setup directories
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-1"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+source_dir <- file.path(analysis_path, "src")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+# Function declaration
+
+
+```{r}
+
+require("rtracklayer")
+require("GenomicRanges")
+require("parallel")
+require("stringr")
+# source(file.path())
+# phylop_cons_tracks <- file.path(input_dir, "hg38.phyloP7way.bw")
+# save_file <- file.path(save_dir, "01-save-conservation-tracks.rds")
+# source(file.path(source_dir, "source.R"))
+
+```
+
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS(file.path("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+sig_result_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
+
+repeat_colour_groups <- c("trinucleotide" = "#EEB902", "quadnucleotide" = "#97CC04", 
+    "pentanucleotide" = "#F45D01", "hexanucleotide" = "#2D7DD2")
+
+```
+
+- Select repeat containing introns
+
+```{r}
+
+repeat_ranges <- unique(repeat_ranges_list$repeat_ranges)
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+
+
+unique_feature_id_df <- unique(data.frame(feature_id = feature_ranges_with_repeats$feature_id,
+    repeat_id = names(repeat_ranges)[feature_ranges_with_repeats$which_repeat],
+    type = feature_ranges_with_repeats$type))
+unique_feature_id_df$span_group <- repeat_ranges[unique_feature_id_df$repeat_id]$span_group
+unique_feature_id_df$ssr <- repeat_ranges[unique_feature_id_df$repeat_id]$ssr
+unique_feature_id_df$repeat_width <- width(repeat_ranges[unique_feature_id_df$repeat_id])
+unique_feature_id_df$repeat_unit_length <- str_length(unique_feature_id_df$ssr)
+unique_feature_id_df$expansion_size <- unique_feature_id_df$repeat_width / unique_feature_id_df$repeat_unit_length
+
+
+```
+
+- Plot proportion of repeats in introns
+
+```{r}
+
+sig_results_df <- sig_result_list$significant_events
+sig_results_df <- sig_results_df[sig_results_df$region == "intron",]
+
+repeat_containing_introns_df <- sig_results_df[sig_results_df$status == "repeat_containing",]
+
+unique_feature_id_df$differentially_expressed <- unique_feature_id_df$feature_id %in% repeat_containing_introns_df$feature_ids
+rci_de_intron_df <- unique_feature_id_df[unique_feature_id_df$differentially_expressed & unique_feature_id_df$type == "intron",]
+
+class_freq_df <- as.data.frame(table(rci_de_intron_df$span_group))
+class_freq_df$proportion <- class_freq_df$Freq / sum(class_freq_df$Freq)
+class_freq_df$type <- "intron"
+
+#              Var1 Freq proportion   type
+# 1  hexanucleotide 2081 0.33521263 intron
+# 2 pentanucleotide  186 0.02996134 intron
+# 3  quadnucleotide  222 0.03576031 intron
+# 4   trinucleotide 3719 0.59906572 intron
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+ThePlot <- ggplot(class_freq_df, 
+    aes(x = type, y = proportion))
+ThePlot <- ThePlot + geom_col(aes(fill = Var1), colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("Type")
+ThePlot <- ThePlot + scale_y_continuous("proportion")
+ThePlot <- ThePlot + scale_fill_manual("Repeat colours", values = repeat_colour_groups)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Proportion of repeats in each repeat class")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 3, height = 7, file = file.path(plot_dir, "05-01-Supplementary-figure-4A.pdf"), ThePlot)
+
+```
+
+- Plot proportion of repeat width in introns
+
+```{r}
+
+total_repeat_width <- sum(rci_de_intron_df$repeat_width)
+class_specific_width <- vapply(split(rci_de_intron_df$repeat_width, rci_de_intron_df$span_group), sum, 1)
+class_specific_expansion_width <- vapply(split(rci_de_intron_df$expansion_size, rci_de_intron_df$span_group), sum, 1)
+
+width_prop_df <- data.frame(span_group = names(class_specific_width),
+    width = class_specific_width)
+width_prop_df$prop <- width_prop_df$width / total_repeat_width
+width_prop_df$type <- "intron"
+
+#                      span_group width       prop   type
+# hexanucleotide   hexanucleotide 46062 0.32639150 intron
+# pentanucleotide pentanucleotide  6335 0.04488928 intron
+# quadnucleotide   quadnucleotide  4968 0.03520283 intron
+# trinucleotide     trinucleotide 83760 0.59351639 intron
+
+
+ThePlot <- ggplot(width_prop_df, 
+    aes(x = type, y = prop))
+ThePlot <- ThePlot + geom_col(aes(fill = span_group), colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("Type")
+ThePlot <- ThePlot + scale_y_continuous("proportion")
+ThePlot <- ThePlot + scale_fill_manual("Repeat colours", values = repeat_colour_groups)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Proportion of repeat width in each class")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 3, height = 7, file = file.path(plot_dir, "05-02-supplementary-figure-4B.pdf"), ThePlot)
+
+```
+
+- Plot proportion of expansion width in introns
+
+```{r}
+
+total_expansion_width <- sum(rci_de_intron_df$expansion_size)
+expansion_prop_df <- data.frame(span_group = names(class_specific_expansion_width),
+    width = class_specific_expansion_width)
+expansion_prop_df$prop <- expansion_prop_df$width / total_expansion_width
+expansion_prop_df$type <- "intron"
+
+#                      span_group width       prop   type
+# hexanucleotide   hexanucleotide  7677 0.20146434 intron
+# pentanucleotide pentanucleotide  1267 0.03324936 intron
+# quadnucleotide   quadnucleotide  1242 0.03259329 intron
+# trinucleotide     trinucleotide 27920 0.73269301 intron
+
+ThePlot <- ggplot(expansion_prop_df, 
+    aes(x = type, y = prop))
+ThePlot <- ThePlot + geom_col(aes(fill = span_group), colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("Type")
+ThePlot <- ThePlot + scale_y_continuous("proportion")
+ThePlot <- ThePlot + scale_fill_manual("Repeat colours", values = repeat_colour_groups)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Proportion of expansion width in each class")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 3, height = 7, file = file.path(plot_dir, "05-03-supplementary-figure-4C.pdf"), ThePlot)
+
+```
+
+- Plot repeat length of repeats
+
+```{r}
+
+ThePlot <- ggplot(rci_de_intron_df, 
+    aes(x = log10(repeat_width)))
+ThePlot <- ThePlot + geom_density(aes(fill = span_group), colour = "#000000", alpha = 0.6)
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_continuous("repeat length")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + scale_fill_manual("Repeat colours", values = repeat_colour_groups)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Proportion of repeat containing introns DE")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "05-04-supplementary-figure-4D.pdf"), ThePlot)
+
+
+```
+
+
+
+
+

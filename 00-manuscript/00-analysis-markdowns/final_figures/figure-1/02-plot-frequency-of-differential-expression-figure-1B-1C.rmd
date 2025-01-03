@@ -1,0 +1,139 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+We are investigating the differential expression profiling statistics of DE introns. 
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("parallel")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("Biostrings")
+require("rtracklayer")
+require("GenomeInfoDb")
+require("GenomicFeatures")
+require("ggplot2")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Import data
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-1"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+
+```
+
+### 3.1.2 Report the number of repeats overlapping introns or exons
+
+```{r}
+
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+sig_results_df <- sig_result_list$significant_events
+sig_results_df <- sig_results_df[sig_results_df$region == "intron",]
+
+sig_results_df$tissue_type[sig_results_df$tissue_type != "iPSCs"] <- "postmortem"
+
+unique_intron_df <- unique(sig_results_df[,c("tissue_type", "feature_ids", "status")])
+frequency_df <- as.data.frame(table(unique_intron_df[,"tissue_type"]))
+colnames(frequency_df) <- c("tissue_type", "frequency")
+frequency_df$tissue_type <- factor(frequency_df$tissue_type, levels = c("iPSCs", "postmortem"))
+
+
+```
+
+- Plot frequency profile for all de introns.
+
+```{r}
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12, angle = 90, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+# "AnswerALS" = "#51BBFE"
+colours <- c("up" = "#F24236", "down" = "#F7F7F2")
+colours <- c("iPSCs" = "#DF2935" , "postmortem" = "#FDCA40")
+ThePlot <- ggplot(frequency_df, 
+    aes(x = tissue_type, y = frequency))
+ThePlot <- ThePlot + geom_col(aes(fill = tissue_type), colour = "#000000")
+ThePlot <- ThePlot + geom_text(aes(label = frequency), colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("tissue_type")
+ThePlot <- ThePlot + scale_y_continuous("frequency")
+ThePlot <- ThePlot + scale_fill_manual("tissue_type", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Number of differentially expressed introns")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-01-figure-1B.pdf"), ThePlot)
+
+
+```
+
+
+- Plot frequency profile for repeat containing de introns.
+
+```{r}
+
+
+frequency_df <- as.data.frame(table(unique_intron_df[unique_intron_df$status == "repeat_containing","tissue_type"]))
+frequency_df$proportion <- frequency_df$Freq / length(unique(feature_ranges_with_repeats$hash_id))
+colnames(frequency_df) <- c("tissue_type", "frequency", "proportion")
+frequency_df$tissue_type <- factor(frequency_df$tissue_type, levels = c("iPSCs", "postmortem"))
+
+colours <- c("up" = "#F24236", "down" = "#F7F7F2")
+colours <- c("iPSCs" = "#DF2935" , "postmortem" = "#FDCA40")
+ThePlot <- ggplot(frequency_df, 
+    aes(x = tissue_type, y = proportion))
+ThePlot <- ThePlot + geom_col(aes(fill = tissue_type), colour = "#000000")
+ThePlot <- ThePlot + geom_text(aes(label = frequency), colour = "#000000")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("tissue_type")
+ThePlot <- ThePlot + scale_y_continuous("proportion")
+ThePlot <- ThePlot + scale_fill_manual("tissue_type", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("Number of differentially expressed introns")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-02-figure-1C.pdf"), ThePlot)
+
+
+```
+
+

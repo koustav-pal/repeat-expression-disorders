@@ -1,0 +1,188 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+source("src/colours.R")
+source("../useful-functions/basepair_coverage_functions.R")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("ggplot2")
+require("ggvenn")
+require("STRINGdb")
+require("parallel")
+require("GenomicFeatures")
+require("Biostrings")
+require("BSgenome.Hsapiens.UCSC.hg38")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-5"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+significant_de_event_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+rloop_ranges <- readRDS("30-sequence-analysis-of-introns/rdata_files/90-01-merged-rloop-ranges-in-differentially-expressed-introns.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+rloop_density_df <- readRDS("final-figures/figure-5/rdata_files/01-rloop-stats-dataframe.rds")
+
+```
+
+- Select significantly affected genes
+
+```{r}
+
+significant_de_event_df <- significant_de_event_list$significant_events
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+
+```
+
+- Plot r-loops near repeats
+
+```{r}
+
+de_feature_ranges <- feature_ranges[feature_ranges$feature_id %in% significant_de_event_df$feature_id,]
+de_feature_ranges_with_repeats <- feature_ranges_with_repeats[feature_ranges_with_repeats$feature_id %in% significant_de_event_df$feature_id,]
+
+de_repeat_ranges <- repeat_ranges[de_feature_ranges_with_repeats$which_repeat]
+de_repeat_ranges$which_intron <- seq_along(de_feature_ranges_with_repeats)
+de_repeat_ranges$feature_id <- de_feature_ranges_with_repeats$feature_id[de_repeat_ranges$which_intron]
+de_repeat_ranges <- de_repeat_ranges[de_repeat_ranges$feature_id %in% rloop_ranges$feature_id]
+seqlevelsStyle(de_repeat_ranges) <- "UCSC"
+start(de_repeat_ranges) <- start(de_repeat_ranges) - 1000
+end(de_repeat_ranges) <- end(de_repeat_ranges) + 1000
+
+rci_rloop_ranges <- rloop_ranges[rloop_ranges$feature_id %in% de_repeat_ranges$feature_id]
+
+
+
+ol_object <- findOverlaps(rci_rloop_ranges, de_repeat_ranges)
+
+rloop_density_df <- data.frame(rloop_index = queryHits(ol_object),
+    repeat_index = subjectHits(ol_object),
+    span_group = de_repeat_ranges$span_group[subjectHits(ol_object)])
+
+rloop_freq_df <- as.data.frame(table(unique(rloop_density_df[,c("span_group", "repeat_index")])$span_group))
+colnames(rloop_freq_df) <- c("span_group", "frequency")
+rloop_freq_df$proportion <- rloop_freq_df$frequency / table(de_repeat_ranges$span_group)
+# rloop_freq_df <- rbind(rloop_freq_df, data.frame(span_group = "undetected",
+#   frequency = sum(table(de_repeat_ranges$span_group)) - sum(rloop_freq_df$frequency),
+#   proportion = 1 - sum(rloop_freq_df$proportion)))
+# rloop_freq_df$region <- "intron"
+
+rloop_freq_df$span_group <- factor(rloop_freq_df$span_group, levels = c("trinucleotide", "quadnucleotide", "pentanucleotide", "hexanucleotide"))
+# repeat_colour_groups <- c("undetected" = "#C9CAD9", repeat_colour_groups)
+ThePlot <- ggplot(rloop_freq_df, aes(x = span_group, y = proportion))
+ThePlot <- ThePlot + geom_col(aes(fill = span_group), colour = "#000000")
+ThePlot <- ThePlot + scale_x_discrete("Intron group")
+ThePlot <- ThePlot + scale_y_continuous("proportion of repeats containing predicted r-loops within 1kb")
+ThePlot <- ThePlot + scale_fill_manual("Intron groups", values = repeat_colour_groups)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("R-loop density in introns")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "02-06-plot-proportion-of-rloops-within-1kb-of-repeat.pdf"), ThePlot)
+
+```
+
+- Plot distance to nearest repeat 
+
+```{r}
+
+
+dist_object <- distanceToNearest(de_repeat_ranges, rci_rloop_ranges)
+
+rloop_dist_df <- data.frame(
+    distance = elementMetadata(dist_object)[["distance"]],
+    span_group = de_repeat_ranges$span_group[queryHits(dist_object)])
+rloop_dist_df$dist_binned <- ceiling(rloop_dist_df$distance / 1e3)
+cumsum_dist_df <- do.call(rbind, lapply(split(rloop_dist_df, rloop_dist_df$span_group), function(temp_df){
+    freq_dist_df <- as.data.frame(table(temp_df$dist_binned))
+    freq_dist_df[,1] <- as.numeric(as.character(freq_dist_df[,1]))
+    freq_dist_df$cumsum <- cumsum(freq_dist_df[,2])
+    freq_dist_df$prop <- freq_dist_df$cumsum / max(freq_dist_df$cumsum)
+    freq_dist_df$distance <- as.numeric(freq_dist_df[,1]) * 1000
+    freq_dist_df$span_group <- unique(temp_df$span_group)
+    return(freq_dist_df)
+}))
+
+cumsum_dist_df_split <- split(cumsum_dist_df, cumsum_dist_df$span_group)
+max_occurence <- vapply(cumsum_dist_df_split, function(x){
+    max(x[,3])
+},1)
+
+
+ThePlot <- ggplot(cumsum_dist_df[cumsum_dist_df$distance > 0,], aes(x = log10(distance), y = prop))
+ThePlot <- ThePlot + geom_line(aes(colour = span_group))
+ThePlot <- ThePlot + geom_vline(xintercept = c(log10(1e3), log10(1e4)), linetype = "dashed")
+ThePlot <- ThePlot + scale_x_continuous("Distance to closest repeat")
+ThePlot <- ThePlot + scale_y_continuous("proportion of rloops within distance")
+ThePlot <- ThePlot + scale_colour_manual("Intron groups", values = repeat_colour_groups)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("R-loop distance distribution to repeats")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "02-07-plot-distance-of-rloops-to-closest-repeats-in-introns.pdf"), ThePlot)
+
+
+
+```

@@ -1,0 +1,251 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("ggbeeswarm")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-2"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+answerals_object_list <- readRDS("13-01-answerals/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
+sampleinfo_df <- read.csv("/nemo/project/proj-luscombn-patani/working/answerals/sample-details/samplesheet.csv")
+cell_line_markers_csv <- read.csv("13-01-answerals/input_files/Baxi-et-al-IF-raw-data-file-for-Koustav-Pal-confirmed-data.csv")
+patient_liability_df <- readRDS(file.path(save_dir, "02-save-answerals-rci-expression-summary.rds"))
+
+```
+
+### Analysis
+
+- Plot density distribution of RCI liability
+
+```{r}
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+
+mean(patient_liability_df$repeat_intron_expr_tpm)
+sd(patient_liability_df$repeat_intron_expr_tpm)
+
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("healthy", "als"),], 
+    aes(x = repeat_intron_expr_tpm))
+ThePlot <- ThePlot + geom_density(fill = "#F6F4F3")
+ThePlot <- ThePlot + geom_vline(xintercept = 200, lty = "dashed", colour = "#000000")
+ThePlot <- ThePlot + scale_x_continuous("RCI liability")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("RCI liability density distribution")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-01-supplementary-figure-6B.pdf"), ThePlot)
+
+
+```
+
+- Compare RCI liability between conditions
+
+```{r}
+
+patient_liability_df$mnd_group <- factor(patient_liability_df$mnd_group, levels = c("healthy", "als", "other_mnd", "carrier"))
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy"),], 
+    aes(x = mnd_group, y = repeat_intron_expr_tpm))
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + scale_x_discrete("mnd group")
+ThePlot <- ThePlot + scale_y_continuous("RCI liability")
+ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_wrap(. ~ tissue, scales = "free")
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "02-02-plot-RCI-liability-in-healthy-and-ALS-supplementary-figure-6C.pdf"), ThePlot)
+
+
+```
+
+- Compare RCI liability between expansion groups
+
+
+```{r}
+
+patient_liability_df$expansion_group[patient_liability_df$mnd_group == "healthy"] <- "control"
+patient_liability_df$expansion_group <- factor(patient_liability_df$expansion_group, levels = c("control", "c9orf72_expansion", "lacking_expansion"))
+
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy"),], 
+    aes(x = expansion_group, y = repeat_intron_expr_tpm))
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), colour = "#000000", shape = 21)
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("mnd group")
+ThePlot <- ThePlot + scale_y_continuous("RCI liability")
+ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_wrap(. ~ tissue, scales = "free")
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "02-03-plot-RCI-liability-in-expansion-groups-supplementary-figure-6D.pdf"), ThePlot)
+
+
+```
+
+- Compare N of RCI liability between expansion groups
+
+
+```{r}
+
+patient_liability_df$expansion_group[patient_liability_df$mnd_group == "healthy"] <- "control"
+patient_liability_df$expansion_group <- factor(patient_liability_df$expansion_group, levels = c("control", "c9orf72_expansion", "lacking_expansion"))
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy"),], 
+    aes(x = mnd_group, y = log10(n_of_liability)))
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), colour = "#000000", shape = 21)
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("mnd group")
+ThePlot <- ThePlot + scale_y_continuous("Number of RCIs driving liability")
+ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_wrap(. ~ tissue, scales = "free")
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "02-03-plot-N-of-RCI-liability-in-expansion-groups-supplementary-figure-6D.pdf"), ThePlot)
+
+
+```
+
+- Compare average RCI expression between expansion groups
+
+
+```{r}
+
+patient_liability_df$expansion_group[patient_liability_df$mnd_group == "healthy"] <- "control"
+patient_liability_df$expansion_group <- factor(patient_liability_df$expansion_group, levels = c("control", "c9orf72_expansion", "lacking_expansion"))
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy"),], 
+    aes(x = mnd_group, y = median_repeat_intron_expr_tpm))
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), colour = "#000000", shape = 21)
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("mnd group")
+ThePlot <- ThePlot + scale_y_continuous("Average RCI expression")
+ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_wrap(. ~ tissue, scales = "free")
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "02-03-plot-average-rci-expression-in-expansion-groups-supplementary-figure-6D.pdf"), ThePlot)
+
+
+```
+
+- Compare RCI liability between groups
+
+
+```{r}
+
+plot_df <- patient_liability_df[patient_liability_df$early_late_onset %in% c("early", "late"),]
+plot_df$early_late_onset <- factor(patient_liability_df$early_late_onset, levels = c("early", "late"))
+ThePlot <- ggplot(plot_df, aes(x = repeat_intron_expr_tpm))
+ThePlot <- ThePlot + geom_density(aes(fill = early_late_onset), alpha = 0.6)
+ThePlot <- ThePlot + scale_x_continuous("RCI liability")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + scale_fill_brewer("early/late onset of ALS", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("early late onset")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-04-plot-RCI-liability-in-early-late-onset-AnswerALS-supplementary-figure-6E.pdf"), ThePlot)
+
+plot_df <- patient_liability_df[patient_liability_df$progression %in% c("fast", "moderate", "slow"),]
+plot_df$progression <- factor(plot_df$progression, levels = c("fast", "moderate", "slow"))
+ThePlot <- ggplot(plot_df, aes(x = repeat_intron_expr_tpm))
+ThePlot <- ThePlot + geom_density(aes(fill = progression), alpha = 0.6)
+ThePlot <- ThePlot + scale_x_continuous("RCI liability")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + scale_fill_brewer("progression", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("progression")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-04-plot-RCI-liability-in-progression-AnswerALS-supplementary-figure-6E.pdf"), ThePlot)
+
+plot_df <- patient_liability_df[patient_liability_df$early_late_death %in% c("early", "late"),]
+plot_df$early_late_death <- factor(plot_df$early_late_death, levels = c("early", "late"))
+ThePlot <- ggplot(plot_df, aes(x = repeat_intron_expr_tpm))
+ThePlot <- ThePlot + geom_density(aes(fill = early_late_death), alpha = 0.6)
+ThePlot <- ThePlot + scale_x_continuous("RCI liability")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + scale_fill_brewer("early_late_death", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("early_late_death")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-04-plot-RCI-liability-in-early-late-death-in-AnswerALS-supplementary-figure-6E.pdf"), ThePlot)
+
+```

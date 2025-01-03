@@ -1,0 +1,370 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+Investigate length distribution of microsatellites
+
+
+### 1.0 Package requirements
+
+
+
+- change to current working directory `/camp/home/palk/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+require("GenomicFeatures")
+require("ggplot2")
+require("dplyr")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Setup directories
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-1"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+source_dir <- file.path(analysis_path, "src")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+# Function declaration
+
+
+```{r}
+
+require("rtracklayer")
+require("GenomicRanges")
+require("parallel")
+# source(file.path())
+# phylop_cons_tracks <- file.path(input_dir, "hg38.phyloP7way.bw")
+# save_file <- file.path(save_dir, "01-save-conservation-tracks.rds")
+# source(file.path(source_dir, "source.R"))
+
+```
+
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS(file.path("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+sig_result_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
+sequence_complexity_ranges <- readRDS(file.path("30-sequence-analysis-of-introns/rdata_files/07-02-save-sequence-complexity-ranges-of-all-differentially-expressed-sequences.rds"))
+
+repeat_colour_groups <- c("trinucleotide" = "#EEB902", "quadnucleotide" = "#97CC04", 
+    "pentanucleotide" = "#F45D01", "hexanucleotide" = "#2D7DD2")
+
+```
+
+- clean up the sequence complexity ranges
+
+```{r}
+
+sequence_complexity_ranges <- sequence_complexity_ranges[!vapply(sequence_complexity_ranges, is.null, T)]
+sequence_complexity_ranges_names <- vapply(sequence_complexity_ranges, function(x){
+    unique(as.vector(seqnames(x)))
+},"1")
+names(sequence_complexity_ranges) <- sequence_complexity_ranges_names
+sequence_complexity <- vapply(sequence_complexity_ranges, function(x){
+    mean(x$complexity)
+},1)
+# 4261 were too small
+
+```
+
+- Assign sequence complexity values
+
+```{r}
+
+sig_results_df <- sig_result_list$significant_events
+de_introns_df <- sig_results_df[sig_results_df$region == "intron",]
+
+unique_plot_df <- unique(de_introns_df[,c("feature_ids", "status", "region")])
+unique_plot_df$complexity <- sequence_complexity[unique_plot_df$feature_ids]
+unique_plot_df <- unique_plot_df[!is.na(unique_plot_df$complexity),]
+unique_plot_df$sequence_length <- width(feature_ranges)[match(unique_plot_df$feature_ids, feature_ranges$feature_id)]
+# non_repeat_containing     repeat_containing
+#                251756                  5045
+
+```
+
+- Plot sequence complexity scores
+
+
+```{r}
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(unique_plot_df, 
+    aes(x = complexity))
+ThePlot <- ThePlot + geom_density(aes(fill = status), colour = "#000000", alpha = 0.6)
+# ThePlot <- ThePlot + geom_boxplot(aes(fill = status), colour = "#000000", 
+#     width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_continuous("log sequence complexity")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + scale_fill_manual("Repeat colours", values = Colours)
+# ThePlot <- ThePlot + facet_grid(. ~ region)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("sequence complexity of differentially expressed regions")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "05-05-Supplementary-figure-2C.pdf"), ThePlot)
+
+
+```
+
+
+- Investigate association between sequence length and sequence complexity
+
+
+```{r}
+
+len_quantiles <- quantile(log10(unique_plot_df$sequence_length), seq(0.1,1,0.1))
+unique_plot_df$len_q <- vapply(log10(unique_plot_df$sequence_length), function(x){
+    names(which(len_quantiles >= x)[1])
+},"1")
+unique_plot_df$len_q <- factor(unique_plot_df$len_q, levels = names(len_quantiles))
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(unique_plot_df, 
+    aes(x = len_q, y = complexity))
+ThePlot <- ThePlot + geom_violin(aes(fill = status), colour = "#000000", 
+    lwd = 0.5, position = position_dodge(width = 0.9), scale = "width")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = status), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("log10 sequence length")
+ThePlot <- ThePlot + scale_y_continuous("sequence complexity")
+ThePlot <- ThePlot + scale_fill_manual("Repeat content", values = Colours)
+ThePlot <- ThePlot + facet_grid(. ~ status)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("sequence complexity vs sequence length")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 5, file = file.path(plot_dir, "05-06-Supplementary-figure-2D.pdf"), ThePlot)
+
+
+cor(log10(unique_plot_df$sequence_length)[unique_plot_df$status == "repeat_containing"], unique_plot_df$complexity[unique_plot_df$status == "repeat_containing"], method = "pearson")
+# 0.4798721
+
+summary(lm(data = unique_plot_df[unique_plot_df$status == "repeat_containing",], formula = complexity ~ log10(sequence_length)))
+# Call:
+# lm(formula = complexity ~ log10(sequence_length), data = unique_plot_df[unique_plot_df$status ==
+#     "repeat_containing", ])
+
+# Residuals:
+#      Min       1Q   Median       3Q      Max
+# -0.32069 -0.00869  0.00166  0.01271  0.11658
+
+# Coefficients:
+#                         Estimate Std. Error t value Pr(>|t|)
+# (Intercept)            0.7298135  0.0021394  341.12   <2e-16 ***
+# log10(sequence_length) 0.0195644  0.0005037   38.84   <2e-16 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Residual standard error: 0.02599 on 5043 degrees of freedom
+# Multiple R-squared:  0.2303,    Adjusted R-squared:  0.2301
+# F-statistic:  1509 on 1 and 5043 DF,  p-value: < 2.2e-16
+
+
+
+cor(log10(unique_plot_df$sequence_length)[unique_plot_df$status != "repeat_containing"], unique_plot_df$complexity[unique_plot_df$status != "repeat_containing"], method = "pearson")
+
+summary(lm(data = unique_plot_df[unique_plot_df$status != "repeat_containing",], formula = complexity ~ log10(sequence_length)))
+
+
+```
+
+- Construct repeat containing ranges
+
+```{r}
+
+repeat_ranges <- unique(repeat_ranges_list$repeat_ranges)
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+
+```
+
+
+- Investigate variance explained by repeat component
+
+
+```{r}
+
+omega_sq <- function(aovm){
+    sum_stats <- summary(aovm)[[1]]
+    SSm <- sum_stats[["Sum Sq"]][1]
+    SSr <- sum_stats[["Sum Sq"]][2]
+    DFm <- sum_stats[["Df"]][1]
+    MSr <- sum_stats[["Mean Sq"]][2]
+    W2 <- (SSm-DFm*MSr)/(SSm+SSr+MSr)
+    return(W2)
+}
+
+stats_df <- unique_plot_df[unique_plot_df$status == "repeat_containing",]
+stats_df$repeat_length <- vapply(seq_len(nrow(stats_df)), function(x){
+    current_ranges <- feature_ranges_with_repeats[feature_ranges_with_repeats$feature_id == stats_df$feature_id[x]]
+    current_repeats <- reduce(repeat_ranges[current_ranges$which_repeat])
+    return(sum(width(GenomicRanges::intersect(current_repeats, current_ranges))))
+},1)
+
+
+stats_df$variance_explained <- vapply(seq_len(nrow(stats_df)),function(x){
+    message(x)
+    current_df <- stats_df[x,]
+    current_complexity_ranges <- sequence_complexity_ranges[[current_df$feature_id]]
+    current_ranges <- feature_ranges_with_repeats[feature_ranges_with_repeats$feature_id == current_df$feature_id]
+    seqlevels(current_complexity_ranges) <- unique(as.vector(seqnames(current_ranges)))
+    current_repeat <- repeat_ranges[current_ranges$which_repeat]
+    ol_object <- findOverlaps(current_complexity_ranges, current_repeat)
+    current_complexity_ranges$status <- "non_repeat_containing"
+    current_complexity_ranges$status[queryHits(ol_object)] <- "repeat_containing"
+    temp_df <- data.frame(complexity = current_complexity_ranges$complexity, 
+        status = factor(current_complexity_ranges$status, levels = c("repeat_containing","non_repeat_containing")))
+    if(length(unique(temp_df$status)) == 1){
+        return(NA)
+    }
+    model_object <- aov(formula = complexity ~ status, data = temp_df)
+    return(omega_sq(model_object))
+},1)
+stats_df$variance_explained[stats_df$variance_explained < 0] <- 0
+
+```
+
+- Plot variance explained by repeats
+
+
+```{r}
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+plot_stats_df <- stats_df[!is.na(stats_df$variance_explained),]
+variance_density <- density(log10(plot_stats_df$variance_explained))
+
+which_max <- variance_density$x[which.max(variance_density$y)]
+# 10^which_max
+
+nrow(plot_stats_df[plot_stats_df$variance_explained > 0.01,]) / nrow(plot_stats_df)
+# [1] 0.1153846
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(stats_df, 
+    aes(x = log10(variance_explained)))
+ThePlot <- ThePlot + geom_density(fill = "#ff6b6c", colour = "#000000")
+ThePlot <- ThePlot + geom_vline(xintercept = which_max, lty = "dashed")
+ThePlot <- ThePlot + geom_vline(xintercept = -2, lty = "dashed")
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_continuous("log10 percentage variance attributed to repeat component in introns")
+ThePlot <- ThePlot + scale_y_continuous("density")
+# ThePlot <- ThePlot + scale_fill_manual("Repeat content", values = Colours)
+# ThePlot <- ThePlot + facet_grid(. ~ status)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("sequence complexity vs sequence length")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "05-07-Supplementary-figure-2E.pdf"), ThePlot)
+
+
+```
+
+
+
+- Plot variance explained by repeats
+
+
+```{r}
+
+# gt_1perc_contrib_df <- plot_stats_df[plot_stats_df$variance_explained >= 10^which_max,]
+
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(plot_stats_df[plot_stats_df$variance_explained > 0,], 
+    aes(x = log10(sequence_length), y = log10(variance_explained)))
+ThePlot <- ThePlot + geom_point(fill = "#ff6b6c", colour = "#000000", shape = 21 )
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_continuous("log10 intron length")
+ThePlot <- ThePlot + scale_y_continuous("log10 percentage variance attributed to repeat component in introns")
+# ThePlot <- ThePlot + scale_fill_manual("Repeat content", values = Colours)
+# ThePlot <- ThePlot + facet_grid(. ~ status)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("sequence complexity vs sequence length")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "05-08-Supplementary-figure-2F.pdf"), ThePlot)
+
+cor(log10(plot_stats_df[plot_stats_df$variance_explained > 0,"variance_explained"]), log10(plot_stats_df[plot_stats_df$variance_explained > 0,"sequence_length"]))
+
+# summary(lm(data = plot_stats_df[plot_stats_df$variance_explained > 0,], formula = log10(variance_explained) ~ log10(sequence_length)))
+# Call:
+# lm(formula = log10(variance_explained) ~ log10(sequence_length),
+#     data = plot_stats_df[plot_stats_df$variance_explained > 0,
+#         ])
+
+# Residuals:
+#     Min      1Q  Median      3Q     Max
+# -3.7021 -0.4330  0.0768  0.5230  3.0171
+
+# Coefficients:
+#                        Estimate Std. Error t value Pr(>|t|)
+# (Intercept)             0.79791    0.06666   11.97   <2e-16 ***
+# log10(sequence_length) -0.92107    0.01565  -58.87   <2e-16 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Residual standard error: 0.7385 on 4266 degrees of freedom
+# Multiple R-squared:  0.4482,    Adjusted R-squared:  0.4481
+# F-statistic:  3465 on 1 and 4266 DF,  p-value: < 2.2e-16
+
+```

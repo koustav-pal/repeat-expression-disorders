@@ -1,0 +1,139 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-2"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+answerals_object_list <- readRDS("13-01-answerals/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
+sampleinfo_df <- read.csv("/nemo/project/proj-luscombn-patani/working/answerals/sample-details/samplesheet.csv")
+cell_line_markers_csv <- read.csv("13-01-answerals/input_files/Baxi-et-al-IF-raw-data-file-for-Koustav-Pal-confirmed-data.csv")
+patient_liability_df <- readRDS(file.path(save_dir, "02-save-answerals-rci-expression-summary.rds"))
+
+```
+
+- Load repeat and rci object
+
+```{r}
+
+repeat_ranges <- unique(repeat_ranges_list$repeat_ranges)
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+
+```
+
+### Analysis
+
+
+- Generate TPM matrix
+
+```{r}
+
+sampleinfo_df$sample_name <- str_replace_all(sampleinfo_df$participant_id, pattern = "-", replacement = "_")
+
+sig_result_df <- sig_result_list$significant_events
+
+repeat_containing_introns_df <- sig_result_df[sig_result_df$status == "repeat_containing" & 
+    sig_result_df$region == "intron",]
+
+repeat_containing_introns_df$cohort <- "public-data"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "nygc"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "answerals")] <- "answerals"
+
+repeat_containing_introns_df$tissue_type <- "iPSCs"
+repeat_containing_introns_df$tissue_type[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "postmortem"
+
+counts_matrix <- answerals_object_list$counts
+temp_matrix <- counts_matrix / (width(feature_ranges)[match(rownames(counts_matrix), feature_ranges$hash_id)] / 1e3)
+tpm_matrix <- t(t(temp_matrix) / (colSums(temp_matrix) / 1e6))
+
+keep_hash_ids <- feature_ranges_with_repeats$hash_id[match(unique(repeat_containing_introns_df$feature_ids), feature_ranges_with_repeats$feature_id)]
+keep_tpm_matrix <- tpm_matrix[keep_hash_ids,colnames(tpm_matrix) %in% patient_liability_df$column_id]
+
+repeat_lengths <- feature_ranges_with_repeats$repeat_width[match(rownames(keep_tpm_matrix), feature_ranges_with_repeats$hash_id)]
+
+```
+
+
+- Generate penetrant RCIs
+
+
+```{r}
+
+# threshold for reliable express 
+threshold <- 0.1
+
+patient_penetrance_matrix <- do.call(rbind, lapply(seq_len(nrow(patient_liability_df)), function(x1){
+    temp_df <- patient_liability_df[x1,]
+    return_df <- temp_df
+    current_columns <- temp_df$column_id
+    
+    current_tpm_vector <- Reduce("+", lapply(current_columns, function(x){
+        keep_tpm_matrix[,x]  
+    })) / length(current_columns)
+
+    a_vector <- rep(0, length(unique(feature_ranges_with_repeats$hash_id)))
+    names(a_vector) <- unique(feature_ranges_with_repeats$hash_id)
+    a_vector[names(current_tpm_vector[current_tpm_vector > threshold])] <- 1
+    return(a_vector)
+}))
+patient_liability_df$penetrance_row <- seq_len(nrow(patient_penetrance_matrix))
+
+```
+
+- Save AnswerALS liability data
+ 
+```{r}
+
+saveRDS(object = list(liability_df = patient_liability_df, penetrance_matrix = patient_penetrance_matrix), file = file.path(save_dir, "03-save-answerals-rci-expression-summary-with-penetrance-matrix.rds"))
+
+```
