@@ -46,4 +46,11 @@ We have performed differential expression profiling of individual exons and intr
 	- `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/03-01-01-aggregate-all-deseq2-differential-objects-for-all-samples-als-vs-control` : builds and aggregates all of the contrasts as defined within `repeat-expression-disorders/00-manuscript/13-03-public-data/input_files/contrast_table.txt`. The `sh` script by the same name is the HPC executor.
 		- This script uses a helper function `build_contrasts` defined within `repeat-expression-disorders/00-manuscript/05-simulated-reads-differential-profiling/scripts/src/deseq_simulated_reads_differential_expression_profiling.R` to build the many different contrasts.
 
+- For NYGC consortium data present within `13-nygc-consortium`:
+	- `repeat-expression-disorders/00-manuscript/13-nygc-consortium/scripts/03-03-save-differential-expression-profiling-object.R` : creates and saves the differential expression profiling object. The `sh` script by the same name is the HPC executor.
+	- `repeat-expression-disorders/00-manuscript/13-nygc-consortium/scripts/03-04-save-differentially-expressed-events-objects.R` : Extracts contrasts within the postmortem data. The `sh` script by the same name is the HPC executor.
+
+- For AnswerALS data present within `13-01-answerals`: 
+	- `repeat-expression-disorders/00-manuscript/13-01-answerals/scripts/02-01-save-deseq2-differential-objects.R` : creates and saves the differential expression profiling object. The `sh` script by the same name is the HPC executor.
+	- `repeat-expression-disorders/00-manuscript/13-01-answerals/scripts/03-01-01-aggregate-als-vs-control-deseq2-differential-objects-for-all-samples.R` : Extracts contrasts within the AnswerALS data.
 
