@@ -4,7 +4,11 @@ This repository contains all of the code required for running the analysis outli
 
 ## Analysis descriptions
 
-### 1.0 Identification of expanded repeats within the human genome
+### 1.0 Identifying disjointed exons and introns
+
+Throughout the course of this study we investigate feature level (exons or introns) expression differences between groups. These are annotated non-overlapping exons and intron coordinates that have been obtained from the ENSEMBL reference transcriptome annotation version 104 using the script `repeat-expression-disorders/00-manuscript/05-simulated-reads-differential-profiling/scripts/01-save-exonic-intronic-feature-ranges.R`.
+
+### 1.1 Identification of expanded repeats within the human genome
 
 Scripts necessary for identifying expanded repeats within the human genome are stored within directory `repeat-expression-disorders/00-manuscript/01-repeat-characterisation/scripts/`. In sequential order of execution: 
 
