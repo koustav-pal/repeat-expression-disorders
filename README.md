@@ -54,4 +54,5 @@ We have performed differential expression profiling of individual exons and intr
 	- `repeat-expression-disorders/00-manuscript/13-01-answerals/scripts/02-01-save-deseq2-differential-objects.R` : creates and saves the differential expression profiling object. The `sh` script by the same name is the HPC executor.
 	- `repeat-expression-disorders/00-manuscript/13-01-answerals/scripts/03-01-01-aggregate-als-vs-control-deseq2-differential-objects-for-all-samples.R` : Extracts contrasts within the AnswerALS data.
 
-- The differential expression profiling results are aggregated using the the scripts present within `repeat-expression-disorders/00-manuscript/20-import-significant-events`
+- The differential expression profiling results are aggregated using the the scripts present within `repeat-expression-disorders/00-manuscript/20-import-significant-events`. Threshold for differential expression is `pval < 0.05 & !is.na(pval)`. The final script `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-aggregate-all-events.R` merges all of the results from public data, answerals and nygc postmortem into a single easy to read data.frame, `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-significantly-differentially-expressed-events.rds`. These differential expression results have been used for all downstream analysis. 
+
