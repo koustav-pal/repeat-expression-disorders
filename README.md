@@ -1,3 +1,5 @@
+<div align="justify">
+
 # Repeat-containing introns are prognostic biomarkers in ALS
 
 This repository contains all of the code required for running the analysis outlined in the article titled `Repeat containing introns are prognostic biomarkers in amyotrophic lateral sclerosis` co-authored by Pal et al. 202x. Due to constraints on file sizes, only scrips are listed here and the steps necessary to perform each analysis is outlined below. Future users will need to set up their own paths to make use of these scripts
@@ -56,3 +58,4 @@ We have performed differential expression profiling of individual exons and intr
 
 - The differential expression profiling results are aggregated using the the scripts present within `repeat-expression-disorders/00-manuscript/20-import-significant-events`. Threshold for differential expression is `pval < 0.05 & !is.na(pval)`. The final script `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-aggregate-all-events.R` merges all of the results from public data, answerals and nygc postmortem into a single easy to read data.frame, `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-significantly-differentially-expressed-events.rds`. These differential expression results have been used for all downstream analysis. 
 
+</div>
