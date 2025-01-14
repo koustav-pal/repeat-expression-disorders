@@ -34,7 +34,6 @@ An example execution workflow is described here for the public datasets availabl
 2. `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/01-02-assemble-all-counts-stats-from-count-partitioning.R` : Script used to assemble fractional read weights, samplesheets and stat values for all BAM samples. 
 3. `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/01-02-assemble-all-counts-stats-from-count-partitioning.sh` : HPC executor script for the `01-02-assemble-all-counts-stats-from-count-partitioning.R`
 
-
 ### 1.3 Differential expression profiling 
 
 We have performed differential expression profiling of individual exons and introns between groups using DESeq2. The scripts used for this analysis are present within their respective repository specific folder. 
@@ -44,7 +43,7 @@ We have performed differential expression profiling of individual exons and intr
 		- This script uses a helper function `perform_diff_expr` defined within `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/src/experiment_matrix_functions.R` to create the differential expression object. 
 	- `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/02-02-save-deseq2-differential-objects-for-all-samples-als-vs-control.R` : creates and saves the pan-ALS differential expression profiling object using DESeq2. The `sh` script by the same name is the HPC executor.
 	- `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/03-01-01-aggregate-all-deseq2-differential-objects-for-all-samples-als-vs-control` : builds and aggregates all of the contrasts as defined within `repeat-expression-disorders/00-manuscript/13-03-public-data/input_files/contrast_table.txt`. The `sh` script by the same name is the HPC executor.
-		- This script uses a helper function `build_contrasts` defined within `repeat-expression-disorders/00-manuscript/05-simulated-reads-differential-profiling/scripts/src/deseq_simulated_reads_differential_expression_profiling.R` to build the many different contrasts.
+		- This script uses a helper function `build_contrasts` defined within `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/src/helper_functions.R` to build the many different contrasts.
 
 - For NYGC consortium data present within `13-nygc-consortium`:
 	- `repeat-expression-disorders/00-manuscript/13-nygc-consortium/scripts/03-03-save-differential-expression-profiling-object.R` : creates and saves the differential expression profiling object. The `sh` script by the same name is the HPC executor.
@@ -55,3 +54,7 @@ We have performed differential expression profiling of individual exons and intr
 	- `repeat-expression-disorders/00-manuscript/13-01-answerals/scripts/03-01-01-aggregate-als-vs-control-deseq2-differential-objects-for-all-samples.R` : Extracts contrasts within the AnswerALS data.
 
 - The differential expression profiling results are aggregated using the the scripts present within `repeat-expression-disorders/00-manuscript/20-import-significant-events`. Threshold for differential expression is `pval < 0.05 & !is.na(pval)`. The final script `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-aggregate-all-events.R` merges all of the results from public data, answerals and nygc postmortem into a single easy to read data.frame, `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-significantly-differentially-expressed-events.rds`. These differential expression results have been used for all downstream analysis. 
+
+### 1.4 Investigating RCI liability
+
+- Scripts for generating RCI liability data is present within `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/01-01-generate-patient-liability-data.rmd`. 
