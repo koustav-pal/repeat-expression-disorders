@@ -20,7 +20,7 @@ require("stringr")
 require("GenomicRanges")
 require("DESeq2")
 source(file.path(analysis_dir, "scripts", "src", "experiment_matrix_functions.R"))
-source(file.path(analysis_dir, "../05-simulated-reads-differential-profiling/scripts", "src", "deseq_simulated_reads_differential_expression_profiling.R"))
+source(file.path(analysis_dir, "scripts", "src", "helper_functions.R"))
 
 
 sample_df <- results_list$sample_df
