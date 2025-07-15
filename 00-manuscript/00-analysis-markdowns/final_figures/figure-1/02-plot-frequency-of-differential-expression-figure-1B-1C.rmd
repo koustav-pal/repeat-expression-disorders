@@ -136,4 +136,32 @@ ggsave(width = 7, height = 7, file = file.path(plot_dir, "02-02-figure-1C.pdf"),
 
 ```
 
+- Write output listing all DE RCIs and the repeats within these RCIs
 
+```{r}
+
+reporting_df <- unique(sig_results_df[,c("feature_ids", "gene_id", "gene_name", "status", "tissue_type")])
+
+unique_report_df <- do.call(rbind, lapply(split(reporting_df, reporting_df$feature_ids), function(x){
+    return_df <- unique(x[,c(1,2,3,4)])
+    return_df$de_in_ipsc <- "iPSCs" %in% x$tissue_type
+    return_df$de_in_postmortem <- "postmortem" %in% x$tissue_type
+    return(return_df)
+}))
+rownames(unique_report_df) <- NULL
+write.table(unique_report_df, file = file.path(output_dir, "01-03-differentially-expressed-introns.txt"), sep = "\t")
+
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+
+de_rci_ranges <- feature_ranges_with_repeats[feature_ranges_with_repeats$feature_id %in% sig_results_df$feature_ids]
+elementMetadata(de_rci_ranges) <- elementMetadata(de_rci_ranges)[!(names(elementMetadata(de_rci_ranges)) %in% 
+    c("tx_id", "tx_name", "exon_id", "exon_name", "exon_rank"))]
+de_repeat_ranges <- repeat_ranges[de_rci_ranges$which_repeat]
+de_repeat_ranges$hash_id <- de_rci_ranges$hash_id
+de_rci_ranges$repeat_id <- names(de_repeat_ranges)
+names(de_repeat_ranges) <- NULL
+
+write.table(as.data.frame(de_rci_ranges), file = file.path(output_dir, "01-04-differentially-expressed-repeat-containing-introns.txt"), sep = "\t")
+write.table(as.data.frame(de_repeat_ranges), file = file.path(output_dir, "01-05-repeats-inside-differentially-expressed-repeat-containing-introns.txt"), sep = "\t")
+
+```

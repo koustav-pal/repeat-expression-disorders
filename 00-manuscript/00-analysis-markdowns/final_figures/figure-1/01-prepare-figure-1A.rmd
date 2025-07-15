@@ -130,6 +130,24 @@ all_ol_types <- lapply(ol_split, function(x){
 
 ```
 
+```{r}
+
+
+mapped_repeat_ranges <- repeat_coord_ranges[queryHits(ol_object)]
+mapped_repeat_ranges$repeat_id <- names(mapped_repeat_ranges)
+mapped_repeat_ranges$feature_hash_id <- feature_ranges$hash_id[subjectHits(ol_object)]
+names(mapped_repeat_ranges) <- NULL
+write.table(as.data.frame(mapped_repeat_ranges), file = file.path(output_dir, "01-01-genomic-coordinates-of-repeat-regions.txt"), sep = "\t")
+
+mapped_feature_ranges <- feature_ranges[subjectHits(ol_object)]
+names(mapped_feature_ranges) <- NULL
+mapped_feature_ranges$repeat_id <- mapped_repeat_ranges$repeat_id
+elementMetadata(mapped_feature_ranges) <- elementMetadata(mapped_feature_ranges)[!(names(elementMetadata(mapped_feature_ranges)) %in% 
+    c("tx_id", "tx_name", "exon_id", "exon_name", "exon_rank"))]
+write.table(as.data.frame(mapped_feature_ranges), file = file.path(output_dir, "01-02-genomic-coordinates-of-features-containing-any-repeat-overlap.txt"), sep = "\t")
+
+```
+
 - What the total number of repeats that are overlapping exons or introns?
 
 ```{r}
