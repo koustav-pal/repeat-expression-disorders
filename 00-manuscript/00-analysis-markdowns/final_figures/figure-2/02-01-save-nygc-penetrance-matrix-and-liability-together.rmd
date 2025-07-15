@@ -82,7 +82,6 @@ repeat_ranges <- repeat_ranges_list$repeat_ranges
 
 sig_result_df <- sig_result_list$significant_events
 
-
 repeat_containing_introns_df <- sig_result_df[sig_result_df$status == "repeat_containing" & 
     sig_result_df$region == "intron",]
 
@@ -96,7 +95,6 @@ repeat_containing_introns_df$tissue_type[grepl(x = repeat_containing_introns_df$
 counts_matrix <- nygc_object_list$counts
 temp_matrix <- counts_matrix / (width(feature_ranges)[match(rownames(counts_matrix), feature_ranges$hash_id)] / 1e3)
 tpm_matrix <- t(t(temp_matrix) / (colSums(temp_matrix) / 1e6))
-
 
 keep_hash_ids <- feature_ranges_with_repeats$hash_id[match(unique(repeat_containing_introns_df$feature_ids), feature_ranges_with_repeats$feature_id)]
 gene_ids <- feature_ranges_with_repeats$gene_id[match(keep_hash_ids, feature_ranges_with_repeats$hash_id)]
@@ -115,7 +113,6 @@ intronic_expression_rate <- do.call(rbind, lapply(keep_hash_ids, function(a_hash
     }else{
         exonic_counts <- colSums(temp_matrix[exonic_hash_id,]) / 1e6
     }
-
     intronic_hash_id <- a_hash_id
     if(length(intronic_hash_id) == 1){
         intronic_counts <- temp_matrix[intronic_hash_id,]
@@ -279,6 +276,8 @@ patient_liability_df <- do.call(rbind, lapply(coldata_df_split, function(temp_df
     return(cbind(new_return_df[1,], t(as.matrix(enrichment)), t(as.matrix(observed_proportion)), t(as.matrix(all_between_repeat_component))))
 }))
 
+patient_liability_df$tissue_group <- "spinal_cord"
+patient_liability_df$tissue_group[patient_liability_df$tissue %in% c("Cortex", "Cortex_Motor", "Cerebellum")] <- "brain"
 patient_liability_df$penetrance_row <- seq_len(nrow(patient_penetrance_matrix))
 
 ```

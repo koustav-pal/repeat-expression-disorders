@@ -55,9 +55,18 @@ dir.create(output_dir, recursive = T)
 repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
 feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
 sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
-answerals_object_list <- readRDS("13-01-answerals/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
-sampleinfo_df <- read.csv("/nemo/project/proj-luscombn-patani/working/answerals/sample-details/samplesheet.csv")
-cell_line_markers_csv <- read.csv("13-01-answerals/input_files/Baxi-et-al-IF-raw-data-file-for-Koustav-Pal-confirmed-data.csv")
+answerals_object_list <- readRDS("39-answerals-complete/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
+sampleinfo_df <- read.csv("39-answerals-complete/input_files/metadata/aals_dataportal_datatable.csv")
+
+# cell_line_markers_csv <- read.csv("13-01-answerals/input_files/Baxi-et-al-IF-raw-data-file-for-Koustav-Pal-confirmed-data.csv")
+
+participant_info_df <- read.csv("39-answerals-complete/input_files/metadata/aals_participants.csv")
+external_controls_df <- read.csv("39-answerals-complete/input_files/metadata/external_controls.csv") 
+family_history_log <- read.csv("39-answerals-complete/input_files/metadata/clinical/Family_History_Log.csv")
+mutation_df <- read.csv("39-answerals-complete/input_files/metadata/clinical/ALS_Gene_Mutations.csv")
+nfl_df <- read.csv("39-answerals-complete/input_files/metadata/NfL/NfL_Seimens_Atellica_Immunoassay_Proteomics_2022_07.csv")
+
+
 
 ```
 
@@ -69,28 +78,6 @@ repeat_ranges <- unique(repeat_ranges_list$repeat_ranges)
 feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
 
 ```
-
-- clean up the marker data
-
-```{r}
-
-colnames(cell_line_markers_csv) <- c("diMNs-line", "GUID", "condition", "SMI32", "ISL1", "NKX6.1", "TUJ1", "S100b")
-cell_line_markers_csv <- cell_line_markers_csv[seq_len(nrow(cell_line_markers_csv)) < 197,]
-non_na_marker_df <- cell_line_markers_csv[!vapply(seq_len(nrow(cell_line_markers_csv)), function(x){
-    any(vapply(c("SMI32", "ISL1", "NKX6.1", "TUJ1", "S100b"), function(y){
-            cell_line_markers_csv[x,y] == "unavailable"
-        },T))
-},T),]
-
-non_na_marker_df$SMI32 <- as.numeric(non_na_marker_df$SMI32)
-non_na_marker_df$ISL1 <- as.numeric(non_na_marker_df$ISL1)
-non_na_marker_df$NKX6.1 <- as.numeric(non_na_marker_df$NKX6.1)
-non_na_marker_df$TUJ1 <- as.numeric(non_na_marker_df$TUJ1)
-non_na_marker_df$S100b <- as.numeric(non_na_marker_df$S100b)
-
-
-```
-
 
 ### Analysis
 
@@ -105,7 +92,6 @@ sig_result_df <- sig_result_list$significant_events
 
 repeat_containing_introns_df <- sig_result_df[sig_result_df$status == "repeat_containing" & 
     sig_result_df$region == "intron",]
-
 
 repeat_containing_introns_df$cohort <- "public-data"
 repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "nygc"
@@ -230,32 +216,63 @@ patient_liability_df <- do.call(rbind, lapply(seq_len(nrow(patient_df)), functio
 
 ```
 
+
 - Attach metadata
 
 ```{r}
 
-sample_name_matches <- match(patient_liability_df$sample_name, sampleinfo_df$sample_name)
+patient_liability_df$Participant_ID <- vapply(str_split(patient_liability_df$sample_name, pattern = "-"), function(x){
+    paste(x[c(1,2)], collapse = "-")
+},"1")
 
-patient_liability_df$di_m_ns_line_name <- sampleinfo_df$di_m_ns_line_name[sample_name_matches]
+sample_name_matches <- match(patient_liability_df$Participant_ID, sampleinfo_df$Participant_ID)
 
-dimn_matches <- match(patient_liability_df$di_m_ns_line_name, non_na_marker_df[,"diMNs-line"])
-patient_liability_df$marker_data_available <- !is.na(dimn_matches)
-patient_liability_df[,"SMI32"] <- non_na_marker_df[dimn_matches,"SMI32"]
-patient_liability_df[,"ISL1"] <- non_na_marker_df[dimn_matches,"ISL1"]
-patient_liability_df[,"NKX6.1"] <- non_na_marker_df[dimn_matches,"NKX6.1"]
-patient_liability_df[,"TUJ1"] <- non_na_marker_df[dimn_matches,"TUJ1"]
-patient_liability_df[,"S100b"] <- non_na_marker_df[dimn_matches,"S100b"]
-patient_liability_df$nygc_cgnd <- sampleinfo_df$nygc_cgnd_id[sample_name_matches]
-patient_liability_df$progression <- sampleinfo_df$progression[sample_name_matches]
-patient_liability_df$age_onset <- sampleinfo_df$age_onset[sample_name_matches]
-patient_liability_df$age_at_collection <- sampleinfo_df$age_onset[sample_name_matches]
-patient_liability_df$early_late_onset <- sampleinfo_df$early_late_onset[sample_name_matches]
-patient_liability_df$early_late_death <- sampleinfo_df$early_late_death[sample_name_matches]
-patient_liability_df$family_history <- sampleinfo_df$family_history[sample_name_matches]
-patient_liability_df$mnd_group <- sampleinfo_df$mnd_group[sample_name_matches]
-patient_liability_df$mutation <- sampleinfo_df$mutation[sample_name_matches]
-patient_liability_df$expansion_group <- ifelse(patient_liability_df$mutation == "c9orf72", "c9orf72_expansion", "lacking_expansion")
-patient_liability_df$expansion_group[patient_liability_df$mnd_group == "healthy"] <- "control"
+patient_liability_df$di_m_ns_line_name <- sampleinfo_df$diMNs_line[sample_name_matches]
+
+
+patient_liability_df[,"SMI32"] <- sampleinfo_df[sample_name_matches,"PCT_SMI32"]
+patient_liability_df[,"ISL1"] <- sampleinfo_df[sample_name_matches,"PCT_ISL1"]
+patient_liability_df[,"NKX6.1"] <- sampleinfo_df[sample_name_matches,"PCT_NKX61"]
+patient_liability_df[,"TUJ1"] <- sampleinfo_df[sample_name_matches,"PCT_TUJ1"]
+patient_liability_df[,"S100b"] <- sampleinfo_df[sample_name_matches,"PCT_S100b"]
+patient_liability_df$nygc_cgnd <- sampleinfo_df$NYGC_CGND_ID[sample_name_matches]
+patient_liability_df$progression <- sampleinfo_df$ALSFRS_R_PROGRESSION_SLOPE[sample_name_matches]
+patient_liability_df$age_onset <- sampleinfo_df$AGE_AT_SYMPTOM_ONSET[sample_name_matches]
+patient_liability_df$age_at_collection <- sampleinfo_df$Age_at_First_PBMC_Collection[sample_name_matches]
+patient_liability_df$age_at_collection[is.na(patient_liability_df$age_at_collection)] <- external_controls_df[match(patient_liability_df$Participant_ID[is.na(patient_liability_df$age_at_collection)], external_controls_df$Participant_ID),"Age_Sample_Collection_Cedars"]
+patient_liability_df$Number_of_Visits <- sampleinfo_df$Number_of_Visits[sample_name_matches]
+# patient_liability_df$early_late_onset <- sampleinfo_df$early_late_onset[sample_name_matches]
+# patient_liability_df$early_late_death <- sampleinfo_df$early_late_death[sample_name_matches]
+patient_liability_df$family_history <- family_history_log$famrel[match(patient_liability_df$Participant_ID, family_history_log$Participant_ID)]
+patient_liability_df$mnd_group <- participant_info_df$Cohort[match(patient_liability_df$Participant_ID, participant_info_df$Participant_ID)]
+patient_liability_df$mnd_group[grepl(x = patient_liability_df$Participant_ID, "CTRL")] <- "Healthy Control"
+patient_liability_df$mnd_group[patient_liability_df$mnd_group == "Healthy Control"] <- "healthy"
+patient_liability_df$mnd_group[patient_liability_df$mnd_group == "ALS"] <- "als"
+patient_liability_df$mnd_group[patient_liability_df$mnd_group == "Non-ALS MND"] <- "other_mnd"
+patient_liability_df$mnd_group[patient_liability_df$mnd_group == "Asymptomatic ALS Gene carrier"] <- "carrier"
+patient_liability_df$mutation <- vapply(patient_liability_df$Participant_ID, function(x){
+    mutations <- c("ang", "c9orf72", "fus", "mutot", "progran", "setx", "sod1", "tau", "tdp43", "vapb", "vcp")
+    current_mutation_df <- mutation_df[mutation_df$Participant_ID == x,mutations]
+    non_na <- colnames(current_mutation_df)[!is.na(current_mutation_df) & current_mutation_df != 2]
+    if(length(non_na) > 0){
+        return(paste(non_na, collapse = "|"))
+    }
+    return("NA")
+},"1")
+
+patient_liability_df$tested_for_c9orf72_repeat_expansion <- sampleinfo_df[match(patient_liability_df$Participant_ID, sampleinfo_df$Participant_ID),"EH_C9orf72"] == "Yes"
+patient_liability_df$c9orf72_repeat_length <- sampleinfo_df[match(patient_liability_df$Participant_ID, sampleinfo_df$Participant_ID),"C9orf72_repeat_length"]
+
+patient_liability_df$tested_for_atxn2_repeat_expansion <- sampleinfo_df[match(patient_liability_df$Participant_ID, sampleinfo_df$Participant_ID),"EH_ATXN2"] == "Yes"
+patient_liability_df$atxn2_repeat_length <- sampleinfo_df[match(patient_liability_df$Participant_ID, sampleinfo_df$Participant_ID),"ATXN2_repeat_length"]
+
+patient_liability_df$expansion_group <- "Not tested"
+patient_liability_df$expansion_group[(patient_liability_df$tested_for_c9orf72_repeat_expansion | patient_liability_df$tested_for_atxn2_repeat_expansion) & 
+    (patient_liability_df$c9orf72_repeat_length >= 24 | patient_liability_df$atxn2_repeat_length >= 24) & 
+    !is.na(patient_liability_df$c9orf72_repeat_length) & !is.na(patient_liability_df$atxn2_repeat_length)] <- "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"
+patient_liability_df$expansion_group[(patient_liability_df$tested_for_c9orf72_repeat_expansion | patient_liability_df$tested_for_atxn2_repeat_expansion) & 
+    (patient_liability_df$c9orf72_repeat_length < 24 & patient_liability_df$atxn2_repeat_length < 24) & 
+    !is.na(patient_liability_df$c9orf72_repeat_length) & !is.na(patient_liability_df$atxn2_repeat_length)] <- "Tested and lacks a C9ORF72 or ATXN2 pathological repeat"
 
 ```
 

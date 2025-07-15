@@ -57,6 +57,8 @@ dir.create(output_dir, recursive = T)
 repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
 feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
 patient_liability_df <- readRDS("final-figures/figure-2/rdata_files/01-save-nygc-rci-liabilities-in-patient-samples.rds")
+non_rci_patient_liability_df <- readRDS("final-figures/figure-2/rdata_files/01-save-nygc-non-rci-liabilities-in-patient-samples.rds")
+patient_liability_df <- cbind(patient_liability_df, non_repeat_intron_expr_tpm = non_rci_patient_liability_df$non_repeat_intron_expr_tpm)
 
 ```
 
@@ -77,12 +79,10 @@ sd(patient_liability_df[patient_liability_df$tissue_group == "spinal_cord" & pat
 # 46.92009
 
 
-
-
-
 summary_df <- do.call(rbind, lapply(split(patient_liability_df, paste(patient_liability_df$subject_id, patient_liability_df$tissue_group)), function(temp_df){
     return_df <- unique(temp_df[,c("subject_id", "tissue_group", "condition")])
     return_df$repeat_intron_expr_tpm <- mean(temp_df$repeat_intron_expr_tpm)
+    return_df$non_repeat_intron_expr_tpm <- mean(temp_df$non_repeat_intron_expr_tpm)
     return(return_df)
 }))
 
@@ -117,7 +117,7 @@ fill_colours <- c("ctrl" = "#F6F4F3",
 summary_df$condition <- factor(summary_df$condition, levels = c("ctrl", "als", "als+ftd"))
 
 ThePlot <- ggplot(summary_df[summary_df$condition != "als+ftd",], 
-    aes(x = tissue_group, y = repeat_intron_expr_tpm))
+    aes(x = condition, y = repeat_intron_expr_tpm))
 ThePlot <- ThePlot + geom_violin(aes(fill = condition), colour = "#000000")
 ThePlot <- ThePlot + geom_boxplot(aes(fill = condition), colour = "#000000", 
     width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
@@ -129,10 +129,33 @@ ThePlot <- ThePlot + scale_y_continuous("RCI liability score")
 ThePlot <- ThePlot + scale_fill_manual("condition", values = colours)
 # ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
 ThePlot <- ThePlot + theme_bw()
-# ThePlot <- ThePlot + facet_grid(tissue_group ~ .)
+ThePlot <- ThePlot + facet_wrap(. ~ tissue_group, scales = "free")
 ThePlot <- ThePlot + ggtitle("Repeat containing intron expression across anatomical regions")
 ThePlot <- ThePlot + current_theme
 ggsave(width = 4, height = 7, file = file.path(plot_dir, "01-00-plot-RCI-liability-violins-in-brain-and-spinal-cord-stratify-condition.pdf"), ThePlot)
+
+
+ThePlot <- ggplot(summary_df[summary_df$condition != "als+ftd",], 
+    aes(x = condition, y = log10(non_repeat_intron_expr_tpm)))
+ThePlot <- ThePlot + geom_violin(aes(fill = condition), colour = "#000000")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = condition), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+# ThePlot <- ThePlot + geom_smooth(method = "lm", formula = y ~ x, aes(colour = als_group))
+# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+ThePlot <- ThePlot + scale_x_discrete("Anatomical region")
+ThePlot <- ThePlot + scale_y_continuous("RCI liability score")
+# ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("condition", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(. ~ tissue_group, scales = "free")
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression across anatomical regions")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 4, height = 7, file = file.path(plot_dir, "01-00-plot-non-RCI-liability-violins-in-brain-and-spinal-cord-stratify-condition.pdf"), ThePlot)
+
+
+
+
 
 ```
 
@@ -154,9 +177,28 @@ sd(test_df[test_df$tissue_group == "spinal_cord","repeat_intron_expr_tpm"])
 # 43.17391
 
 
+mean(test_df[test_df$tissue_group == "brain","non_repeat_intron_expr_tpm"])
+# 276.6796
+sd(test_df[test_df$tissue_group == "brain","non_repeat_intron_expr_tpm"])
+# 83.96082
+
+mean(test_df[test_df$tissue_group == "spinal_cord","non_repeat_intron_expr_tpm"])
+# 76042.19
+sd(test_df[test_df$tissue_group == "spinal_cord","non_repeat_intron_expr_tpm"])
+# 2815.688
+
+
+
+
 
 wilcox.test(test_df[test_df$tissue_group == "brain","repeat_intron_expr_tpm"], 
     test_df[test_df$tissue_group == "spinal_cord","repeat_intron_expr_tpm"])
+
+lapply(split(test_df, test_df$tissue_group),function(temp_df){
+    wilcox.test(temp_df$non_repeat_intron_expr_tpm[temp_df$condition == "als"], temp_df$non_repeat_intron_expr_tpm[temp_df$condition == "ctrl"])
+})
+
+
 
 lapply(split(test_df, test_df$tissue_group),function(temp_df){
     wilcox.test(temp_df$repeat_intron_expr_tpm[temp_df$condition == "als"], temp_df$repeat_intron_expr_tpm[temp_df$condition == "ctrl"])
@@ -229,21 +271,21 @@ ggsave(width = 10, height = 5, file = file.path(plot_dir, "01-01-plot-patient-Ns
 
 ```{r}
 
-number_of_regions_per_patient <- table(summary_df$subject_id)
-patients_with_both_brain_and_spinal_cord_segments <- number_of_regions_per_patient[number_of_regions_per_patient > 1]
+# number_of_regions_per_patient <- table(summary_df$subject_id)
+# patients_with_both_brain_and_spinal_cord_segments <- number_of_regions_per_patient[number_of_regions_per_patient > 1]
 
-table(summary_df$condition[summary_df$subject_id %in% names(patients_with_both_brain_and_spinal_cord_segments)])
+# table(summary_df$condition[summary_df$subject_id %in% names(patients_with_both_brain_and_spinal_cord_segments)])
 
-patients_with_both_tissues_df <- summary_df[summary_df$subject_id %in% names(patients_with_both_brain_and_spinal_cord_segments),]
+# patients_with_both_tissues_df <- summary_df[summary_df$subject_id %in% names(patients_with_both_brain_and_spinal_cord_segments),]
 
-patients_df_split <- split(patients_with_both_tissues_df, patients_with_both_tissues_df$subject_id)
+# patients_df_split <- split(patients_with_both_tissues_df, patients_with_both_tissues_df$subject_id)
 
-patient_pairwise_scatter_df <- do.call(rbind, lapply(patients_df_split, function(temp_df){
-    data.frame(subject_id = unique(temp_df$subject_id),
-        condition = unique(temp_df$condition),
-        brain_liability = temp_df$repeat_intron_expr_tpm[temp_df$tissue_group == "brain"],
-        spinal_cord_liability = temp_df$repeat_intron_expr_tpm[temp_df$tissue_group == "spinal_cord"])
-}))
+# patient_pairwise_scatter_df <- do.call(rbind, lapply(patients_df_split, function(temp_df){
+#     data.frame(subject_id = unique(temp_df$subject_id),
+#         condition = unique(temp_df$condition),
+#         brain_liability = temp_df$repeat_intron_expr_tpm[temp_df$tissue_group == "brain"],
+#         spinal_cord_liability = temp_df$repeat_intron_expr_tpm[temp_df$tissue_group == "spinal_cord"])
+# }))
 
 ```
 
@@ -252,7 +294,7 @@ patient_pairwise_scatter_df <- do.call(rbind, lapply(patients_df_split, function
 
 ```{r}
 
-summary(lm(data = patient_pairwise_scatter_df, formula = spinal_cord_liability ~ brain_liability + brain_liability:condition))
+# summary(lm(data = patient_pairwise_scatter_df, formula = spinal_cord_liability ~ brain_liability + brain_liability:condition))
 
 # Call:
 # lm(formula = brain_liability ~ spinal_cord_liability + spinal_cord_liability:condition,
@@ -280,23 +322,23 @@ summary(lm(data = patient_pairwise_scatter_df, formula = spinal_cord_liability ~
 # Multiple R-squared:  0.0703,    Adjusted R-squared:  0.05622
 # F-statistic: 4.991 on 3 and 198 DF,  p-value: 0.002331
 
-colours <- c("ctrl" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
-ThePlot <- ggplot(patient_pairwise_scatter_df, 
-    aes(x = brain_liability, y = spinal_cord_liability))
-ThePlot <- ThePlot + geom_point(aes(fill = condition), colour = "#000000", shape = 21)
-# ThePlot <- ThePlot + geom_point(aes(fill = condition), shape = 21, colour = "#000000", position = position_jitterdodge(dodge.width = 0.9))
-ThePlot <- ThePlot + geom_smooth(method = "lm", formula = y ~ x, aes(colour = condition))
-# ThePlot <- ThePlot + stat_summary(aes(colour = condition))
-ThePlot <- ThePlot + scale_x_continuous("spinal cord RCI liability")
-ThePlot <- ThePlot + scale_y_continuous("brain RCI liability")
-ThePlot <- ThePlot + scale_colour_manual("Condition", values = colours)
-ThePlot <- ThePlot + scale_fill_manual("Condition", values = colours)
-# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
-ThePlot <- ThePlot + theme_bw()
-ThePlot <- ThePlot + facet_wrap(. ~ condition, scales = "free")
-ThePlot <- ThePlot + ggtitle("Repeat containing intron expression across tissues")
-ThePlot <- ThePlot + current_theme
-ggsave(width = 10, height = 5, file = file.path(plot_dir, "01-03-plot-pairwise-scatterplot-for-spinal-cord-vs-brain-rci-liability.pdf"), ThePlot)
+# colours <- c("ctrl" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+# ThePlot <- ggplot(patient_pairwise_scatter_df, 
+#     aes(x = brain_liability, y = spinal_cord_liability))
+# ThePlot <- ThePlot + geom_point(aes(fill = condition), colour = "#000000", shape = 21)
+# # ThePlot <- ThePlot + geom_point(aes(fill = condition), shape = 21, colour = "#000000", position = position_jitterdodge(dodge.width = 0.9))
+# ThePlot <- ThePlot + geom_smooth(method = "lm", formula = y ~ x, aes(colour = condition))
+# # ThePlot <- ThePlot + stat_summary(aes(colour = condition))
+# ThePlot <- ThePlot + scale_x_continuous("spinal cord RCI liability")
+# ThePlot <- ThePlot + scale_y_continuous("brain RCI liability")
+# ThePlot <- ThePlot + scale_colour_manual("Condition", values = colours)
+# ThePlot <- ThePlot + scale_fill_manual("Condition", values = colours)
+# # ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+# ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_wrap(. ~ condition, scales = "free")
+# ThePlot <- ThePlot + ggtitle("Repeat containing intron expression across tissues")
+# ThePlot <- ThePlot + current_theme
+# ggsave(width = 10, height = 5, file = file.path(plot_dir, "01-03-plot-pairwise-scatterplot-for-spinal-cord-vs-brain-rci-liability.pdf"), ThePlot)
 
 
 ```

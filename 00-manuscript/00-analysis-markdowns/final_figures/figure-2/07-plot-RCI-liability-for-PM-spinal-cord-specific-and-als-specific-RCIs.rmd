@@ -1,0 +1,384 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("ggbeeswarm")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-2"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+patient_penetrance_list <- readRDS(file.path(save_dir, "03-save-answerals-rci-expression-summary-with-penetrance-matrix.rds"))
+answerals_object_list <- readRDS("39-answerals-complete/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
+sampleinfo_df <- read.csv("39-answerals-complete/input_files/metadata/aals_dataportal_datatable.csv")
+nygc_penetrance_list <- readRDS(file.path("final-figures/figure-2/rdata_files/02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
+
+patient_liability_df <- patient_penetrance_list$liability_df
+penetrance_matrix <- patient_penetrance_list$penetrance_matrix
+rownames(penetrance_matrix) <- patient_liability_df$sample_name
+
+nygc_patient_liability_df <- nygc_penetrance_list$liability_df
+nygc_penetrance_matrix <- nygc_penetrance_list$penetrance_matrix
+
+
+```
+
+- Load repeat and rci object
+
+```{r}
+
+repeat_ranges <- unique(repeat_ranges_list$repeat_ranges)
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+
+```
+
+- Generate TPM matrix
+
+```{r}
+
+sampleinfo_df$sample_name <- str_replace_all(sampleinfo_df$participant_id, pattern = "-", replacement = "_")
+
+sig_result_df <- sig_result_list$significant_events
+
+repeat_containing_introns_df <- sig_result_df[sig_result_df$status == "repeat_containing" & 
+    sig_result_df$region == "intron",]
+
+repeat_containing_introns_df$cohort <- "public-data"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "nygc"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "answerals")] <- "answerals"
+
+repeat_containing_introns_df$tissue_type <- "iPSCs"
+repeat_containing_introns_df$tissue_type[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "postmortem"
+
+counts_matrix <- answerals_object_list$counts
+patient_df <- answerals_object_list$sample_df
+temp_matrix <- counts_matrix / (width(feature_ranges)[match(rownames(counts_matrix), feature_ranges$hash_id)] / 1e3)
+tpm_matrix <- t(t(temp_matrix) / (colSums(temp_matrix) / 1e6))
+
+keep_hash_ids <- feature_ranges_with_repeats$hash_id[match(unique(repeat_containing_introns_df$feature_ids), feature_ranges_with_repeats$feature_id)]
+keep_tpm_matrix <- tpm_matrix[keep_hash_ids,colnames(tpm_matrix) %in% patient_df$column_id]
+
+repeat_lengths <- feature_ranges_with_repeats$repeat_width[match(rownames(keep_tpm_matrix), feature_ranges_with_repeats$hash_id)]
+
+```
+
+- Find penetrant RCIs in NYGC samples
+
+```{r}
+
+nygc_patient_df_split <- split(nygc_patient_liability_df, paste(nygc_patient_liability_df$condition, nygc_patient_liability_df$tissue_group))
+nygc_ordered_patient_penetrance_matrix_list <- lapply(nygc_patient_df_split, function(temp_df){
+    nygc_penetrance_matrix[temp_df$penetrance_row[order(temp_df$repeat_intron_expr_tpm, decreasing = F)],]
+})
+
+nygc_penetrant_rcis <- lapply(nygc_ordered_patient_penetrance_matrix_list, function(x){
+    temp_vector <- colSums(x)
+    names(temp_vector[temp_vector > 0])
+})
+
+```
+
+- Find PM ALS spinal cord specific RCIs
+
+```{r}
+
+pm_als_spinal_cord_rcis <- setdiff(nygc_penetrant_rcis[["als spinal_cord"]], nygc_penetrant_rcis[["ctrl spinal_cord"]])
+pm_ctrl_spinal_cord_rcis <- setdiff(nygc_penetrant_rcis[["ctrl spinal_cord"]], nygc_penetrant_rcis[["als spinal_cord"]])
+
+```
+
+- Find PM ALS brain specific RCIs
+
+```{r}
+
+pm_als_brain_rcis <- setdiff(nygc_penetrant_rcis[["als brain"]], nygc_penetrant_rcis[["ctrl brain"]])
+pm_ctrl_brain_rcis <- setdiff(nygc_penetrant_rcis[["ctrl brain"]], nygc_penetrant_rcis[["als brain"]])
+
+```
+
+- Generate liability data for PM spinal cord specific RCIs
+
+```{r}
+
+
+threshold <- 0.1
+pm_spinal_cord_specific_liability_df <- do.call(rbind, lapply(seq_len(nrow(patient_df)), function(x1){
+    temp_df <- patient_df[x1,]
+    return_df <- temp_df
+    current_columns <- temp_df$column_id
+    
+    current_tpm_vector <- Reduce("+", lapply(current_columns, function(x){
+        keep_tpm_matrix[,x]  
+    })) / length(current_columns)
+
+    current_intron_expr_rate <- Reduce("+", lapply(current_columns, function(x){
+        intronic_expression_rate[,x]  
+    })) / length(current_columns)
+
+    gt_tpm <- current_tpm_vector[current_tpm_vector > threshold]
+    return_df$median_pm_als_spinal_cord_specific_expr_tpm <- median(current_tpm_vector[pm_als_spinal_cord_rcis])
+    return_df$median_pm_ctrl_spinal_cord_specific_expr_tpm <- median(current_tpm_vector[pm_ctrl_spinal_cord_rcis])
+    # return_df$proportion_of_pm_specific_rcis <- length(pm_als_spinal_cord_rcis[pm_als_spinal_cord_rcis %in% names(gt_tpm)]) / length(gt_tpm)
+    # return_df$proportion_liability_from_pm_specific_rcis <- sum(gt_tpm[names(gt_tpm) %in% pm_als_spinal_cord_rcis]) / sum(gt_tpm)
+    return(return_df)
+}))
+
+patient_liability_df$median_pm_als_spinal_cord_specific_expr_tpm <- pm_spinal_cord_specific_liability_df$median_pm_als_spinal_cord_specific_expr_tpm[match(patient_liability_df$sample_name, pm_spinal_cord_specific_liability_df$sample_name)]
+patient_liability_df$median_pm_ctrl_spinal_cord_specific_expr_tpm <- pm_spinal_cord_specific_liability_df$median_pm_ctrl_spinal_cord_specific_expr_tpm[match(patient_liability_df$sample_name, pm_spinal_cord_specific_liability_df$sample_name)]
+
+
+
+patient_liability_df$mnd_group <- factor(patient_liability_df$mnd_group, levels = c("healthy", "als", "carrier", "other_mnd"))
+
+summary(lm(data = patient_liability_df[patient_liability_df$mnd_group %in% c("healthy", "als") & patient_liability_df$repeat_intron_expr_tpm <= 200,], formula = median_pm_als_spinal_cord_specific_expr_tpm ~ repeat_intron_expr_tpm + mnd_group + repeat_intron_expr_tpm:mnd_group))
+
+
+# Call:
+# lm(formula = median_pm_spinal_cord_specific_expr_tpm ~ repeat_intron_expr_tpm +
+#     mnd_group + repeat_intron_expr_tpm:mnd_group, data = patient_liability_df[patient_liability_df$mnd_group %in%
+#     c("healthy", "als") & patient_liability_df$repeat_intron_expr_tpm <=
+#     200, ])
+
+# Residuals:
+#       Min        1Q    Median        3Q       Max
+# -0.060047 -0.013590 -0.001559  0.013290  0.062299
+
+# Coefficients:
+#                                       Estimate Std. Error t value Pr(>|t|)
+# (Intercept)                         -0.0087859  0.0214122  -0.410   0.6819
+# repeat_intron_expr_tpm               0.0005732  0.0001359   4.218 3.41e-05 ***
+# mnd_groupals                        -0.0468193  0.0238365  -1.964   0.0506 .
+# repeat_intron_expr_tpm:mnd_groupals  0.0003075  0.0001522   2.020   0.0444 *
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Residual standard error: 0.01931 on 260 degrees of freedom
+# Multiple R-squared:  0.4135,    Adjusted R-squared:  0.4067
+# F-statistic:  61.1 on 3 and 260 DF,  p-value: < 2.2e-16
+
+# 34.9% faster with increasing liability
+
+summary(lm(data = patient_liability_df[patient_liability_df$mnd_group %in% c("healthy", "als") & patient_liability_df$repeat_intron_expr_tpm <= 200,], formula = median_pm_ctrl_spinal_cord_specific_expr_tpm ~ repeat_intron_expr_tpm + mnd_group + repeat_intron_expr_tpm:mnd_group))
+
+
+
+
+
+
+
+```
+
+- Compare RCI liability vs gain in signal in als specific rcis
+
+```{r}
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+patient_liability_df$mnd_group <- factor(patient_liability_df$mnd_group, levels = c("healthy", "als", "other_mnd", "carrier"))
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy") & patient_liability_df$repeat_intron_expr_tpm <= 200,], 
+    aes(x = repeat_intron_expr_tpm, y = median_pm_als_spinal_cord_specific_expr_tpm))
+ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+ThePlot <- ThePlot + scale_x_continuous("ALS specific rci expression")
+ThePlot <- ThePlot + scale_y_continuous("Median PM spinal cord specific RCI expression in iPSC-MNs")
+ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(. ~ mnd_group)
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "06-05-plot-RCI-liability-vs-median-pm-als-spinal-cord-specific-rci-expression-in-healthy-and-ALS-figure-2E.pdf"), ThePlot)
+
+# colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+# patient_liability_df$mnd_group <- factor(patient_liability_df$mnd_group, levels = c("healthy", "als", "other_mnd", "carrier"))
+# ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy") & patient_liability_df$repeat_intron_expr_tpm <= 200,], 
+#     aes(x = repeat_intron_expr_tpm, y = median_pm_ctrl_spinal_cord_specific_expr_tpm))
+# ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+# ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+# ThePlot <- ThePlot + scale_x_continuous("ALS specific rci expression")
+# ThePlot <- ThePlot + scale_y_continuous("Median PM spinal cord specific RCI expression in iPSC-MNs")
+# ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# # ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+# ThePlot <- ThePlot + theme_bw()
+# # ThePlot <- ThePlot + facet_grid(. ~ mnd_group)
+# ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+# ThePlot <- ThePlot + current_theme
+# ggsave(width = 7, height = 10, file = file.path(plot_dir, "06-05-plot-RCI-liability-vs-median-pm-control-spinal-cord-specific-rci-expression-in-healthy-and-ALS-figure-2E.pdf"), ThePlot)
+
+```
+
+- Generate liability data for PM brain specific RCIs
+
+```{r}
+
+threshold <- 0.1
+
+pm_brain_specific_liability_df <- do.call(rbind, lapply(seq_len(nrow(patient_df)), function(x1){
+    temp_df <- patient_df[x1,]
+    return_df <- temp_df
+    current_columns <- temp_df$column_id
+    
+    current_tpm_vector <- Reduce("+", lapply(current_columns, function(x){
+        keep_tpm_matrix[,x]  
+    })) / length(current_columns)
+
+    gt_tpm <- current_tpm_vector[current_tpm_vector > threshold]
+    return_df$median_pm_als_brain_specific_expr_tpm <- median(current_tpm_vector[pm_als_brain_rcis])
+    return_df$median_pm_ctrl_brain_specific_expr_tpm <- median(current_tpm_vector[pm_ctrl_brain_rcis])
+    # return_df$proportion_of_pm_specific_rcis <- length(pm_als_brain_rcis[pm_als_brain_rcis %in% names(gt_tpm)]) / length(gt_tpm)
+    # return_df$proportion_liability_from_pm_specific_rcis <- sum(gt_tpm[names(gt_tpm) %in% pm_als_brain_rcis]) / sum(gt_tpm)
+
+    return(return_df)
+}))
+
+patient_liability_df$median_pm_als_brain_specific_expr_tpm <- pm_brain_specific_liability_df$median_pm_als_brain_specific_expr_tpm[match(patient_liability_df$sample_name, pm_brain_specific_liability_df$sample_name)]
+patient_liability_df$median_pm_ctrl_brain_specific_expr_tpm <- pm_brain_specific_liability_df$median_pm_ctrl_brain_specific_expr_tpm[match(patient_liability_df$sample_name, pm_brain_specific_liability_df$sample_name)]
+# patient_liability_df$proportion_of_pm_specific_rcis <- pm_brain_specific_liability_df$proportion_of_pm_specific_rcis[match(patient_liability_df$sample_name, pm_brain_specific_liability_df$sample_name)]
+# patient_liability_df$proportion_liability_from_pm_specific_rcis <- pm_brain_specific_liability_df$proportion_liability_from_pm_specific_rcis[match(patient_liability_df$sample_name, pm_brain_specific_liability_df$sample_name)]
+
+
+patient_liability_df$mnd_group <- factor(patient_liability_df$mnd_group, levels = c("healthy", "als", "carrier", "other_mnd"))
+
+summary(lm(data = patient_liability_df[patient_liability_df$mnd_group %in% c("healthy", "als") & patient_liability_df$repeat_intron_expr_tpm <= 200,], formula = median_pm_als_brain_specific_expr_tpm ~ repeat_intron_expr_tpm + mnd_group + repeat_intron_expr_tpm:mnd_group))
+
+# Call:
+# lm(formula = median_pm_brain_specific_expr_tpm ~ repeat_intron_expr_tpm +
+#     mnd_group + repeat_intron_expr_tpm:mnd_group, data = patient_liability_df[patient_liability_df$mnd_group %in%
+#     c("healthy", "als") & patient_liability_df$repeat_intron_expr_tpm <=
+#     200, ])
+
+# Residuals:
+#        Min         1Q     Median         3Q        Max
+# -0.0059943 -0.0011583 -0.0002387  0.0010505  0.0061078
+
+# Coefficients:
+#                                       Estimate Std. Error t value Pr(>|t|)
+# (Intercept)                         -5.280e-03  1.882e-03  -2.805  0.00541 **
+# repeat_intron_expr_tpm               9.905e-05  1.195e-05   8.291 6.08e-15 ***
+# mnd_groupals                        -4.707e-04  2.095e-03  -0.225  0.82246
+# repeat_intron_expr_tpm:mnd_groupals  1.612e-06  1.338e-05   0.120  0.90422
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Residual standard error: 0.001698 on 260 degrees of freedom
+# Multiple R-squared:  0.5757,    Adjusted R-squared:  0.5709
+# F-statistic: 117.6 on 3 and 260 DF,  p-value: < 2.2e-16
+
+summary(lm(data = patient_liability_df[patient_liability_df$mnd_group %in% c("healthy", "als") & patient_liability_df$repeat_intron_expr_tpm <= 200,], formula = median_pm_ctrl_brain_specific_expr_tpm ~ repeat_intron_expr_tpm + mnd_group + repeat_intron_expr_tpm:mnd_group))
+
+```
+
+- Compare RCI liability vs gain in signal in als brain specific rcis
+
+```{r}
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+patient_liability_df$mnd_group <- factor(patient_liability_df$mnd_group, levels = c("healthy", "als", "other_mnd", "carrier"))
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy") & patient_liability_df$repeat_intron_expr_tpm <= 200,], 
+    aes(x = repeat_intron_expr_tpm, y = median_pm_als_brain_specific_expr_tpm))
+ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+ThePlot <- ThePlot + scale_x_continuous("ALS specific rci expression")
+ThePlot <- ThePlot + scale_y_continuous("Median PM spinal cord specific RCI expression in iPSC-MNs")
+ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(. ~ mnd_group)
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "06-06-plot-RCI-liability-vs-median-pm-als-brain-specific-rci-expression-in-healthy-and-ALS-figure-2E.pdf"), ThePlot)
+
+ThePlot <- ggplot(patient_liability_df[patient_liability_df$mnd_group %in% c("als", "healthy") & patient_liability_df$repeat_intron_expr_tpm <= 200,], 
+    aes(x = repeat_intron_expr_tpm, y = median_pm_ctrl_brain_specific_expr_tpm))
+ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+ThePlot <- ThePlot + scale_x_continuous("ALS specific rci expression")
+ThePlot <- ThePlot + scale_y_continuous("Median PM spinal cord specific RCI expression in iPSC-MNs")
+ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(. ~ mnd_group)
+ThePlot <- ThePlot + ggtitle("Repeat containing intron expression in AnswerALS iPSCs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "06-06-plot-RCI-liability-vs-median-pm-ctrl-brain-specific-rci-expression-in-healthy-and-ALS-figure-2E.pdf"), ThePlot)
+
+```
+
