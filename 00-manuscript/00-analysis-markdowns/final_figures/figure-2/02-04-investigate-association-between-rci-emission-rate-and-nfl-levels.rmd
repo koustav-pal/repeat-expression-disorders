@@ -1,0 +1,544 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "39-answerals-complete"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+liability_with_residuals_list <- readRDS(file.path(save_dir, "02-01-modelled-liability-df-with-residuals.rds"))
+liability_df <- liability_with_residuals_list$liability
+residuals_df <- liability_with_residuals_list$residuals
+residuals_df$subject_id <- liability_df$subject_id[match(residuals_df$Participant_ID, liability_df$Participant_ID)]
+participant_info_df <- read.csv("39-answerals-complete/input_files/metadata/aals_participants.csv")
+external_controls_df <- read.csv("39-answerals-complete/input_files/metadata/external_controls.csv")
+nfl_df <- read.csv("39-answerals-complete/input_files/metadata/NfL/NfL_Seimens_Atellica_Immunoassay_Proteomics_2022_07.csv")
+sampleinfo_df <- read.csv("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons//analysis/00-manuscript/39-answerals-complete/input_files/metadata/aals_dataportal_datatable.csv")
+
+```
+
+- select the nfl value at the lowest timepoint
+
+```{r}
+
+nfl_values <- vapply(split(nfl_df, nfl_df$SubjID), function(x){
+    non_nas <- x$Result.Value[!is.na(x$Result.Value)]
+    ret_val <- as.numeric(non_nas[which.min(non_nas)])
+    if(length(ret_val) == 0){
+        return(NA)
+    }
+    return(ret_val)
+},1)
+
+liability_df$nfl <- nfl_values[liability_df$subject_id]
+liability_df$sex <- participant_info_df$Sex[match(liability_df$Participant_ID, participant_info_df$Participant_ID)]
+liability_df$sex[is.na(liability_df$sex)] <- external_controls_df$SEX[match(liability_df$Participant_ID[is.na(liability_df$sex)], external_controls_df$Participant_ID)]
+residuals_df$nfl <- nfl_values[residuals_df$subject_id]
+liability_df <- liability_df[liability_df$mnd_group %in% c("healthy", "als"),]
+
+```
+
+- Investigate association between nfl and median expression of als spinal cord specific rcis
+
+```{r}
+
+wilcox.test(liability_df[liability_df$mnd_group %in% c("als"),"intron_expression_rate"],
+    liability_df[liability_df$mnd_group %in% c("healthy"),"intron_expression_rate"])
+# W = 30679, p-value = 0.009144
+
+fetch_residuals <- function(liability_df, var_x, var_y = "nfl", group_name, return_model = F, return_summary = F){
+    liability_df$var_x <- liability_df[,var_x]
+    liability_df$var_y <- liability_df[,var_y]
+    a_model <- lm(log10(var_y) ~ age_at_collection + sex + mnd_group + var_x:mnd_group, data = liability_df)
+    if(return_model){
+        return(a_model)
+    }
+    if(return_summary){
+        return(summary(a_model))
+    }
+    residual_df <- data.frame(group = group_name,
+    Participant_ID = liability_df$Participant_ID,
+    mnd_group = liability_df$mnd_group,
+    rci_liability = liability_df$var_x,
+    median_expr = liability_df$var_y,
+    fitted_values = a_model$fitted.values, 
+    residuals = a_model$residuals)
+    return(residual_df)
+}
+
+cor(liability_df[liability_df$mnd_group %in% c("healthy", "als") & 
+    !is.na(liability_df$nfl),"nfl"], 
+    liability_df[liability_df$mnd_group %in% c("healthy", "als") & 
+    !is.na(liability_df$nfl),"repeat_intron_expr_tpm"])
+# -0.05666871
+
+cor(liability_df[liability_df$mnd_group %in% c("healthy", "als") & 
+    !is.na(liability_df$nfl),"nfl"], 
+    liability_df[liability_df$mnd_group %in% c("healthy", "als") & 
+    !is.na(liability_df$nfl),"intron_expression_rate"])
+# 0.05149547
+
+cor.test(liability_df[liability_df$mnd_group %in% c("healthy", "als"),"repeat_intron_expr_tpm"], 
+    liability_df[liability_df$mnd_group %in% c("healthy", "als"),"intron_expression_rate"])
+# -0.6560285
+
+
+
+cor.test(log10(liability_df$intron_expression_rate), as.numeric(liability_df$mnd_group))
+#         Pearson's product-moment correlation
+
+# data:  log10(liability_df$intron_expression_rate) and as.numeric(liability_df$mnd_group)
+# t = -2.2265, df = 591, p-value = 0.02636
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+#  -0.17046643 -0.01076571
+# sample estimates:
+#         cor
+# -0.09120243
+
+```
+
+Investigate correlation between expansion length and rci emission rate
+
+```{r}
+
+# summary(lm(data = liability_df[liability_df$mnd_group %in% c("healthy", "als"),], formula = log10(nfl) ~ age_at_collection + sex + mnd_group + log10(intron_expression_rate):mnd_group))
+cor.test(liability_df$c9orf72_repeat_length[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"], liability_df$intron_expression_rate[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"])
+#         Pearson's product-moment correlation
+
+# data:  liability_df$c9orf72_repeat_length[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"] and liability_df$intron_expression_rate[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"]
+# t = 1.0788, df = 48, p-value = 0.2861
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+#  -0.1300555  0.4144597
+# sample estimates:
+#       cor
+# 0.1538622
+
+cor.test(liability_df$atxn2_repeat_length[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"], liability_df$intron_expression_rate[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"])
+#         Pearson's product-moment correlation
+
+# data:  liability_df$atxn2_repeat_length[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"] and liability_df$intron_expression_rate[liability_df$expansion_group == "Tested and contains a C9ORF72 or ATXN2 repeat length than 24"]
+# t = -1.2325, df = 48, p-value = 0.2238
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+#  -0.4324111  0.1084930
+# sample estimates:
+#        cor
+# -0.1751438
+
+# 0.009168731
+
+```
+
+- Prepare model 
+
+```{r}
+
+model_1 <- lm(data = liability_df[liability_df$mnd_group %in% c("healthy", "als") & !is.na(liability_df$nfl),], formula = log10(nfl) ~ age_at_collection + sex + mnd_group + intron_expression_rate:mnd_group)
+summary(model_1)
+# summary(model_1)
+# Call:
+# lm(formula = log10(nfl) ~ age_at_collection + sex + mnd_group +
+#     intron_expression_rate:mnd_group, data = liability_df[liability_df$mnd_group %in%
+#     c("healthy", "als") & !is.na(liability_df$nfl), ])
+
+# Residuals:
+#      Min       1Q   Median       3Q      Max
+# -0.80871 -0.17266  0.01443  0.18415  0.79297
+
+# Coefficients:
+#                                           Estimate Std. Error t value Pr(>|t|)
+# (Intercept)                              7.163e-01  2.647e-01   2.706  0.00708
+# age_at_collection                        6.300e-03  1.267e-03   4.973 9.46e-07
+# sexMale                                 -9.057e-02  2.905e-02  -3.118  0.00194
+# mnd_groupals                             4.418e-01  2.678e-01   1.650  0.09968
+# mnd_grouphealthy:intron_expression_rate -6.668e-07  6.348e-05  -0.011  0.99162
+# mnd_groupals:intron_expression_rate      4.453e-05  2.481e-05   1.795  0.07339
+
+# (Intercept)                             **
+# age_at_collection                       ***
+# sexMale                                 **
+# mnd_groupals                            .
+# mnd_grouphealthy:intron_expression_rate
+# mnd_groupals:intron_expression_rate     .
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Residual standard error: 0.29 on 440 degrees of freedom
+#   (13 observations deleted due to missingness)
+# Multiple R-squared:  0.402,     Adjusted R-squared:  0.3952
+# F-statistic: 59.16 on 5 and 440 DF,  p-value: < 2.2e-16
+
+require(car)
+# > vif(model_1, type = "predictor")
+# GVIFs computed for predictors
+#                            GVIF Df GVIF^(1/(2*Df))         Interacts With
+# age_at_collection      1.058812  1        1.028986                   --
+# sex                    1.099720  1        1.048675                   --
+# mnd_group              1.132753  3        1.020993 intron_expression_rate
+# intron_expression_rate 1.132753  3        1.020993 intron_expression_rate
+#                                                            Other Predictors
+# age_at_collection                    sex, mnd_group, intron_expression_rate
+# sex                    age_at_collection, mnd_group, intron_expression_rate
+# mnd_group                                            age_at_collection, sex
+# intron_expression_rate                               age_at_collection, sex
+
+```
+
+- Plot observed nfl values for each covariate
+
+```{r}
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+
+selected_liability_df <- liability_df[liability_df$mnd_group %in% c("healthy", "als") & !is.na(liability_df$nfl),]
+
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(selected_liability_df, aes(x = age_at_collection, y = nfl))
+ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+ThePlot <- ThePlot + scale_x_continuous("Age at collection")
+ThePlot <- ThePlot + scale_y_continuous("Observed NFL levels in serum")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(. ~ mnd_group, scales = "free", nrow = 1, ncol = 2)
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 10, height = 5, file = file.path(plot_dir, "03-03-01-plot-age-at-collection-vs-observed-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+require(ggbeeswarm)
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(selected_liability_df, aes(x = mnd_group, y = nfl))
+# ThePlot <- ThePlot + geom_density(aes(fill = sex), alpha = 0.4, colour = "#000000")
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), shape = 21, colour = "#000000")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", alpha = 0.6,
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9), outlier.shape = NA)
+ThePlot <- ThePlot + scale_x_discrete("MND group")
+ThePlot <- ThePlot + scale_y_continuous("Observed NFL levels in serum")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(. ~ mnd_group)
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "03-03-02-plot-mnd-group-vs-observed-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+
+require(ggbeeswarm)
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(selected_liability_df, aes(x = sex, y = nfl))
+# ThePlot <- ThePlot + geom_density(aes(fill = sex), alpha = 0.4, colour = "#000000")
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), dodge.width = 0.9, shape = 21, colour = "#000000")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", alpha = 0.6,
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9), outlier.shape = NA)
+ThePlot <- ThePlot + scale_x_discrete("Sex")
+ThePlot <- ThePlot + scale_y_continuous("Observed NFL levels in serum")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "03-03-03-plot-sex-vs-observed-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+
+require(ggbeeswarm)
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(selected_liability_df, aes(x = log10(intron_expression_rate), y = log10(nfl)))
+ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+ThePlot <- ThePlot + scale_x_continuous("RCI emission rate")
+ThePlot <- ThePlot + scale_y_continuous("Observed NFL levels in serum")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(. ~ mnd_group, scales = "free", nrow = 1, ncol = 2)
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "03-03-04-plot-intron-expression-rate-vs-observed-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+
+```
+
+
+- Define function for predicting the model 
+
+```{r}
+
+predict_nfl_values <- function(pred_df, column_var, a_model){
+    column_values <- quantile(pred_df[,column_var], seq(0,1,0.01))
+    prediction_list <- lapply(seq_along(column_values), function(x){
+        observed_nfl <- pred_df$nfl
+        observed_values <- pred_df[,column_var]
+        observed_mnd_group <- pred_df$mnd_group
+        # pred_df$mnd_group <- mnd_status
+        pred_df[,column_var] <- column_values[x]
+        current_prediction <- predict(a_model, pred_df)
+        predicted_nfl <- 10^current_prediction
+        summary_stats <- data.frame(
+            # mnd_group = mnd_status,
+            threshold_name = names(column_values)[x],
+            threshold = column_values[x],
+            Mean_NFL = mean(predicted_nfl, na.rm = T),
+            Median_NFL = median(predicted_nfl, na.rm = T),
+            SD_NFL = sd(predicted_nfl, na.rm = T))
+        pred_data <- data.frame(
+            subject_id = pred_df$subject_id, 
+            mnd_group = pred_df$mnd_group,
+            threshold_name = names(column_values)[x],
+            threshold = column_values[x],
+            predicted_nfl = predicted_nfl,
+            observed_nfl = observed_nfl,
+            current_column = observed_values)
+        colnames(pred_data) <- c(colnames(pred_data)[-ncol(pred_data)], column_var)
+        return(list(summary = summary_stats, prediction = pred_data))
+    })
+    summary_df <- do.call(rbind, lapply(prediction_list, function(x){
+        x$summary
+    }))
+    prediction_df <- do.call(rbind, lapply(prediction_list, function(x){
+        x$prediction
+    }))
+    prediction_df$distance <- sqrt((prediction_df$observed_nfl - prediction_df$predicted_nfl)^2 + (prediction_df[,column_var] - prediction_df$threshold)^2)
+    sample_wise_min_dist_df <- do.call(rbind, lapply(split(prediction_df, prediction_df$subject_id), function(x){
+        x[which.min(x$distance),]
+    }))
+    return(list(summary = summary_df, prediction = prediction_df, best = sample_wise_min_dist_df))
+}
+
+```
+
+- Predict the effect of intron expression rate on nfl
+
+```{r}
+
+selected_liability_df <- liability_df[liability_df$mnd_group %in% c("healthy", "als") & !is.na(liability_df$nfl),]
+pred_df <- selected_liability_df
+
+prediction_list <- predict_nfl_values(pred_df, 
+    column_var = "intron_expression_rate",
+    a_model = model_1)
+best_rci_emission_prediction_df <- prediction_list$best
+
+```
+
+- Plot the association between nfl and intron expression rate
+
+```{r}
+
+require(ggbeeswarm)
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(best_rci_emission_prediction_df, aes(x = log10(threshold), y = log10(predicted_nfl)))
+ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+ThePlot <- ThePlot + scale_x_continuous("RCI emission rate")
+ThePlot <- ThePlot + scale_y_continuous("Predicted NFL levels by MND status (after adjusting for covariates)")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(. ~ mnd_group, scales = "free", nrow = 1, ncol = 2)
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 10, height = 5, file = file.path(plot_dir, "03-02-plot-intron-expression-rate-vs-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+```
+
+- Plot predicted NFL level vs age at collection
+
+```{r}
+
+
+selected_liability_df <- liability_df[liability_df$mnd_group %in% c("healthy", "als") & 
+    !is.na(liability_df$nfl) & !is.na(liability_df$age_at_collection),]
+pred_df <- selected_liability_df
+
+prediction_list <- predict_nfl_values(pred_df, 
+    column_var = "age_at_collection",
+    a_model = model_1)
+best_age_based_prediction_df <- prediction_list$best
+
+require(ggbeeswarm)
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(best_age_based_prediction_df, aes(x = age_at_collection, y = predicted_nfl))
+ThePlot <- ThePlot + geom_point(aes(fill = mnd_group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", aes(colour = mnd_group), formula = y ~ x)
+ThePlot <- ThePlot + scale_x_continuous("Age at collection")
+ThePlot <- ThePlot + scale_y_continuous("Predicted NFL levels by MND status (after adjusting for covariates)")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(. ~ mnd_group, scales = "free", nrow = 1, ncol = 2)
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 10, height = 5, file = file.path(plot_dir, "03-03-plot-age-at-collection-vs-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+
+```
+
+- Plot predicted NFL level by MND group 
+
+```{r}
+
+selected_liability_df <- liability_df[liability_df$mnd_group %in% c("healthy", "als") & 
+    !is.na(liability_df$nfl) & !is.na(liability_df$age_at_collection),]
+pred_df <- selected_liability_df
+pred_df$mnd_group <- "healthy"
+pred_healthy <- predict(model_1, pred_df)
+
+pred_df$mnd_group <- "als"
+pred_als <- predict(model_1, pred_df)
+
+
+nfl_healthy <- 10^pred_healthy
+nfl_als <- 10^pred_als
+
+summary_stats <- data.frame(
+   Group = c("healthy", "als"),
+   Mean_NFL = c(mean(nfl_healthy), mean(nfl_als)),
+   Median_NFL = c(median(nfl_healthy), median(nfl_als)),
+   SD_NFL = c(sd(nfl_healthy), sd(nfl_als)))
+
+pred_data <- data.frame(
+  mnd_group = rep(c("healthy", "als"), each = length(nfl_healthy)),
+  predicted_nfl = c(nfl_healthy, nfl_als))
+
+pred_data$mnd_group <- factor(pred_data$mnd_group, levels = c("healthy", "als"))
+
+require(ggbeeswarm)
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(pred_data, aes(x = mnd_group, y = predicted_nfl))
+# ThePlot <- ThePlot + geom_density(aes(fill = sex), alpha = 0.4, colour = "#000000")
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), shape = 21, colour = "#000000")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", alpha = 0.6,
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9), outlier.shape = NA)
+ThePlot <- ThePlot + scale_x_discrete("MND group")
+ThePlot <- ThePlot + scale_y_continuous("Predicted NFL levels by MND status (after adjusting for covariates)")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(. ~ mnd_group)
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "03-04-plot-mnd-group-vs-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+```
+
+- Plot predicted NFL by MND group for each sex
+
+```{r}
+
+selected_liability_df <- liability_df[!is.na(liability_df$nfl) & !is.na(liability_df$age_at_collection),]
+pred_df <- selected_liability_df
+pred_df$sex <- "Male"
+pred_male <- predict(model_1, pred_df)
+
+pred_df$sex <- "Female"
+pred_female <- predict(model_1, pred_df)
+
+nfl_male <- 10^pred_male
+nfl_female <- 10^pred_female
+
+summary_stats <- data.frame(
+   Sex = c("Male", "Female"),
+   Mean_NFL = c(mean(nfl_male), mean(nfl_female)),
+   Median_NFL = c(median(nfl_male), median(nfl_female)),
+   SD_NFL = c(sd(nfl_male), sd(nfl_female)))
+
+pred_data <- data.frame(
+  sex = rep(c("Male", "Female"), each = length(nfl_male)),
+  mnd_group = rep(pred_df$mnd_group, times = 2),
+  predicted_nfl = c(nfl_male, nfl_female))
+
+pred_data$sex <- factor(pred_data$sex, levels = c("Male", "Female"))
+
+require(ggbeeswarm)
+colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+ThePlot <- ggplot(pred_data, aes(x = sex, y = predicted_nfl))
+# ThePlot <- ThePlot + geom_density(aes(fill = sex), alpha = 0.4, colour = "#000000")
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = mnd_group), dodge.width = 0.9, shape = 21, colour = "#000000")
+ThePlot <- ThePlot + geom_boxplot(aes(fill = mnd_group), colour = "#000000", alpha = 0.6,
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9), outlier.shape = NA)
+ThePlot <- ThePlot + scale_x_discrete("Sex")
+ThePlot <- ThePlot + scale_y_continuous("Predicted NFL levels (after adjusting for covariates)")
+ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("MND status", values = colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("sex vs nfl")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 10, file = file.path(plot_dir, "03-04-plot-sex-vs-nfl-in-healthy-and-ALS.pdf"), ThePlot)
+
+```
+
+- save object
+
+```{r}
+
+saveRDS(object = model_1, file = file.path(save_dir, "02-02-save-model-for-predicting-nfl-levels-based-on-intron-expression-rate-without-expansion-groups.rds"))
+
+```
+
