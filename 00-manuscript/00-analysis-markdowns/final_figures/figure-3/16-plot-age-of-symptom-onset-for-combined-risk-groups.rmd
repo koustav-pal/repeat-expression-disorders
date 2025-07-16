@@ -1,0 +1,197 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+library(rlang)
+library(riskRegression)
+library(survival)
+library(survminer)
+library(pammtools)
+library(gganimate)
+library(transformr)
+library(plotly)
+library(reshape2)
+library(knitr)
+library(rmarkdown)
+library(parallel)
+require("contsurvplot")
+require("RColorBrewer")
+require("STRINGdb")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-3"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+
+```
+
+### 3.0 Imports
+
+- Load penetrance data
+
+```{r}
+
+disease_duration_rsf_df <- readRDS("final-figures/figure-3/rdata_files/04-01-save-patients-with-rsf-risk-based-on-disease-duration.rds")
+age_of_onset_rsf_df <- readRDS("final-figures/figure-3/rdata_files/02-summarised-patient-dataframe-with-rsf-risk-scores.rds")
+
+```
+
+
+### Analysis
+
+- Intersect risks
+
+
+```{r}
+
+age_of_onset_rsf_df$unique_id <- paste(age_of_onset_rsf_df$subject_id, age_of_onset_rsf_df$tissue_group)
+disease_duration_rsf_df$unique_id <- paste(disease_duration_rsf_df$subject_id, disease_duration_rsf_df$tissue_group)
+
+intersect_ids <- intersect(age_of_onset_rsf_df$unique_id, disease_duration_rsf_df$unique_id)
+
+select_age_of_onset_rsf_df <- age_of_onset_rsf_df[age_of_onset_rsf_df$unique_id %in% intersect_ids,]
+
+select_age_of_onset_rsf_df$disease_duration <- disease_duration_rsf_df$disease_duration[match(select_age_of_onset_rsf_df$unique_id, disease_duration_rsf_df$unique_id)]
+select_age_of_onset_rsf_df$onset_risk <- select_age_of_onset_rsf_df$risk_group
+select_age_of_onset_rsf_df$onset_risk[select_age_of_onset_rsf_df$onset_risk == "high"] <- "early"
+select_age_of_onset_rsf_df$onset_risk[select_age_of_onset_rsf_df$onset_risk == "low"] <- "late"
+select_age_of_onset_rsf_df$duration_risk <- disease_duration_rsf_df$risk_group[match(select_age_of_onset_rsf_df$unique_id, disease_duration_rsf_df$unique_id)]
+select_age_of_onset_rsf_df$duration_risk[select_age_of_onset_rsf_df$duration_risk == "high"] <- "fast"
+select_age_of_onset_rsf_df$duration_risk[select_age_of_onset_rsf_df$duration_risk == "low"] <- "slow"
+select_age_of_onset_rsf_df$intron_expression_rate <- disease_duration_rsf_df$intron_expression_rate[match(select_age_of_onset_rsf_df$unique_id, disease_duration_rsf_df$unique_id)]
+
+```
+
+- split age of onset by risk strata
+
+```{r}
+
+spinal_df <- select_age_of_onset_rsf_df[select_age_of_onset_rsf_df$tissue_group == "spinal_cord",]
+
+rsf_df_split <- split(spinal_df, paste(spinal_df$onset_risk, spinal_df$duration_risk))
+
+lapply(rsf_df_split, function(x){
+    summary(x$intron_expression_rate)
+})
+
+lapply(rsf_df_split, function(x){
+    summary(x$rci_liability)
+})
+
+lapply(rsf_df_split, function(x){
+    summary(x$age_at_onset)
+})
+
+lapply(rsf_df_split, function(x){
+    summary(x$disease_duration)
+})
+
+lapply(rsf_df_split, function(x){
+    summary(x$age_at_death)
+})
+
+spinal_df$status <- 1
+spinal_df$combined_risk <- paste(spinal_df$onset_risk, spinal_df$duration_risk, sep = "_")
+spinal_df$combined_risk <- factor(spinal_df$combined_risk, levels = c("early_fast", "early_slow", "late_fast", "late_slow"))
+
+fit <- survfit(Surv(age_at_death, status) ~ combined_risk, data = spinal_df)
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+
+# the_plot <- ggsurvplot(fit, 
+#     data = spinal_df,
+#     palette = c("#D51717", "#E43636", "#FF5666", "#FFCCC9"),
+#     pval = T, pval.method = T,
+#     conf.int = F,
+#     # surv.median.line = c("v"),
+#     risk.table = "absolute",
+#     ggtheme = theme_bw() + current_theme)$plot
+# the_plot <- the_plot + ggtitle(paste("random forest survival curve for disease duration"))
+
+# ggsave(width = 7, height = 7, file = file.path(plot_dir, "09-06-REBUTTAL-plot-random-forest-survival-curve-for-spinal-cord-ALS-onset-and-disease-duration.pdf"), the_plot)
+
+
+
+require(ggbeeswarm)
+colours <- c("fast" = "#FF5666", "slow" = "#FFCCC9")
+# colours <- c("early_fast" = "#D51717", "early_slow" = "#E43636", "late_fast" = "#FF5666", "late_slow" = "#FFCCC9")
+The_plot <- ggplot(spinal_df, aes(x = duration_risk, y = disease_duration))
+The_plot <- The_plot + geom_boxplot(aes(fill = duration_risk), colour = "#000000", 
+    width = 0.1, lwd = 0.5, outlier.shape = NA)
+The_plot <- The_plot + geom_quasirandom(aes(fill = duration_risk), shape = 21, colour = "#000000")
+The_plot <- The_plot + scale_x_discrete("Risk group")
+The_plot <- The_plot + scale_y_continuous("disease duration in months")
+The_plot <- The_plot + scale_fill_manual("Risk group", values = colours)
+The_plot <- The_plot + labs(title = "Age at symptom onset")
+# The_plot <- The_plot + facet_wrap(. ~ onset_risk)
+The_plot <- The_plot + theme_bw() + current_theme
+ggsave(width = 4, height = 7, file = file.path(plot_dir, "09-07-plot-disease-duration-for-spinal-cord-risk-groups-in-disease-duration.pdf"), The_plot)
+
+spinal_df[spinal_df$duration_risk == "fast", "disease_duration"] %>% median
+# 28
+spinal_df[spinal_df$duration_risk == "slow", "disease_duration"] %>% median
+# 39
+
+wilcox.test(spinal_df[spinal_df$duration_risk == "fast", "disease_duration"],
+    spinal_df[spinal_df$duration_risk == "slow", "disease_duration"])
+
+
+```
+
+
+
+
+
+
