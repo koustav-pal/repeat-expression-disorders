@@ -34,7 +34,7 @@ An example execution workflow is described here for the public datasets availabl
 2. `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/01-02-assemble-all-counts-stats-from-count-partitioning.R` : Script used to assemble fractional read weights, samplesheets and stat values for all BAM samples. 
 3. `repeat-expression-disorders/00-manuscript/13-03-public-data/scripts/01-02-assemble-all-counts-stats-from-count-partitioning.sh` : HPC executor script for the `01-02-assemble-all-counts-stats-from-count-partitioning.R`
 
-### 1.3 Differential expression profiling 
+### 1.3 Differential expression profiling
 
 We have performed differential expression profiling of individual exons and introns between groups using DESeq2. The scripts used for this analysis are present within their respective repository specific folder. 
 
@@ -55,6 +55,53 @@ We have performed differential expression profiling of individual exons and intr
 
 - The differential expression profiling results are aggregated using the the scripts present within `repeat-expression-disorders/00-manuscript/20-import-significant-events`. Threshold for differential expression is `pval < 0.05 & !is.na(pval)`. The final script `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-aggregate-all-events.R` merges all of the results from public data, answerals and nygc postmortem into a single easy to read data.frame, `repeat-expression-disorders/00-manuscript/20-import-significant-events/02-significantly-differentially-expressed-events.rds`. These differential expression results have been used for all downstream analysis. 
 
-### 1.4 Investigating RCI liability
+### 1.4 Investigating RCI liability (Figure 2)
 
-- Scripts for generating RCI liability data is present within `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/01-01-generate-patient-liability-data.rmd`. 
+- Scripts for generating RCI liability data from post-mortem samples is present within `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/01-01-generate-patient-liability-data.rmd`. 
+- Scripts for generating RCI liability data from AnswerALS iPSC-MNs is present within `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/01-02-generate-answerals-liability-data.rmd`. 
+- Scripts used for plotting RCI liability in post-mortem samples is present within `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/03-01-plot-nygc-rci-liability-values.rmd`. 
+- Scripts used for plotting RCI liability in AnswerALS iPSC-MNs is present within `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/03-02-plot-rci-liability-in-answerals-samples.rmd`. 
+- Scripts used to investigate the intersection between post-mortem and iPSC-MNs is found in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/04-01-find-intersections-between-nygc-and-answerals-rcis.rmd`.
+- Scripts used to investigate PM specific RCI liability ~ RCI expression in iPSC-MNs is found in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/07-plot-RCI-liability-for-PM-spinal-cord-specific-and-als-specific-RCIs.rmd`
+
+### 1.5 Investigating prognostic capacity of RCIs
+
+- Scripts used for random survival forests based investigation of early age of death and ROC curves is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/14-perform-random-survival-forests-survival-curves-for-als-and-control.rmd`.
+- Scripts used for random survival forests based investigation of disease progression in ALS patients is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/15-perform-random-survival-forests-survival-curves-for-disease-duration-in-als.rmd`.
+- Scripts used for investigating RCI emission rate ~ Nfl is present within  `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-2/08-plot-rci-emission-rate-vs-rci-liability-and-age-of-symptom-onset.rmd`.
+- Scripts used for risk stratified differential expression profiling analysis between ALS patients is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/17-perform-differential-gene-expression-and-gene-set-enrichment.rmd`.
+
+### 1.5 Investigating RCIs in an independent cohort of patients
+
+- Scripts used for investigating the prognostic effect of miRNA expression from RCIs is present in `repeat-expression-disorders/00-manuscript/41-magen-et-al-miRNA-seq/scripts/`.
+	- Investigating stability of miRNA expression `02-01-investigate-stability-of-miRNAs-within-rcis.rmd`.
+	- Investigating correlation between miRNA expressionn and RCI emission rate using latent factors is present in `02-02-investigate-correlation-between-principal-components-of-magen-et-al-and-answerals.rmd`.
+	- Generating composite score models using 1K unique seeds `03-00-make-iterated-composite-score-using-rcis-nfl-and-mir181.rmd`
+	- Stability of composite scores across 1K seeds `03-01-test-stability-of-composite-scores-computed-from-each-seed.rmd`
+	- Cutpoint analysis and KM curves in discovery set `03-04-plot-survival-curves-for-median-composite-scores-using-onset-and-enrollment-in-discovery-set.rmd`.
+	- Model validation in replication and combined sets `03-05-plot-survival-curves-for-median-composite-scores-using-onset-and-enrollment-in-replication-set.rmd` and `03-06-plot-survival-curves-for-median-composite-scores-using-onset-and-enrollment-in-combined-set.rmd`.
+
+### 1.6 Investigating the association between RCIs ~ gene expression and R-loops in RCIs
+
+- Scripts used for investigating the biomarker potential of RCIs is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/01-identify-the-pathogenic-potential-of-repeat-containing-introns.rmd`.
+- Scripts used for generating the gene set enrichment profile is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/02-perform-gene-set-enrichment.rmd` and `03-01-plot-hpo-gene-set-enrichment-Figure-5A.rmd`.
+- Scripts used for investigating insilico R-loops in RCIs is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/04-01-plot-proportion-of-introns-containing-R-loops.rmd` and `04-02-plot-R-loop-coverage-near-repeat-regions.rmd`.
+- Scripts used for investigating DRIP-seq signal distribution is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/04-03-plot-cdf-of-drip-seq-signal-in-introns-figure-5D.rmd` and `04-04-plot-cdf-of-drip-seq-signal-in-repeats-figure-5E.rmd`.
+- Scripts used for computing observed/expected DRIP-seq signal fold change is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/04-05-plot-regressor-model-for-dripseq-signal-vs-length-supplementary-figure-18c-18d.rmd` and `04-06-plot-observed-over-expected-foldchange-of-dripseq-signal-figure-5f-5g.rmd`.
+
+
+### 1.6 Investigating the association between RCIs ~ gene expression and R-loops in RCIs
+
+- Scripts used for investigating the biomarker potential of RCIs is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/01-identify-the-pathogenic-potential-of-repeat-containing-introns.rmd`.
+- Scripts used for generating the gene set enrichment profile is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/02-perform-gene-set-enrichment.rmd` and `03-01-plot-hpo-gene-set-enrichment-Figure-5A.rmd`.
+- Scripts used for investigating insilico R-loops in RCIs is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/04-01-plot-proportion-of-introns-containing-R-loops.rmd` and `04-02-plot-R-loop-coverage-near-repeat-regions.rmd`.
+- Scripts used for investigating DRIP-seq signal distribution is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/04-03-plot-cdf-of-drip-seq-signal-in-introns-figure-5D.rmd` and `04-04-plot-cdf-of-drip-seq-signal-in-repeats-figure-5E.rmd`.
+- Scripts used for computing observed/expected DRIP-seq signal fold change is present in `repeat-expression-disorders/00-manuscript/00-analysis-markdowns/final_figures/figure-3/04-05-plot-regressor-model-for-dripseq-signal-vs-length-supplementary-figure-18c-18d.rmd` and `04-06-plot-observed-over-expected-foldchange-of-dripseq-signal-figure-5f-5g.rmd`.
+
+### 1.7 Investigating the association between R-loops ~ RCIs ~ SFPQ LOF
+
+- Scripts used for generating and aggregating fractional counts upon SFPQ KD can be found in `repeat-expression-disorders/00-manuscript/40-giulia-rbp-kd/scripts/01-01-fetch-fractional-counts-for-exons-and-introns.R` and `01-02-assemble-all-counts-stats-from-count-partitioning.R`
+- Scripts used for performing differential expression profiling between Control and RBP KD in control iPSC-MNs is present in `repeat-expression-disorders/00-manuscript/40-giulia-rbp-kd/scripts/01-03-perform-differential-expression.R`.
+- Scripts used for generating frequency profiles and intersection venn diagrams is present within `repeat-expression-disorders/00-manuscript/40-giulia-rbp-kd/scripts/01-04-plot-frequency-of-differential-expression.R` and `01-04-plot-intersection-of-sfpq-fus-and-tdp43.R`.
+- Scripts used for investigating the intersection between R-loops ~ RCIs and SFPQ LOF is present within `repeat-expression-disorders/00-manuscript/40-giulia-rbp-kd/scripts/01-07-01-plot-relative-enrichment-of-rloops-rcis-and-sfpqkd.R`.
+- Scripts used for plotting insilico R-loop density is present in `repeat-expression-disorders/00-manuscript/40-giulia-rbp-kd/scripts/01-07-05-plot-rloop-density-in-introns-affected-by-sfpqkd.R`.
