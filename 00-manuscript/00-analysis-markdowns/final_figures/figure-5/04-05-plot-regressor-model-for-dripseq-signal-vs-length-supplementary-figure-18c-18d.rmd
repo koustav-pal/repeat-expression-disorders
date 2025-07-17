@@ -1,0 +1,285 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the scripts required to generate Supplementary figure 18C and 18D. We model proportion of intronic signal assigned to R-loops as a function of intronic length assigned to R-loops. We then validate this model using a monte carlo approach.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("ggplot2")
+require("ggbeeswarm")
+require("ggvenn")
+require("STRINGdb")
+require("parallel")
+require("GenomicFeatures")
+require("Biostrings")
+
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-5"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+annotation_gtf <- "/nemo/lab/patanir/home/users/palk/Genomes/ENSEMBL_hg38/Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf"
+rloop_ranges <- readRDS("30-sequence-analysis-of-introns/rdata_files/90-01-merged-rloop-ranges-in-differentially-expressed-introns.rds")
+dripseq_samplesheet_df <- read.csv("/nemo/project/proj-luscombn-patani/working/public-data/sporadic-pbmc-drip-fero-et-al-2024/sample-details/sampleinfo.csv")
+dripseq_aln_dir <- file.path("/nemo/project/proj-luscombn-patani/working/public-data/sporadic-pbmc-drip-fero-et-al-2024/output_files/bigwig/")
+dripseq_list <- readRDS("34-dripseq-analysis/rdata_files/02-01-list-of-total-rloop-coverage-matrix-and-library-sizes.rds")
+
+```
+
+- Fetch features containing repeats
+
+```{r}
+
+dripseq_samplesheet_df$bigwig <- vapply(dripseq_samplesheet_df$SampleName, function(x){
+    list.files(path = dripseq_aln_dir, pattern = x) 
+},"1")
+
+```
+
+- Generate signal matrices
+
+```{r}
+
+library_sizes <- dripseq_list$library_sizes
+repeat_signal_matrix <- dripseq_list$repeat_signal_matrix
+reduced_rloop_signal_matrix <- dripseq_list$reduced_rloop_signal_matrix
+intronic_signal_matrix <- dripseq_list$feature_signal_matrix
+
+reduced_rloop_ranges <- dripseq_list$reduced_rloop_ranges
+rloop_width_per_intron <- vapply(split(width(reduced_rloop_ranges), reduced_rloop_ranges$feature_id), sum, 1)
+
+```
+
+- Get differentially expressed features
+
+```{r}
+
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+sig_result_df <- sig_result_list$significant_events
+sig_result_df <- sig_result_df[sig_result_df$region == "intron",]
+
+de_feature_ranges <- feature_ranges[feature_ranges$feature_id %in% sig_result_df$feature_ids,]
+de_feature_ranges_with_repeats <- feature_ranges_with_repeats[
+    feature_ranges_with_repeats$feature_id %in% sig_result_df$feature_ids & 
+    feature_ranges_with_repeats$type == "intron"]
+
+```
+
+- Fetch the following signal matrices
+    - library size normalised matrices for reduced R-loops
+    - library size normalised matrices for introns
+    - library size normalised matrices for repeat regions
+
+```{r}
+
+norm_reduced_rloop_signal_matrix <- t(t(reduced_rloop_signal_matrix) / (library_sizes["total_coverage",colnames(reduced_rloop_signal_matrix)] / 1e6))
+
+norm_intronic_signal_matrix <- t(t(intronic_signal_matrix) / (library_sizes["total_coverage",colnames(intronic_signal_matrix)] / 1e6))
+
+norm_repeat_signal_matrix <- t(t(repeat_signal_matrix) / (library_sizes["total_coverage",colnames(repeat_signal_matrix)] / 1e6))
+
+```
+
+- Add quantitative columns to the differentially expressed features 
+
+
+```{r}
+
+de_feature_ranges$intronic_signal <- rowMeans(norm_intronic_signal_matrix)[de_feature_ranges$feature_id]
+de_feature_ranges$rloop_signal <- rowMeans(norm_reduced_rloop_signal_matrix)[de_feature_ranges$feature_id]
+de_feature_ranges$rloop_signal_prop <- de_feature_ranges$rloop_signal / de_feature_ranges$intronic_signal
+de_feature_ranges$rloop_width <- rloop_width_per_intron[de_feature_ranges$feature_id]
+de_feature_ranges$rloop_width_prop <- de_feature_ranges$rloop_width / width(de_feature_ranges)
+
+```
+
+- create regressor modelling proportion of intronic signal assigned to r-loop as a function of proportion of intronic length assigned to r-loop
+
+```{r}
+
+non_na_de_feature_ranges <- de_feature_ranges[!is.na(de_feature_ranges$rloop_signal_prop) & de_feature_ranges$type == "intron"]
+
+model_df <- data.frame(proportion_of_signal = non_na_de_feature_ranges$rloop_signal_prop, 
+    proportion_of_length = non_na_de_feature_ranges$rloop_width_prop)
+
+a_model <- lm(data = model_df, formula = proportion_of_signal ~ proportion_of_length)
+
+# Call:
+# lm(formula = proportion_of_signal ~ proportion_of_length, data = model_df)
+
+# Residuals:
+#      Min       1Q   Median       3Q      Max
+# -0.91772 -0.03606 -0.00409  0.03331  0.75913
+
+# Coefficients:
+#                       Estimate Std. Error t value Pr(>|t|)
+# (Intercept)          0.0007896  0.0006664   1.185    0.236
+# proportion_of_length 0.9696989  0.0017870 542.637   <2e-16 ***
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Residual standard error: 0.1158 on 51852 degrees of freedom
+# Multiple R-squared:  0.8503,    Adjusted R-squared:  0.8503
+# F-statistic: 2.945e+05 on 1 and 51852 DF,  p-value: < 2.2e-16
+
+```
+
+- Plot the model
+
+```{r}
+
+
+ThePlot <- ggplot(model_df, aes(x = proportion_of_length, y = proportion_of_signal))
+ThePlot <- ThePlot + geom_point(colour = "#000000", fill = "#FFF8F0", shape = 21)
+ThePlot <- ThePlot + geom_smooth(method = "lm", formula = y ~ x, shape = 21)
+ThePlot <- ThePlot + scale_x_continuous("Proportion of intronic width in R-loops")
+ThePlot <- ThePlot + scale_y_continuous("Proportion of DRIP-seq signal in R-loops")
+# ThePlot <- ThePlot + scale_fill_manual("classes", values = Colours)
+# ThePlot <- ThePlot + scale_colour_manual("status", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(class ~ ., scales = "free")
+ThePlot <- ThePlot + ggtitle("frequency of repeats")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 10, height = 10, file = file.path(plot_dir, "04-05-01-model-proportion-of-intronic-signal-in-rloop-as-a-function-of-intronic-length-in-rloop-Supplementary-figure-18C.pdf"), ThePlot)
+
+```
+
+
+- Create the monte carlo simulation
+
+```{r}
+
+# select 75% of the data for training and keep 25% back for validation
+
+select_n <- floor(nrow(model_df) * 0.75)
+iter <- 10000
+all_rows <- seq_len(nrow(model_df))
+sampled_rows_list <- lapply(seq(1, iter), function(x){
+    training_set <- sample(x = all_rows, size = select_n)
+    return(list(training = training_set, validation = all_rows[!(all_rows %in% training_set)]))
+})
+
+
+all_model_list <- lapply(sampled_rows_list, function(x){
+    a_model <- lm(data = model_df[x$training,], formula = proportion_of_signal ~ proportion_of_length)
+    predict_df <- data.frame(proportion_of_length = model_df[x$validation,"proportion_of_length"])
+    predict_df$predicted_signal_in_repeats <- predict(object = a_model, newdata = predict_df)
+    predict_df$observed_signal_in_repeats <- model_df[x$validation,"proportion_of_signal"]
+    return(list(prediction = predict_df, model = a_model))
+})
+
+
+all_model_rsq_df <- do.call(rbind, lapply(seq_along(all_model_list), function(x){
+    stats <- summary(all_model_list[[x]]$model)
+    data.frame(iter = x, rsq = stats$r.squared)
+}))
+
+
+```
+
+- Compute the model statistics
+
+```{r}
+
+statistics_df <- do.call(rbind, lapply(seq_along(all_model_list), function(x){
+    current_prediction_df <- all_model_list[[x]]$prediction
+    correlation <- cor(current_prediction_df$predicted_signal_in_repeats, current_prediction_df$observed_signal_in_repeats)
+    
+    residual_sum_of_squares <- sum((current_prediction_df$observed_signal_in_repeats - current_prediction_df$predicted_signal_in_repeats)^2)
+    total_sum_of_squares <- sum((current_prediction_df$observed_signal_in_repeats - mean(current_prediction_df$observed_signal_in_repeats))^2)
+    rsquared <- 1 - (residual_sum_of_squares / total_sum_of_squares)
+
+    root_mean_squared_error <- sqrt(mean(residual_sum_of_squares))
+
+    mean_absolute_error <- mean(abs(current_prediction_df$observed_signal_in_repeats - current_prediction_df$predicted_signal_in_repeats))
+
+    bias <- mean(current_prediction_df$predicted_signal_in_repeats - current_prediction_df$observed_signal_in_repeats)
+    data.frame(iter = x, label = c("rsq", "rmse", "mae", "bias"), value = c(rsquared, root_mean_squared_error, mean_absolute_error, bias))
+}))
+
+lapply(unique(statistics_df$label), function(x){
+    summary(statistics_df$value[statistics_df$label == x])
+})
+
+
+
+ThePlot <- ggplot(statistics_df, aes(x = value))
+# ThePlot <- ThePlot + geom_violin(aes(fill = condition), colour = "#000000", 
+#     lwd = 0.5, position = position_dodge(width = 0.9))
+ThePlot <- ThePlot + geom_density(colour = "#000000", fill = "#FFF8F0")
+ThePlot <- ThePlot + scale_x_continuous("quality statistics")
+ThePlot <- ThePlot + scale_y_continuous("density")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(label ~ ., scales = "free")
+ThePlot <- ThePlot + ggtitle("frequency of repeats")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 10, height = 10, file = file.path(plot_dir, "04-05-02-perform-monte-carlo-crossvalidation-75-25-on-regression-model-supplementary-figure-18D.pdf"), ThePlot)
+
+
+
+```

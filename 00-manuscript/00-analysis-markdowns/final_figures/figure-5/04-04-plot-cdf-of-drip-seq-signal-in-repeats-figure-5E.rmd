@@ -1,0 +1,184 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("ggplot2")
+require("ggbeeswarm")
+require("ggvenn")
+require("STRINGdb")
+require("parallel")
+require("GenomicFeatures")
+require("Biostrings")
+
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-5"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+annotation_gtf <- "/nemo/lab/patanir/home/users/palk/Genomes/ENSEMBL_hg38/Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf"
+rloop_ranges <- readRDS("30-sequence-analysis-of-introns/rdata_files/90-01-merged-rloop-ranges-in-differentially-expressed-introns.rds")
+dripseq_samplesheet_df <- read.csv("/nemo/project/proj-luscombn-patani/working/public-data/sporadic-pbmc-drip-fero-et-al-2024/sample-details/sampleinfo.csv")
+dripseq_aln_dir <- file.path("/nemo/project/proj-luscombn-patani/working/public-data/sporadic-pbmc-drip-fero-et-al-2024/output_files/bigwig/")
+dripseq_list <- readRDS("34-dripseq-analysis/rdata_files/02-01-list-of-total-rloop-coverage-matrix-and-library-sizes.rds")
+
+```
+
+- Select significantly affected genes
+
+
+```{r}
+
+
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+
+sig_result_df <- sig_result_list$significant_events
+sig_result_df <- sig_result_df[sig_result_df$region == "intron",]
+
+de_feature_ranges <- feature_ranges[feature_ranges$feature_id %in% sig_result_df$feature_ids,]
+de_feature_ranges_with_repeats <- feature_ranges_with_repeats[
+    feature_ranges_with_repeats$feature_id %in% sig_result_df$feature_ids & 
+    feature_ranges_with_repeats$type == "intron"]
+
+```
+
+- Generate signal matrices
+
+```{r}
+
+library_sizes <- dripseq_list$library_sizes
+intronic_signal_matrix <- dripseq_list$feature_signal_matrix
+libnorm_signal <- t(t(intronic_signal_matrix) / (library_sizes[1,] / 1e6))
+mean_signal <- rowMeans(libnorm_signal)
+
+reduced_rloop_signal_matrix <- dripseq_list$reduced_rloop_signal_matrix
+prop_rloop_signal_matrix <- reduced_rloop_signal_matrix / intronic_signal_matrix[rownames(reduced_rloop_signal_matrix),]
+prop_rloop_signal_matrix[is.na(prop_rloop_signal_matrix)] <- 0
+mean_prop_signal <- rowMeans(prop_rloop_signal_matrix)
+
+repeat_signal_matrix <- dripseq_list$repeat_signal_matrix
+libnorm_repeat_signal_matrix <- t(t(repeat_signal_matrix) / (library_sizes[1,] / 1e6))
+mean_repeat_signal <- rowMeans(libnorm_repeat_signal_matrix)
+
+
+```
+
+- Prepare data.frame for CDF computation
+
+```{r}
+
+
+reduced_rloop_ranges <- dripseq_list$reduced_rloop_ranges
+repeats_in_de_intron <- repeat_ranges[de_feature_ranges_with_repeats$which_repeat]
+
+ol_object <- findOverlaps(repeats_in_de_intron, reduced_rloop_ranges)
+
+feature_signal_df <- data.frame(repeat_id = unique(names(repeats_in_de_intron)), signal = 0)
+feature_signal_df$signal <- mean_repeat_signal[feature_signal_df$repeat_id]
+feature_signal_df$repeat_status <- "outside_rloops"
+feature_signal_df$repeat_status[feature_signal_df$repeat_id %in% names(repeats_in_de_intron)[queryHits(ol_object)]] <- "overlapping_rloops"
+
+```
+
+
+- Get CDF
+
+
+```{r}
+
+introns_with_predicted_rloops_df <- feature_signal_df[feature_signal_df$signal > 0,]
+quantiles <- quantile(log10(introns_with_predicted_rloops_df$signal), seq(0,1,0.01))
+return_df_l1 <- do.call(rbind, lapply(unique(introns_with_predicted_rloops_df$repeat_status), function(x){
+        cumulative_values <- vapply(quantiles, function(z){
+            cumulative_val <- nrow(introns_with_predicted_rloops_df[
+                    introns_with_predicted_rloops_df$repeat_status == x &
+                    log10(introns_with_predicted_rloops_df$signal) <= z,]) / nrow(introns_with_predicted_rloops_df[introns_with_predicted_rloops_df$repeat_status == x,])
+        },1)
+        cdf_df <- data.frame(signal = quantiles, 
+            cdf = cumulative_values, 
+            repeat_status = x)
+        return(cdf_df)
+}))
+
+
+ks.test(x = return_df_l1$cdf[return_df_l1$repeat_status == "outside_rloops"],
+        y = return_df_l1$cdf[return_df_l1$repeat_status == "overlapping_rloops"])$p.value
+# [1] 0.8174604
+```
+
+- Plot CDF of repeats
+
+
+```{r}
+
+Colours <- c("overlapping_rloops" = "#F05D5E", "outside_rloops" = "#058ED9")
+ThePlot <- ggplot(return_df_l1, aes(x = signal, y = cdf))
+ThePlot <- ThePlot + geom_step(aes(colour = repeat_status))
+ThePlot <- ThePlot + scale_x_continuous("log10 mean library size normalised rloop signal within introns")
+ThePlot <- ThePlot + scale_y_continuous("CDF")
+ThePlot <- ThePlot + scale_colour_manual("Rloop prediction", values = Colours)
+# ThePlot <- ThePlot + scale_colour_manual("status", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(. ~ status, scales = "free")
+ThePlot <- ThePlot + ggtitle("library size normalised R-loop signal")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "04-04-figure-5E.pdf"), ThePlot)
+
+
+```
