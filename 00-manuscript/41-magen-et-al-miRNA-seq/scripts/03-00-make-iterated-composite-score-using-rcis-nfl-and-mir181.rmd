@@ -1,0 +1,281 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("rtracklayer")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("matrixStats")
+require("glmnet")
+source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "41-magen-et-al-miRNA-seq"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Analyse association between increasing intron expression rates and miRNA production
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+discovery_clinical_df <- readRDS(file.path(save_dir, "01-07-discovery-clinical-with-mirna-counts-in-rcis.rds"))
+# cutpoint_analysis_results <- readRDS(file.path(save_dir, "02-01-cutpoint-analysis-results-for-enrollment-and-onset.rds"))
+
+discovery_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-05-rci-counts-for-discovery-set.rds")
+hash_pair_df <- discovery_data_list$mirna_rci_overlap
+rci_set <- unique(hash_pair_df$hash_id[hash_pair_df$hash_id %in% colnames(discovery_clinical_df)])
+
+```
+
+- Perform 1k ridge regressions and compute the median score
+
+```{r}
+
+rci_only_ridge_composite_score_df_list <- return_iterated_ridge_composite_score(discovery_clinical_df, 
+  rcis = rci_set, 
+  iterate_n = 1000, 
+  concat_col_name = "rci_only_ridge")
+rci_only_ridge_composite_score_df <- rci_only_ridge_composite_score_df_list$prediction
+seed_list <- rci_only_ridge_composite_score_df_list$seed_list
+
+
+rci_and_nfl_ridge_composite_score_df_list <- return_iterated_ridge_composite_score(discovery_clinical_df[!is.na(discovery_clinical_df$NfL_numeric),], 
+  rcis = c(rci_set, "NfL_numeric"), 
+  iterate_n = 1000, 
+  concat_col_name = "rci_and_nfl_ridge", 
+  seed_list = seed_list)
+rci_and_nfl_ridge_composite_score_df <- rci_and_nfl_ridge_composite_score_df_list$prediction
+
+rci_and_mir181_ridge_composite_score_df_list <- return_iterated_ridge_composite_score(discovery_clinical_df, 
+  rcis = c(rci_set, "miR_181_numeric"), 
+  iterate_n = 1000, 
+  concat_col_name = "rci_and_mir181_ridge", 
+  seed_list = seed_list)
+rci_and_mir181_ridge_composite_score_df <- rci_and_mir181_ridge_composite_score_df_list$prediction
+
+rci_and_nfl_and_mir181_ridge_composite_score_df_list <- return_iterated_ridge_composite_score(discovery_clinical_df[!is.na(discovery_clinical_df$NfL_numeric),], 
+  rcis = c(rci_set, "NfL_numeric", "miR_181_numeric"), 
+  iterate_n = 1000, 
+  concat_col_name = "rci_and_nfl_and_mir181_ridge", 
+  seed_list = seed_list)
+rci_and_nfl_and_mir181_ridge_composite_score_df <- rci_and_nfl_and_mir181_ridge_composite_score_df_list$prediction
+
+```
+
+- Assemble all of the different scores together
+
+```{r}
+
+score_list <- list(
+  rci_only = rci_only_ridge_composite_score_df,
+  rci_and_nfl = rci_and_nfl_ridge_composite_score_df,
+  rci_and_mir181 = rci_and_mir181_ridge_composite_score_df,
+  rci_and_nfl_and_mir181 = rci_and_nfl_and_mir181_ridge_composite_score_df)
+
+variable_list <- list(
+  rci_only = c("rci_only_ridge_log_odds", "rci_only_ridge_prob"),
+  rci_and_nfl = c("rci_and_nfl_ridge_log_odds", "rci_and_nfl_ridge_prob"),
+  rci_and_mir181 = c("rci_and_mir181_ridge_log_odds", "rci_and_mir181_ridge_prob"),
+  rci_and_nfl_and_mir181 = c("rci_and_nfl_and_mir181_ridge_log_odds", "rci_and_nfl_and_mir181_ridge_prob"))
+
+```
+
+- Evaluate cutpoints for onset
+
+```{r}
+
+require("evaluateCutpoints")
+
+onset_hr_df_list <- lapply(names(score_list), function(x){
+  scores_to_test <- variable_list[[x]]
+  test_df <- score_list[[x]]
+  test_df_onset <- test_df[,c("survival_onset", "status", scores_to_test)]
+  
+  evaluateCutpoints(
+    mainDir = "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/",
+    resultsDirName = "onset-composite-score-analysis-results",
+    df = test_df_onset,
+    biomarkerList = scores_to_test,
+    time = "survival_onset",
+    event = "status",
+    setCutpoint = NULL,
+    setCutpoint2 = NULL)
+  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+  
+  cutpoint_dir <- "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/onset-composite-score-analysis-results"
+  current_date <- "2025-04-10"
+  rci_onset_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x){
+    return_df <- read.csv(file.path(cutpoint_dir, current_date, x, "2", "maxstat", "MaxStatResults.csv"))[,-1]
+    return_df <- as.data.frame(t(return_df))
+    colnames(return_df) <- return_df[1,]
+    return_df <- cbind(data.frame(molecule = x), return_df[-1,])
+    return_df[,"P-value"] <- as.numeric(return_df[,"P-value"])
+    return_df[,"Cutpoint"] <- as.numeric(return_df[,"Cutpoint"])
+    return_df[,"HR"] <- as.numeric(return_df[,"HR"])
+    return(return_df)
+  }))
+  rci_onset_reported_hr_values_df$sig <- "NS"
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.1] <- "."
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.05] <- "*"
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.01] <- "**"
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.001] <- "***"
+  return(rci_onset_reported_hr_values_df)
+})
+onset_hr_df <- do.call(rbind, onset_hr_df_list)
+
+
+```
+
+- Evaluate cutpoints for enrollment
+
+
+```{r}
+
+enrollment_hr_df_list <- lapply(names(score_list), function(x){
+  scores_to_test <- variable_list[[x]]
+  test_df <- score_list[[x]]
+
+  test_df_enrollment <- test_df[,c("survival_enrolment", "status", scores_to_test)]
+  # colnames(test_df) <- c("time", "event", names(biomarkers))
+  evaluateCutpoints(
+    mainDir = "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/",
+    resultsDirName = "enrollment-composite-score-analysis-results",
+    df = test_df_enrollment,
+    biomarkerList = scores_to_test,
+    time = "survival_enrolment",
+    event = "status",
+    setCutpoint = NULL,
+    setCutpoint2 = NULL)
+
+  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+  cutpoint_dir <- "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/enrollment-composite-score-analysis-results"
+  current_date <- "2025-04-10"
+  rci_enrollment_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x){
+    return_df <- read.csv(file.path(cutpoint_dir, current_date, x, "2", "maxstat", "MaxStatResults.csv"))[,-1]
+    return_df <- as.data.frame(t(return_df))
+    colnames(return_df) <- return_df[1,]
+    return_df <- cbind(data.frame(molecule = x), return_df[-1,])
+    return_df[,"P-value"] <- as.numeric(return_df[,"P-value"])
+    return_df[,"Cutpoint"] <- as.numeric(return_df[,"Cutpoint"])
+    return_df[,"HR"] <- as.numeric(return_df[,"HR"])
+    return(return_df)
+  }))
+
+  rci_enrollment_reported_hr_values_df$sig <- "NS"
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.1] <- "."
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.05] <- "*"
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.01] <- "**"
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.001] <- "***"
+
+  return(rci_enrollment_reported_hr_values_df)
+})
+enrollment_hr_df <- do.call(rbind, enrollment_hr_df_list)
+
+
+```
+
+
+- Make AUC plot for onset
+
+```{r}
+
+# require("pROC")
+# require("ggplot2")
+# # roc_logistic <- roc(test_df$status, test_df$logistic_prob)
+# # auc(roc_logistic)
+# # Area under the curve: 1
+# roc_lasso <- roc(test_df_enrollment$status, test_df_enrollment$lasso_prob)
+# auc(roc_lasso)
+# # Area under the curve: 0.8454
+# roc_ridge <- roc(test_df_enrollment$status, test_df_enrollment$ridge_prob)
+# auc(roc_ridge)
+# # Area under the curve: 0.8268
+# roc_elastic_net <- roc(test_df_enrollment$status, test_df_enrollment$elastic_net_prob)
+# auc(roc_elastic_net)
+# # Area under the curve: 0.8487
+
+# roc_df <- ggroc(list(
+#   # Logistic = roc_logistic,
+#   Lasso = roc_lasso,
+#   ElasticNet = roc_elastic_net,
+#   Ridge = roc_ridge))$data
+
+# current_theme <- theme(
+#     legend.position = "bottom",
+#     text = element_text(size = 12),
+#     axis.text.x = element_text(size = 12),
+#     axis.text.y = element_text(size = 10, angle = 90),
+#     legend.text = element_text(size = 10),
+#     legend.title = element_text(size = 10),
+#     plot.background = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     panel.grid.major = element_line(colour = "azure3",
+#     linetype = "dashed",
+#     size = 0.2))
+
+
+# the_plot <- ggplot(roc_df, aes(x = 1 - specificity, y = sensitivity, color = name)) +
+#   geom_line(size = 1.2) +
+#   geom_abline(linetype = "dashed", color = "gray") +
+#   theme_minimal(base_size = 14) +
+#   labs(
+#     title = "ROC Curves - Model Comparison",
+#     x = "1 - Specificity (False Positive Rate)",
+#     y = "Sensitivity (True Positive Rate)",
+#     color = "Model"
+#   ) +
+#   scale_color_manual(values = c("Lasso" = "#7D82B8", "ElasticNet" = "#613F75", "Ridge" = "#313715")) +
+#   current_theme
+# ggsave(width = 7, height = 7, file = file.path(plot_dir, "05-04-plot-ROC-curves-for-all-models-rci-only.pdf"), the_plot)
+
+```
+
+- Save all models for creating a composite score
+
+```{r}
+
+saveRDS(object = list(rci_only = rci_only_ridge_composite_score_df_list,
+  rci_and_nfl = rci_and_nfl_ridge_composite_score_df_list,
+  rci_and_mir181 = rci_and_mir181_ridge_composite_score_df_list,
+  rci_and_nfl_and_mir181 = rci_and_nfl_and_mir181_ridge_composite_score_df_list), 
+  file = file.path(save_dir, "02-02-save-all-iterated-models-for-creating-a-composite-score-using-rcis-nfl-and-mir181.rds"))
+
+```

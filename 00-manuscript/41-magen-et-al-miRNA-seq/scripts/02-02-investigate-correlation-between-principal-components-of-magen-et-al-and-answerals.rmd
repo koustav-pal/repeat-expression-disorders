@@ -1,0 +1,426 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("rtracklayer")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("matrixStats")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "41-magen-et-al-miRNA-seq"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Analyse association between increasing intron expression rates and miRNA production
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+answerals_intron_expression_rate_matrix <- readRDS("39-answerals-complete/rdata_files/02-01-save-intron-expression-rates-for-answerals.rds")
+answerals_object_list <- readRDS("39-answerals-complete/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
+rci_stability_df <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-05-rcis-with-stability-levels.rds")
+longitudinal_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-04-rci-counts-with-longitudinal-sampleinfo.rds")
+
+sampleinfo_df <- longitudinal_data_list$sampleinfo_df
+rci_counts_matrix <- longitudinal_data_list$rci_counts
+hash_pairs_df <- longitudinal_data_list$mirna_rci_overlap
+
+```
+
+- Get AnswerALS CPM values
+
+```{r}
+
+counts_matrix <- answerals_object_list$counts
+answerals_sampleinfo_df <- answerals_object_list$sample_df
+
+als_samples_df <- answerals_sampleinfo_df[grepl(x = answerals_sampleinfo_df$column_id, pattern = "CASE"),]
+als_cpm_matrix <- t(t(counts_matrix[,als_samples_df$column_id]) / (colSums(counts_matrix[,als_samples_df$column_id]) / 1e6))
+
+als_intron_expr_rate_matrix <- answerals_intron_expression_rate_matrix[,als_samples_df$column_id]
+
+
+```
+
+- Fetch miRNA counts from rcis and intron expression rates
+
+```{r}
+
+t4_matrix <- rci_counts_matrix[,sampleinfo_df$sample[sampleinfo_df$time == "D"]]
+t1_matrix <- rci_counts_matrix[,sampleinfo_df$sample[sampleinfo_df$time == "A"]]
+
+selected_rci_cpm_matrix <- als_cpm_matrix[rownames(rci_counts_matrix),]
+selected_rci_rate_matrix <- als_intron_expr_rate_matrix[rownames(rci_counts_matrix),]
+selected_rci_rate_matrix[is.infinite(selected_rci_rate_matrix) | is.na(selected_rci_rate_matrix)] <- 0
+
+```
+
+- construct stat data.frame
+
+```{r}
+
+t4_expr_zscore_matrix <- t( (t(t4_matrix) - colMeans(t4_matrix, na.rm = T)) / colSds(t4_matrix) )
+selected_rci_cpm_zscore_matrix <- t( (t(selected_rci_cpm_matrix) - colMeans(selected_rci_cpm_matrix, na.rm = T)) / colSds(selected_rci_cpm_matrix, na.rm = T) )
+selected_rci_expr_rate_zscore_matrix <- t( (t(selected_rci_rate_matrix) - colMeans(selected_rci_rate_matrix, na.rm = T)) / colSds(selected_rci_rate_matrix, na.rm = T) )
+
+
+stat_df <- data.frame(hash_id = rownames(t4_expr_zscore_matrix),
+	mirna_expr = rowMeans(t4_expr_zscore_matrix, na.rm = T),
+	intron_expr_cpm = rowMeans(selected_rci_cpm_zscore_matrix, na.rm = T),
+	intron_expr_rate = rowMeans(selected_rci_expr_rate_zscore_matrix, na.rm = T))
+
+
+
+```
+
+
+- What's the correlation?
+
+```{r}
+
+cor.test(stat_df$mirna_expr, stat_df$intron_expr_rate)
+# > cor.test(stat_df$mirna_expr, stat_df$intron_expr_rate)
+
+#         Pearson's product-moment correlation
+
+# data:  stat_df$mirna_expr and stat_df$intron_expr_rate
+# t = 0.41575, df = 49, p-value = 0.6794
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+#  -0.2198881  0.3294885
+# sample estimates:
+#        cor
+# 0.05928833
+
+```
+
+- Get principal components
+
+```{r}
+
+rci_cpm_log_matrix <- log2(selected_rci_cpm_matrix + 1)
+rci_t4_cpm_log_matrix <- log2(t4_matrix + 1)
+rci_expr_rate_log_matrix <- log2(selected_rci_rate_matrix + 1)
+
+rci_cpm_scaled <- t(scale(t(rci_cpm_log_matrix), center = TRUE, scale = TRUE))
+rci_t4_scaled <- t(scale(t(rci_t4_cpm_log_matrix), center = TRUE, scale = TRUE))
+rci_expr_rate_scaled <- t(scale(t(rci_expr_rate_log_matrix), center = TRUE, scale = TRUE))
+
+rci_cpm_pca_object <- prcomp(t(rci_cpm_scaled), center = T, scale. = T)
+rci_t4_pca_object <- prcomp(t(rci_t4_scaled), center = T, scale. = T)
+rci_expr_rate_pca_object <- prcomp(t(rci_expr_rate_scaled), center = T, scale. = T)
+
+rci_expr_loadings <- rci_cpm_pca_object$rotation
+rci_t4_mirna_loadings <- rci_t4_pca_object$rotation
+rci_expr_rate_loadings <- rci_expr_rate_pca_object$rotation
+
+# cor(rci_expr_loadings[,"PC1"], rci_expr_rate_loadings[,"PC1"])
+
+# cor(rci_expr_loadings[,"PC1"], rci_t4_mirna_loadings[,"PC1"])
+
+
+pc_x <- paste("PC", seq(1,51), sep = "")
+pc_z <- paste("PC", seq(1,22), sep = "")
+
+pair_matrix_1 <- cbind( rep(pc_x, each = length(pc_x)), rep(pc_x, times = length(pc_x)) )
+pair_matrix_3 <- cbind( rep(pc_x, each = length(pc_z)), rep(pc_z, times = length(pc_x)) )
+
+```
+
+- Get correlations
+
+```{r}
+
+rci_cpm_vs_expr_rate_pc_cor_df <- do.call(rbind, lapply(seq_len(nrow(pair_matrix_1)), function(x){
+	cor_test <- cor.test(rci_expr_loadings[,pair_matrix_1[x,1]], rci_expr_rate_loadings[,pair_matrix_1[x,2]])
+	data.frame(rci_cpm_pc = pair_matrix_1[x,1], 
+		rci_expr_rate_pc = pair_matrix_1[x,2], 
+		cor = cor_test$estimate,
+		pval = cor_test$p.value)
+}))
+sig_rci_cpm_vs_expr_rate_pc_cor_df <- rci_cpm_vs_expr_rate_pc_cor_df[rci_cpm_vs_expr_rate_pc_cor_df$pval < 0.05,]
+ordered_rci_cpm_vs_expr_rate_pc_cor_df <- sig_rci_cpm_vs_expr_rate_pc_cor_df[order(sig_rci_cpm_vs_expr_rate_pc_cor_df$cor, decreasing = T),]
+
+
+```
+- Investigate association between principal components of RCI expression and miRNAs
+
+```{r}
+
+rci_cpm_vs_mirna_pc_cor_df <- do.call(rbind, lapply(seq_len(nrow(pair_matrix_3)), function(x){
+	cor_test <- cor.test(rci_expr_loadings[,pair_matrix_3[x,1]], rci_t4_mirna_loadings[,pair_matrix_3[x,2]])
+	temp_df <- data.frame(x = rci_expr_loadings[,pair_matrix_3[x,1]], y = rci_t4_mirna_loadings[,pair_matrix_3[x,2]])
+	a_model <- lm(data = temp_df, formula = y ~ x)
+	a_summary <- summary(a_model)
+	data.frame(rci_cpm_pc = pair_matrix_3[x,1], 
+		rci_mirna_pc = pair_matrix_3[x,2], 
+		cor = cor_test$estimate,
+		pval = cor_test$p.value,
+		lm_fit_r2 = a_summary$r.squared,
+		lm_fit_pval = a_summary$coefficients[2,4])
+}))
+sig_rci_cpm_vs_mirna_pc_cor_df <- rci_cpm_vs_mirna_pc_cor_df[rci_cpm_vs_mirna_pc_cor_df$pval < 0.05,]
+ordered_rci_cpm_vs_mirna_pc_cor_df <- sig_rci_cpm_vs_mirna_pc_cor_df[order(sig_rci_cpm_vs_mirna_pc_cor_df$cor, decreasing = T),]
+
+
+cor_plot_df <- data.frame(
+	rci_pc = ordered_rci_cpm_vs_mirna_pc_cor_df$rci_cpm_pc,
+	rci_mirna_pc = ordered_rci_cpm_vs_mirna_pc_cor_df$rci_mirna_pc,
+	group = paste(ordered_rci_cpm_vs_mirna_pc_cor_df$rci_cpm_pc, "vs", ordered_rci_cpm_vs_mirna_pc_cor_df$rci_mirna_pc, sep = "_"),
+	cor = round(ordered_rci_cpm_vs_mirna_pc_cor_df$cor,2),
+	pval = ordered_rci_cpm_vs_mirna_pc_cor_df$pval,
+	rsq = ordered_rci_cpm_vs_mirna_pc_cor_df$lm_fit_r2,
+	lm_pval = ordered_rci_cpm_vs_mirna_pc_cor_df$lm_fit_pval)
+cor_plot_df$label <- paste("r=", cor_plot_df$cor, "\nR2=", round(cor_plot_df$rsq,2), sep = "")
+
+
+rci_expr_vs_mirna_pc_component_df <- do.call(rbind, lapply(seq_len(nrow(ordered_rci_cpm_vs_mirna_pc_cor_df)), function(x){
+	current_row <- ordered_rci_cpm_vs_mirna_pc_cor_df[x,]
+	data.frame(group = paste(current_row$rci_cpm_pc, "vs", current_row$rci_mirna_pc, sep = "_"),
+		x_axis = rci_expr_loadings[,pair_matrix_3[x,1]],
+		y_axis = rci_t4_mirna_loadings[,pair_matrix_3[x,2]],
+		pvalue = current_row$pval)
+}))
+
+factor_levels <- cor_plot_df$group[order(cor_plot_df$rsq, decreasing = T)]
+rci_expr_vs_mirna_pc_component_df$group <- factor(rci_expr_vs_mirna_pc_component_df$group, levels = factor_levels)
+cor_plot_df$group <- factor(cor_plot_df$group, levels = factor_levels)
+
+```
+
+- Plot the association
+
+```{r}
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+ThePlot <- ggplot(rci_expr_vs_mirna_pc_component_df, aes(x = x_axis, y = y_axis))
+ThePlot <- ThePlot + geom_point(aes(fill = -log10(pvalue)), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_text(data = cor_plot_df, x = Inf, y = Inf, hjust = 1, vjust = 1, aes(label = label))
+ThePlot <- ThePlot + scale_x_continuous("RCI expression Pprincipal components (AnswerALS)")
+ThePlot <- ThePlot + scale_y_continuous("miRNA associated RCI principal components (magen et al)")
+# ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_distiller("-log10 pvalue", palette = "YlOrRd", direction = 1)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(. ~ group, scales = "free")
+ThePlot <- ThePlot + ggtitle("correlation between principal components")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 15, height = 15, file = file.path(plot_dir, "04-05-plot-correlation-between-principal-components-from-rci-expression-vs-mirnas.pdf"), ThePlot)
+
+
+
+
+require("ComplexHeatmap")
+require("circlize")
+require("RColorBrewer")
+require("viridis")
+col_fun = colorRamp2(unique(c(seq(from = -0.3, to = 0, length.out = 5), seq(from = 0, to = 0.3, length.out = 5))), rev(brewer.pal(n = 9, name = "RdBu")))
+cor_matrix <- reshape2::acast(data = rci_cpm_vs_mirna_pc_cor_df, formula = rci_cpm_pc ~ rci_mirna_pc, value.var = "cor")
+pval_matrix <- reshape2::acast(data = rci_cpm_vs_mirna_pc_cor_df, formula = rci_cpm_pc ~ rci_mirna_pc, value.var = "pval")
+pdf(file = file.path(plot_dir, "04-05-plot-correlation-matrix-between-principal-components-from-rci-expression-vs-mirnas.pdf"), width = 10, height = 10)
+	Heatmap(cor_matrix, 
+		cell_fun = function(j, i, x, y, w, h, fill) {
+		    if(pval_matrix[i, j] < 0.001) {
+		        grid.text("***", x, y)
+		    } else if(pval_matrix[i, j] < 0.01) {
+		        grid.text("**", x, y)
+		    } else if(pval_matrix[i, j] < 0.05) {
+		        grid.text("*", x, y)
+		    } else if(pval_matrix[i, j] < 0.1) {
+		        grid.text(".", x, y)
+		    }
+		},
+	name = "correlation matrix", 
+	# top_annotation = col_anno,
+	# left_annotation = row_anno,
+	# row_split = row_split,
+	# column_split = col_split,
+	col = col_fun,
+	show_row_names = F,
+	show_column_names = F,
+	cluster_rows = T, 
+	cluster_columns = T) 
+dev.off()
+
+
+
+```
+
+- Investigate association between principal components of RCI emission rate and miRNAs 
+
+```{r}
+
+
+rci_expr_rate_vs_mirna_pc_cor_df <- do.call(rbind, lapply(seq_len(nrow(pair_matrix_3)), function(x){
+	cor_test <- cor.test(rci_expr_rate_loadings[,pair_matrix_3[x,1]], rci_t4_mirna_loadings[,pair_matrix_3[x,2]])
+	temp_df <- data.frame(x = rci_expr_rate_loadings[,pair_matrix_3[x,1]], y = rci_t4_mirna_loadings[,pair_matrix_3[x,2]])
+	a_model <- lm(data = temp_df, formula = y ~ x)
+	a_summary <- summary(a_model)
+	data.frame(rci_expr_rate_pc = pair_matrix_3[x,1], 
+		rci_mirna_pc = pair_matrix_3[x,2], 
+		cor = cor_test$estimate,
+		pval = cor_test$p.value,
+		lm_fit_r2 = a_summary$r.squared,
+		lm_fit_pval = a_summary$coefficients[2,4])
+}))
+sig_rci_expr_rate_vs_mirna_pc_cor_df <- rci_expr_rate_vs_mirna_pc_cor_df[rci_expr_rate_vs_mirna_pc_cor_df$pval < 0.05 & abs(rci_expr_rate_vs_mirna_pc_cor_df$cor) > 0.25,]
+ordered_rci_expr_rate_vs_mirna_pc_cor_df <- sig_rci_expr_rate_vs_mirna_pc_cor_df[order(sig_rci_expr_rate_vs_mirna_pc_cor_df$cor, decreasing = T),]
+
+
+cor_plot_df <- data.frame(
+	group = paste(ordered_rci_expr_rate_vs_mirna_pc_cor_df$rci_expr_rate_pc, "vs", ordered_rci_expr_rate_vs_mirna_pc_cor_df$rci_mirna_pc, sep = "_"),
+	cor = round(ordered_rci_expr_rate_vs_mirna_pc_cor_df$cor,2),
+	pval = ordered_rci_expr_rate_vs_mirna_pc_cor_df$pval,
+	rsq = ordered_rci_expr_rate_vs_mirna_pc_cor_df$lm_fit_r2,
+	lm_pval = ordered_rci_expr_rate_vs_mirna_pc_cor_df$lm_fit_pval)
+cor_plot_df$label <- paste("r=", cor_plot_df$cor, "\nR2=", round(cor_plot_df$rsq,2), sep = "")
+
+
+
+rci_expr_rate_vs_mirna_pc_component_df <- do.call(rbind, lapply(seq_len(nrow(ordered_rci_expr_rate_vs_mirna_pc_cor_df)), function(x){
+	current_row <- ordered_rci_expr_rate_vs_mirna_pc_cor_df[x,]
+	data.frame(group = paste(current_row$rci_expr_rate_pc, "vs", current_row$rci_mirna_pc, sep = "_"),
+		x_axis = rci_expr_rate_loadings[,pair_matrix_3[x,1]],
+		y_axis = rci_t4_mirna_loadings[,pair_matrix_3[x,2]],
+		pvalue = current_row$pval)
+}))
+
+factor_levels <- cor_plot_df$group[order(cor_plot_df$rsq, decreasing = T)]
+rci_expr_rate_vs_mirna_pc_component_df$group <- factor(rci_expr_rate_vs_mirna_pc_component_df$group, levels = factor_levels)
+cor_plot_df$group <- factor(cor_plot_df$group, levels = factor_levels)
+
+
+```
+
+- Plot the association
+
+```{r}
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+ThePlot <- ggplot(rci_expr_rate_vs_mirna_pc_component_df, aes(x = x_axis, y = y_axis))
+ThePlot <- ThePlot + geom_point(aes(fill = -log10(pvalue)), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + geom_text(data = cor_plot_df, x = Inf, y = Inf, hjust = 1, vjust = 1, aes(label = label))
+ThePlot <- ThePlot + scale_x_continuous("Intron emission rate Principal components (AnswerALS)")
+ThePlot <- ThePlot + scale_y_continuous("miRNA associated RCI principal components (magen et al)")
+# ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_distiller("-log10 pvalue", palette = "YlOrRd", direction = 1)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_wrap(. ~ group, scales = "free")
+ThePlot <- ThePlot + ggtitle("correlation between principal components")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 15, height = 15, file = file.path(plot_dir, "04-04-plot-correlation-between-principal-components-from-rci-emission-rate-vs-mirnas.pdf"), ThePlot)
+
+```
+
+- Are any of these components associated to the measured stability?
+
+```{r}
+
+pc_x <- paste("PC", seq(1,51), sep = "")
+rci_cpm_vs_stability_pc_cor_df <- do.call(rbind, lapply(pc_x, function(x){
+	expr_cor_test <- cor.test(rci_expr_loadings[,x], rci_stability_df[rownames(rci_expr_loadings),"std_err"])
+	expr_rate_cor_test <- cor.test(rci_expr_rate_loadings[,x], rci_stability_df[rownames(rci_expr_rate_loadings),"std_err"])
+
+	temp_df <- data.frame(x = rci_stability_df[rownames(rci_expr_loadings),"std_err"], y = rci_expr_loadings[,x])	
+	expr_model <- lm(data = temp_df, formula = y ~ x)
+	expr_summary <- summary(expr_model)
+	
+	temp_df <- data.frame(x = rci_stability_df[rownames(rci_expr_rate_loadings),"std_err"], y = rci_expr_rate_loadings[,x])	
+	expr_rate_model <- lm(data = temp_df, formula = y ~ x)
+	expr_rate_summary <- summary(expr_rate_model)
+
+	data.frame(rci_pc = x, 
+		expr_cor = expr_cor_test$estimate,
+		expr_pval = expr_cor_test$p.value,
+		expr_lm_fit_r2 = expr_summary$r.squared,
+		expr_lm_fit_pval = expr_summary$coefficients[2,4],
+		expr_rate_cor = expr_rate_cor_test$estimate,
+		expr_rate_pval = expr_rate_cor_test$p.value,
+		expr_rate_lm_fit_r2 = expr_rate_summary$r.squared,
+		expr_rate_lm_fit_pval = expr_rate_summary$coefficients[2,4])
+}))
+
+# RCI expression principal components that are significantly correlated to stablity of miRNAs
+
+sig_rci_cpm_vs_stability_pc_cor_df <- rci_cpm_vs_stability_pc_cor_df[rci_cpm_vs_stability_pc_cor_df$expr_pval < 0.05,]
+#       rci_pc  expr_cor   expr_pval expr_lm_fit_r2 expr_lm_fit_pval
+# cor34   PC35 0.3663967 0.008184018      0.1342465      0.008184018
+# cor36   PC37 0.3140958 0.024792238      0.0986562      0.024792238
+#       expr_rate_cor expr_rate_pval expr_rate_lm_fit_r2 expr_rate_lm_fit_pval
+# cor34    0.18590637      0.1915038         0.034561179             0.1915038
+# cor36    0.06053566      0.6730389         0.003664567             0.6730389
+# RCI expression rate principal components that are significantly correlated to stablity of miRNAs
+
+sig_rci_expr_rate_vs_stability_pc_cor_df <- rci_cpm_vs_stability_pc_cor_df[rci_cpm_vs_stability_pc_cor_df$expr_rate_pval < 0.05,]
+
+#       rci_pc     expr_cor expr_pval expr_lm_fit_r2 expr_lm_fit_pval
+# cor7     PC8  0.027138900 0.8500611   7.365199e-04        0.8500611
+# cor45   PC46 -0.002606963 0.9855145   6.796257e-06        0.9855145
+#       expr_rate_cor expr_rate_pval expr_rate_lm_fit_r2 expr_rate_lm_fit_pval
+# cor7      0.2903250     0.03876420          0.08428862            0.03876420
+# cor45    -0.3504352     0.01169979          0.12280486            0.01169979
+
+```

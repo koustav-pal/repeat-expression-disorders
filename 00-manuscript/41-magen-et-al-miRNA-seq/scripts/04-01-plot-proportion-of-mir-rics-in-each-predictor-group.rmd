@@ -1,0 +1,144 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("rtracklayer")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("matrixStats")
+require("glmnet")
+source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "41-magen-et-al-miRNA-seq"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Analyse association between increasing intron expression rates and miRNA production
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+
+replication_clinical_df <- readRDS(file.path(save_dir, "01-08-replication-clinical-with-mirna-counts-in-rcis.rds"))
+discovery_clinical_df <- readRDS(file.path(save_dir, "01-07-discovery-clinical-with-mirna-counts-in-rcis.rds"))
+combined_clinical_df <- rbind(replication_clinical_df, discovery_clinical_df)
+
+clinical_df_in_use <- combined_clinical_df
+
+replication_data_list <- readRDS(file.path(save_dir, "01-06-rci-counts-for-replication-set.rds"))
+hash_pair_df <- replication_data_list$mirna_rci_overlap
+rci_set <- unique(hash_pair_df$hash_id[hash_pair_df$hash_id %in% colnames(clinical_df_in_use)])
+
+keep_hash_pair_df <- hash_pair_df[hash_pair_df$hash_id %in% rci_set,]
+
+```
+
+- Add gene id to hash pair data.frame
+
+```{r}
+
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+keep_hash_pair_df$gene_id <- feature_ranges$gene_id[match(keep_hash_pair_df$hash_id, feature_ranges$hash_id)]
+
+```
+
+- Investigate overlap between predictors and miRNAs
+
+```{r}
+
+hpo_terms_with_cluster_df <- readRDS(file.path("23-final-gene-set-enrichments/rdata_files/19-hpo-interesting-terms-with-group-assignment-and-plot-order.rds"))
+
+predictor_genes <- lapply(split(str_split(hpo_terms_with_cluster_df$inputGenes, pattern = ","), hpo_terms_with_cluster_df$group), function(x){
+    unique(do.call(c, x))
+})
+predictor_genes$moderate_predictors <- predictor_genes$moderate_predictors[!(predictor_genes$moderate_predictors %in% predictor_genes$strong_predictors)]
+predictor_genes$modest_predictors <- predictor_genes$modest_predictors[!(predictor_genes$modest_predictors %in% predictor_genes$moderate_predictors) & 
+    !(predictor_genes$modest_predictors %in% predictor_genes$strong_predictors)]
+
+predictor_df <- data.frame(gene_id = do.call(c, predictor_genes),
+  predictor = rep(names(predictor_genes), vapply(predictor_genes, length, 1)))
+
+keep_hash_pair_df$predictor <- predictor_df[match(keep_hash_pair_df$gene_id, predictor_df$gene_id), "predictor"]
+
+unique_hash_df <- unique(keep_hash_pair_df[,c("hash_id","predictor")])
+
+frequency_df <- as.data.frame(table(unique_hash_df$predictor))
+colnames(frequency_df) <- c("predictor_group", "frequency")
+frequency_df$proportion <- frequency_df$frequency / nrow(unique_hash_df)
+frequency_df <- rbind(frequency_df, data.frame(predictor_group = "modest_predictors", frequency = 0, proportion = 0))
+
+frequency_df$predictor_group <- factor(frequency_df$predictor_group, levels = c("strong_predictors", "moderate_predictors", "modest_predictors"))
+
+```
+
+- Plot frequency
+
+```{r}
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+Colours <- c("strong_predictors" = "#f36f48", "moderate_predictors" = "#5688C7", "modest_predictors" = "#FDE2E2")
+ThePlot <- ggplot(frequency_df, aes(x = predictor_group, y = proportion))
+ThePlot <- ThePlot + geom_col(aes(fill = predictor_group), shape = 21, colour = "#000000")
+ThePlot <- ThePlot + geom_text(aes(label = frequency, y = proportion / 2))
+ThePlot <- ThePlot + scale_x_discrete("predictor groups")
+ThePlot <- ThePlot + scale_y_continuous("proportion of miR-RCIs identified in each predictor group")
+ThePlot <- ThePlot + scale_fill_manual("predictors", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_grid(. ~ type, scales = "free")
+ThePlot <- ThePlot + ggtitle("Proportion of rcis producing miR-RCIs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "06-12-plot-proportion-of-miR-RCIs-in-each-predictor-groups.pdf"), ThePlot)
+
+
+```

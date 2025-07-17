@@ -1,0 +1,448 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("rtracklayer")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("matrixStats")
+require("glmnet")
+source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "41-magen-et-al-miRNA-seq"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Analyse association between increasing intron expression rates and miRNA production
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+discovery_clinical_df <- readRDS(file.path(save_dir, "01-07-discovery-clinical-with-mirna-counts-in-rcis.rds"))
+# cutpoint_analysis_results <- readRDS(file.path(save_dir, "02-01-cutpoint-analysis-results-for-enrollment-and-onset.rds"))
+
+discovery_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-05-rci-counts-for-discovery-set.rds")
+hash_pair_df <- discovery_data_list$mirna_rci_overlap
+rci_set <- unique(hash_pair_df$hash_id[hash_pair_df$hash_id %in% colnames(discovery_clinical_df)])
+all_models_list <- readRDS(file.path(save_dir, "02-02-save-all-iterated-models-for-creating-a-composite-score-using-rcis-nfl-and-mir181.rds"))
+
+rci_only_ridge_composite_score_df_list <- all_models_list$rci_only
+seed_list <- rci_only_ridge_composite_score_df_list$seed_list
+
+rci_and_nfl_ridge_composite_score_df_list <- all_models_list$rci_and_nfl
+rci_and_mir181_ridge_composite_score_df_list <- all_models_list$rci_and_mir181
+rci_and_nfl_and_mir181_ridge_composite_score_df_list <- all_models_list$rci_and_nfl_and_mir181
+
+```
+
+- Fetch all individual scores
+
+```{r}
+
+variable_list <- list(
+  rci_only = rci_set,
+  rci_and_nfl = c(rci_set, "NfL_numeric"),
+  rci_and_mir181 = c(rci_set, "miR_181_numeric"),
+  rci_and_nfl_and_mir181 = c(rci_set, "NfL_numeric", "miR_181_numeric"))
+
+concat_list <- list(
+  rci_only = "rci_only_ridge",
+  rci_and_nfl = "rci_and_nfl_ridge",
+  rci_and_mir181 = "rci_and_mir181_ridge",
+  rci_and_nfl_and_mir181 = "rci_and_nfl_and_mir181_ridge")
+
+all_rci_score_list <- lapply(names(variable_list), function(x){
+  current_var <- variable_list[[x]]
+  current_concat <- concat_list[[x]]
+  current_clinical_df <- discovery_clinical_df
+  if(grepl(x = x, pattern = "nfl")){
+    current_clinical_df <- discovery_clinical_df[!is.na(discovery_clinical_df$NfL_numeric),]
+  }
+  all_seed_output_list <- lapply(seq_along(seed_list), function(y){
+    message(y)
+    current_score_df <- return_ridge_composite_score(current_clinical_df, 
+      rcis = current_var, 
+      concat_col_name = current_concat, 
+      seed = seed_list[y])
+    return(list(log_odds = current_score_df[,paste(current_concat, "log_odds", sep = "_")],
+      prob = current_score_df[,paste(current_concat, "prob", sep = "_")]))
+  })
+  ridge_prob_matrix <- do.call(cbind, lapply(all_seed_output_list, function(y){
+    y$prob
+  }))
+  ridge_log_odds_matrix <- do.call(cbind, lapply(all_seed_output_list, function(y){
+    y$log_odds
+  }))
+  colnames(ridge_prob_matrix) <- paste(current_concat, "prob", "seed", seed_list, sep = "_")
+  colnames(ridge_log_odds_matrix) <- paste(current_concat, "log_odds", "seed", seed_list, sep = "_")
+  return(list(log_odds = ridge_log_odds_matrix, prob = ridge_prob_matrix))
+})
+names(all_rci_score_list) <- names(variable_list)
+
+```
+
+- Evaluate cutpoints for onset
+
+```{r}
+
+require("evaluateCutpoints")
+current_date <- "2025-04-11"
+result_dir <- "individual-seed-onset-composite-score-analysis-results"
+require("parallel")
+onset_cutpoint_analysis_df_list <- lapply(names(variable_list), function(x){
+  message(x)
+  current_var <- variable_list[[x]]
+  current_concat <- concat_list[[x]]
+  rci_score_list <- all_rci_score_list[[x]]
+  current_clinical_df <- discovery_clinical_df
+  cutpoint_dir <- file.path(output_dir, result_dir)
+  if(grepl(x = x, pattern = "nfl")){
+    current_clinical_df <- discovery_clinical_df[!is.na(discovery_clinical_df$NfL_numeric),]
+  }
+  current_clinical_df <- cbind(current_clinical_df, rci_score_list$prob)
+
+  scores_to_test <- colnames(rci_score_list$prob)
+  test_df_onset <- current_clinical_df[,c("survival_onset", "status", scores_to_test)]
+  # Check if these scores have been computed already 
+  keep_scores_to_test <- scores_to_test[vapply(scores_to_test, function(x1){
+      !file.exists(file.path(cutpoint_dir, current_date, x1, "2", "maxstat", "MaxStatResults.csv"))
+  },T)]
+
+  if(length(keep_scores_to_test) > 0){
+    evaluateCutpoints(
+      mainDir = output_dir,
+      resultsDirName = result_dir,
+      df = test_df_onset,
+      biomarkerList = keep_scores_to_test,
+      time = "survival_onset",
+      event = "status",
+      setCutpoint = NULL,
+      setCutpoint2 = NULL)    
+  }
+
+  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+
+  message("Fetching cutpoints...")
+  rci_onset_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
+    return_df <- read.csv(file.path(cutpoint_dir, current_date, x1, "2", "maxstat", "MaxStatResults.csv"))[,-1]
+    return_df <- as.data.frame(t(return_df))
+    colnames(return_df) <- return_df[1,]
+    return_df <- cbind(data.frame(molecule = x, score = x1), return_df[-1,])
+    return_df[,"P-value"] <- as.numeric(return_df[,"P-value"])
+    return_df[,"Cutpoint"] <- as.numeric(return_df[,"Cutpoint"])
+    return_df[,"HR"] <- as.numeric(return_df[,"HR"])
+    return(return_df)
+  }))
+  rci_onset_reported_hr_values_df$sig <- "NS"
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.1] <- "."
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.05] <- "*"
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.01] <- "**"
+  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.001] <- "***"
+  message("Performing differential survival...")
+  log_rank_stat_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
+      current_cutpoint_df <- rci_onset_reported_hr_values_df[rci_onset_reported_hr_values_df$score == x1,]
+      test_df_onset$current_group <- ifelse(test_df_onset[,x1] > current_cutpoint_df[,"Cutpoint"], "High", "Low")
+      num_groups <- length(unique(test_df_onset$current_group)) 
+      if(num_groups == 1){
+        diff_surv_summary_df <- data.frame(
+          molecule = x,
+          score_type = x1,
+          logrank_stat = NA,
+          pval = NA,
+          hr = NA)
+        return(diff_surv_summary_df)
+      }
+      diff_surv <- survdiff(Surv(survival_onset, status) ~ current_group, data = test_df_onset)
+      diff_surv_summary_df <- data.frame(
+        molecule = x, 
+        score_type = x1,
+        logrank_stat = diff_surv$chisq,
+        pval = diff_surv$pvalue,
+        hr = (diff_surv$obs[1] / diff_surv$exp[1]) / (diff_surv$obs[2] / diff_surv$exp[2]))
+    return(diff_surv_summary_df)
+  }))
+  log_rank_stat_df$sig <- "NS"
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.1] <- "."
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.05] <- "*"
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.01] <- "**"
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.001] <- "***"
+  return(list(cutpoint_df = rci_onset_reported_hr_values_df, log_rank = log_rank_stat_df))
+})
+
+names(onset_cutpoint_analysis_df_list) <- names(variable_list)
+
+```
+
+- Get log-rank statistic
+
+```{r}
+
+diff_surv_df <- do.call(rbind, lapply(onset_cutpoint_analysis_df_list, function(x){
+  x$log_rank
+}))
+
+summarised_diff_surv_df <- do.call(rbind, lapply(split(diff_surv_df, diff_surv_df$molecule), function(y){
+  non_na_y <- y[!is.na(y$logrank_stat),]
+
+  logrank_stat_margin <- qt(0.975,df=nrow(non_na_y)-1) * sd(non_na_y$logrank_stat)/sqrt(nrow(non_na_y))
+  pval_margin <- qt(0.975,df=nrow(non_na_y)-1) * sd(non_na_y$pval)/sqrt(nrow(non_na_y))
+  hr_margin <- qt(0.975,df=nrow(non_na_y)-1) * sd(non_na_y$hr)/sqrt(nrow(non_na_y))
+
+  return_df <- data.frame(molecule = unique(non_na_y$molecule), 
+    type = c("logrank_stat", "pval", "hazard_ratio"),
+    lower = c(mean(non_na_y$logrank_stat) - logrank_stat_margin,
+      -log10(mean(non_na_y$pval) - pval_margin),
+      mean(non_na_y$hr) - hr_margin),
+    mean = c(mean(non_na_y$logrank_stat), -log10(mean(non_na_y$pval)), mean(non_na_y$hr)),
+    upper = c(mean(non_na_y$logrank_stat) + logrank_stat_margin,
+      -log10(mean(non_na_y$pval) + pval_margin),
+      mean(non_na_y$hr) + hr_margin),
+    intercepts = c(NA,-log10(0.05),1))
+  return(return_df)
+}))
+
+rownames(summarised_diff_surv_df) <- NULL
+
+
+```
+
+- Plot forest plot of logstat, hazard ratios and pvalues
+
+```{r}
+
+summarised_diff_surv_df$molecule <- factor(summarised_diff_surv_df$molecule, 
+  levels = rev(c("rci_only", "rci_and_nfl", "rci_and_mir181", "rci_and_nfl_and_mir181")))
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+ThePlot <- ggplot(summarised_diff_surv_df, aes(y = mean, x = molecule))
+ThePlot <- ThePlot + geom_pointrange(aes(ymin = lower, ymax = upper))
+ThePlot <- ThePlot + geom_hline(aes(yintercept = intercepts), lty = "dashed", colour = "#000000")
+ThePlot <- ThePlot + scale_x_discrete("composite scores")
+ThePlot <- ThePlot + scale_y_continuous("values")
+ThePlot <- ThePlot + coord_flip()
+# ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_grid(. ~ type, scales = "free")
+ThePlot <- ThePlot + ggtitle("forest plot of hazard ratios")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 5, file = file.path(plot_dir, "06-01-plot-onset-forest-plot-of-lrt-pval-hr-for-all-1k-models.pdf"), ThePlot)
+
+
+```
+
+
+- Evaluate cutpoints for enrollment
+
+```{r}
+
+require("evaluateCutpoints")
+current_date <- "2025-04-14"
+result_dir <- "individual-seed-enrollment-composite-score-analysis-results"
+enrollment_cutpoint_analysis_df_list <- mclapply(names(variable_list), function(x){
+  message(x)
+  cutpoint_dir <- file.path(output_dir, result_dir)
+  current_var <- variable_list[[x]]
+  current_concat <- concat_list[[x]]
+  rci_score_list <- all_rci_score_list[[x]]
+  current_clinical_df <- discovery_clinical_df
+  if(grepl(x = x, pattern = "nfl")){
+    current_clinical_df <- discovery_clinical_df[!is.na(discovery_clinical_df$NfL_numeric),]
+  }
+  current_clinical_df <- cbind(current_clinical_df, rci_score_list$prob)
+
+  scores_to_test <- colnames(rci_score_list$prob)
+  test_df_enrollment <- current_clinical_df[,c("survival_enrolment", "status", scores_to_test)]
+  # Check if these scores have been computed already 
+  keep_scores_to_test <- scores_to_test[vapply(scores_to_test, function(x1){
+      !file.exists(file.path(cutpoint_dir, current_date, x1, "2", "maxstat", "MaxStatResults.csv"))
+  },T)]
+
+  if(length(keep_scores_to_test) > 0){
+    evaluateCutpoints(
+      mainDir = output_dir,
+      resultsDirName = result_dir,
+      df = test_df_enrollment,
+      biomarkerList = keep_scores_to_test,
+      time = "survival_enrolment",
+      event = "status",
+      setCutpoint = NULL,
+      setCutpoint2 = NULL)    
+  }
+
+  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+
+  message("Fetching cutpoints...")
+  rci_enrollment_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
+    return_df <- read.csv(file.path(cutpoint_dir, current_date, x1, "2", "maxstat", "MaxStatResults.csv"))[,-1]
+    return_df <- as.data.frame(t(return_df))
+    colnames(return_df) <- return_df[1,]
+    return_df <- cbind(data.frame(molecule = x, score = x1), return_df[-1,])
+    return_df[,"P-value"] <- as.numeric(return_df[,"P-value"])
+    return_df[,"Cutpoint"] <- as.numeric(return_df[,"Cutpoint"])
+    return_df[,"HR"] <- as.numeric(return_df[,"HR"])
+    return(return_df)
+  }))
+  rci_enrollment_reported_hr_values_df$sig <- "NS"
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.1] <- "."
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.05] <- "*"
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.01] <- "**"
+  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.001] <- "***"
+  message("Performing differential survival...")
+  log_rank_stat_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
+      current_cutpoint_df <- rci_enrollment_reported_hr_values_df[rci_enrollment_reported_hr_values_df$score == x1,]
+      test_df_enrollment$current_group <- ifelse(test_df_enrollment[,x1] > current_cutpoint_df[,"Cutpoint"], "High", "Low")
+      num_groups <- length(unique(test_df_enrollment$current_group)) 
+      if(num_groups == 1){
+        diff_surv_summary_df <- data.frame(
+          molecule = x,
+          score_type = x1,
+          logrank_stat = NA,
+          pval = NA,
+          hr = NA)
+        return(diff_surv_summary_df)
+      }
+      diff_surv <- survdiff(Surv(survival_enrolment, status) ~ current_group, data = test_df_enrollment)
+      diff_surv_summary_df <- data.frame(
+        molecule = x, 
+        score_type = x1,
+        logrank_stat = diff_surv$chisq,
+        pval = diff_surv$pvalue,
+        hr = (diff_surv$obs[1] / diff_surv$exp[1]) / (diff_surv$obs[2] / diff_surv$exp[2]))
+    return(diff_surv_summary_df)
+  }))
+  log_rank_stat_df$sig <- "NS"
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.1] <- "."
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.05] <- "*"
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.01] <- "**"
+  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.001] <- "***"
+  return(list(cutpoint_df = rci_enrollment_reported_hr_values_df, log_rank = log_rank_stat_df))
+}, mc.cores = 4)
+
+names(enrollment_cutpoint_analysis_df_list) <- names(variable_list)
+
+saveRDS(object = list(onset = onset_cutpoint_analysis_df_list, enrollment = enrollment_cutpoint_analysis_df_list), 
+  file = file.path(save_dir, "02-03-onset-and-enrollment-cutpoint-analysis-results-for-each-individual-seed-list.rds"))
+
+```
+
+- Get log-rank statistic for enrollment
+
+```{r}
+
+enrollment_diff_surv_df <- do.call(rbind, lapply(enrollment_cutpoint_analysis_df_list, function(x){
+  x$log_rank
+}))
+
+summarised_enrollment_diff_surv_df <- do.call(rbind, lapply(split(enrollment_diff_surv_df, enrollment_diff_surv_df$molecule), function(y){
+  non_na_y <- y[!is.na(y$logrank_stat),]
+
+  logrank_stat_margin <- qt(0.975,df=nrow(non_na_y)-1) * sd(non_na_y$logrank_stat)/sqrt(nrow(non_na_y))
+  pval_margin <- qt(0.975,df=nrow(non_na_y)-1) * sd(non_na_y$pval)/sqrt(nrow(non_na_y))
+  hr_margin <- qt(0.975,df=nrow(non_na_y)-1) * sd(non_na_y$hr)/sqrt(nrow(non_na_y))
+
+  return_df <- data.frame(molecule = unique(non_na_y$molecule), 
+    type = c("logrank_stat", "pval", "hazard_ratio"),
+    lower = c(mean(non_na_y$logrank_stat) - logrank_stat_margin,
+      -log10(mean(non_na_y$pval) - pval_margin),
+      mean(non_na_y$hr) - hr_margin),
+    mean = c(mean(non_na_y$logrank_stat), -log10(mean(non_na_y$pval)), mean(non_na_y$hr)),
+    upper = c(mean(non_na_y$logrank_stat) + logrank_stat_margin,
+      -log10(mean(non_na_y$pval) + pval_margin),
+      mean(non_na_y$hr) + hr_margin),
+    intercepts = c(NA,-log10(0.05),1))
+  return(return_df)
+}))
+
+rownames(summarised_enrollment_diff_surv_df) <- NULL
+
+
+```
+
+
+
+- Plot forest plot of logstat, hazard ratios and pvalues for enrollment
+
+```{r}
+
+summarised_enrollment_diff_surv_df$molecule <- factor(summarised_enrollment_diff_surv_df$molecule, 
+  levels = rev(c("rci_only", "rci_and_nfl", "rci_and_mir181", "rci_and_nfl_and_mir181")))
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+ThePlot <- ggplot(summarised_enrollment_diff_surv_df, aes(y = mean, x = molecule))
+ThePlot <- ThePlot + geom_pointrange(aes(ymin = lower, ymax = upper))
+ThePlot <- ThePlot + geom_hline(aes(yintercept = intercepts), lty = "dashed", colour = "#000000")
+ThePlot <- ThePlot + scale_x_discrete("composite scores")
+ThePlot <- ThePlot + scale_y_continuous("values")
+ThePlot <- ThePlot + coord_flip()
+# ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + facet_grid(. ~ type, scales = "free")
+ThePlot <- ThePlot + ggtitle("forest plot of hazard ratios")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 5, file = file.path(plot_dir, "06-02-plot-enrollment-forest-plot-of-lrt-pval-hr-for-all-1k-models.pdf"), ThePlot)
+
+```

@@ -1,0 +1,87 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("rtracklayer")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "41-magen-et-al-miRNA-seq"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+
+discovery_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-05-rci-counts-for-discovery-set.rds")
+rci_stability_df <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-05-rcis-with-stability-levels.rds")
+
+rci_counts_matrix <- discovery_data_list$rci_counts
+clinical_df <- discovery_data_list$discovery_clinical_df
+sampleinfo_df <- discovery_data_list$sampleinfo_df
+
+```
+
+- Add these values back to the discovery set
+
+```{r}
+
+stable_rcis <- rci_stability_df[rci_stability_df$std_err > -0.2, "rci"]
+
+clinical_df <- clinical_df[,-seq(16, ncol(clinical_df)-3)]
+
+discovery_set_stable_rcis <- intersect(rownames(rci_counts_matrix), stable_rcis)
+
+length(discovery_set_stable_rcis) / length(union(rownames(rci_counts_matrix), stable_rcis))
+
+rci_counts_matrix_transpose <- log2(t(rci_counts_matrix)[,discovery_set_stable_rcis] + 1)
+
+discovery_clinical_with_counts_df <- cbind(clinical_df[match(sampleinfo_df$sample, clinical_df$index.case),], rci_counts_matrix_transpose[sampleinfo_df$sample,])
+
+saveRDS(object = discovery_clinical_with_counts_df, file = file.path(save_dir, "01-07-discovery-clinical-with-mirna-counts-in-rcis.rds"))
+
+```

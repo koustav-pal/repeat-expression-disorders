@@ -1,0 +1,200 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("rtracklayer")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("matrixStats")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "41-magen-et-al-miRNA-seq"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+longitudinal_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-04-rci-counts-with-longitudinal-sampleinfo.rds")
+
+
+magen_longitudinal_sampleinfo_df <- longitudinal_data_list$sampleinfo_df
+overlapping_rci_mirna_count_matrix <- longitudinal_data_list$rci_counts
+hash_pairs_df <- longitudinal_data_list$mirna_rci_overlap
+
+```
+
+- Investigate the longitudinal variation
+
+```{r}
+
+t4_matrix <- overlapping_rci_mirna_count_matrix[,magen_longitudinal_sampleinfo_df$time == "D"]
+t1_matrix <- overlapping_rci_mirna_count_matrix[,magen_longitudinal_sampleinfo_df$time == "A"]
+
+fc_matrix <- t4_matrix / t1_matrix
+fc_matrix[is.na(fc_matrix) | is.infinite(fc_matrix) | is.nan(fc_matrix)] <- 0
+
+average_change <- rowMeans(log2(fc_matrix+1), na.rm = T)
+zscore_of_rcis <- (average_change - mean(average_change)) / sd(average_change)
+
+standard_errors <- vapply(seq_len(nrow(fc_matrix)), function(x){
+    a_row <- fc_matrix[x,]
+    n <- length(a_row[!is.na(a_row)])
+    std_err <- sd(a_row, na.rm = T) / sqrt(n)
+    return(std_err)
+},1)
+
+plot_df <- data.frame(rci = names(zscore_of_rcis), zscore = zscore_of_rcis, std_err = log2(standard_errors))
+
+```
+
+- Plot variability of small RNAs from RCIs
+
+
+```{r}
+
+plot_df$group <- "none"
+plot_df$group[plot_df$std_err > -0.2] <- "above -0.2"
+plot_df$group[plot_df$std_err <= -0.2] <- "below -0.2"
+table(plot_df$group)
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 10, angle = 90),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+
+# above <- #007CBE
+#
+# below <- #FFA3AF
+colours <- c("above -0.2" = "#007CBE", "below -0.2" = "#CC3363")
+ThePlot <- ggplot(plot_df, aes(x = zscore, y = std_err))
+ThePlot <- ThePlot + geom_hline(yintercept = -0.2, linetype = "dashed")
+ThePlot <- ThePlot + geom_point(aes(fill = group), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + scale_x_continuous("standardised change in miRNA associated RCIs (log2 t4/t1)")
+ThePlot <- ThePlot + scale_y_continuous("variability of miRNA reads in RCIs (log2 t4/t1)")
+# ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_manual("magen et al stability threshold", values = colours)
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_wrap(. ~ mnd_group, scales = "free", nrow = 1, ncol = 2)
+ThePlot <- ThePlot + ggtitle("variability of miRNAs coming from RCIs")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "04-02-plot-variability-of-miRNAs-originating-from-RCIs.pdf"), ThePlot)
+
+```
+
+- Get the pair with highest and lowest stability 
+
+```{r}
+
+highest_stability <- plot_df[which.max(plot_df$std_err),]
+lowest_stability <- plot_df[which.min(plot_df$std_err),]
+
+plot_fc_df <- reshape2::melt(fc_matrix)
+colnames(plot_fc_df) <- c("rci", "sample", "foldchange")
+plot_fc_df$rci <- factor(plot_fc_df$rci, levels = plot_df$rci[order(plot_df$std_err, decreasing = F)])
+plot_fc_df$std_err <- plot_df$std_err[match(plot_fc_df$rci, plot_df$rci)]
+keep_plot_fc_df <- plot_fc_df[plot_fc_df$rci %in% c(highest_stability$rci, lowest_stability$rci),]
+
+# above <- #007CBE
+#
+# below <- #FFA3AF
+
+require(ggbeeswarm)
+colours <- c("above -0.2" = "#007CBE", "below -0.2" = "#CC3363")
+ThePlot <- ggplot(keep_plot_fc_df, aes(x = rci, y = log2(foldchange + 1)))
+ThePlot <- ThePlot + geom_boxplot(aes(fill = std_err), colour = "#000000", 
+    width = 0.1, lwd = 0.5, position = position_dodge(width = 0.9))
+ThePlot <- ThePlot + geom_quasirandom(aes(fill = std_err), colour = "#000000", shape = 21)
+ThePlot <- ThePlot + scale_x_discrete("RCIs with highest and lowest stability")
+ThePlot <- ThePlot + scale_y_continuous("log2 t4/t1 values in 22 patients")
+# ThePlot <- ThePlot + scale_colour_manual("MND status", values = colours)
+ThePlot <- ThePlot + scale_fill_distiller("stability", palette = "RdBu")
+# ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+ThePlot <- ThePlot + theme_bw()
+# ThePlot <- ThePlot + facet_wrap(. ~ mnd_group, scales = "free", nrow = 1, ncol = 2)
+ThePlot <- ThePlot + ggtitle("t4/t1 values from 22 patients")
+ThePlot <- ThePlot + current_theme
+ggsave(width = 7, height = 7, file = file.path(plot_dir, "04-03-plot-t4-over-t1-values-for-miRNAs-originating-from-RCIs.pdf"), ThePlot)
+
+
+hash_pairs_df[hash_pairs_df$hash_id %in% c(highest_stability$rci, lowest_stability$rci),]
+#    queries  hash_id weight       mirna_id
+# 44     889 4122ac4f      1    hsa-miR-657
+# 45     890 4122ac4f      1 hsa-miR-338-5p
+# 46     891 4122ac4f      1 hsa-miR-338-3p
+# 67    1341 4d680749      1   hsa-miR-3938
+
+```
+
+- Do any of these rcis overlap the set of previously characterised miRNAs by magen et al.
+
+```{r}
+
+highly_stable_mirnas_used_by_magen <- read.csv("41-magen-et-al-miRNA-seq/input_files/highly-stable-mirna-used-by-magen-for-discovery.csv")
+hash_pairs_df$overlap_with_magen_et_al <- hash_pairs_df$mirna_id %in% highly_stable_mirnas_used_by_magen$mirna
+
+# > any(hash_pairs_df$overlap_with_magen_et_al)
+# [1] FALSE
+
+```
+
+- We did not find any overlap with the set of miRNAs previously characterised by magen et al.
+
+
+- Finally, save the highly stable rcis
+
+```{r}
+
+saveRDS(object = plot_df, file = file.path(save_dir, "01-05-rcis-with-stability-levels.rds"))
+
+```

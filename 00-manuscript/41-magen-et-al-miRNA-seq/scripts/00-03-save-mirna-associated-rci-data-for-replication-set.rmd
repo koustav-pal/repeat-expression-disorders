@@ -1,0 +1,169 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("rtracklayer")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+require("matrixStats")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "41-magen-et-al-miRNA-seq"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+mirbase_gff_ranges <- import.gff3("41-magen-et-al-miRNA-seq/input_files/hsa.gff3")
+
+magen_count_matrix <- read.table("41-magen-et-al-miRNA-seq/input_files/GSE168714_All_samples_enrolment.txt")
+replication_set_samples <- read.csv("41-magen-et-al-miRNA-seq/input_files/GSE168714_Data_file_related_to_fig_3_5_replication.csv")
+
+```
+
+- Fetch the significantly differentially expressed rcis
+
+```{r}
+
+sig_result_df <- sig_result_list$significant_events
+
+repeat_containing_introns_df <- sig_result_df[sig_result_df$status == "repeat_containing" & 
+    sig_result_df$region == "intron",]
+
+repeat_containing_introns_df$cohort <- "public-data"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "nygc"
+repeat_containing_introns_df$cohort[grepl(x = repeat_containing_introns_df$study, pattern = "answerals")] <- "answerals"
+
+repeat_containing_introns_df$tissue_type <- "iPSCs"
+repeat_containing_introns_df$tissue_type[grepl(x = repeat_containing_introns_df$study, pattern = "nygc")] <- "postmortem"
+
+```
+
+- Load repeat and rci object
+
+```{r}
+
+repeat_ranges <- unique(repeat_ranges_list$repeat_ranges)
+
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+de_feature_ranges_with_repeats <- feature_ranges_with_repeats[match(unique(repeat_containing_introns_df$feature_ids), feature_ranges_with_repeats$feature_id)]
+
+```
+
+- Fetch the magen et al discovery set
+
+```{r}
+
+magen_sampleinfo_df <- as.data.frame(t(magen_count_matrix[seq(1,6),]))
+colnames(magen_sampleinfo_df) <- magen_sampleinfo_df[1,]
+magen_sampleinfo_df <- magen_sampleinfo_df[-1,]
+
+magen_sampleinfo_df[,2] <- as.numeric(magen_sampleinfo_df[,2])
+# magen_sampleinfo_df <- magen_sampleinfo_df[,-6]
+
+tested_mirna <- magen_count_matrix[-seq(1,6),1]
+raw_count_matrix <- magen_count_matrix[-seq(1,6),-1]
+rownames(raw_count_matrix) <- tested_mirna
+colnames(raw_count_matrix) <- magen_sampleinfo_df$sample
+
+replication_sampleinfo_df <- magen_sampleinfo_df[magen_sampleinfo_df$sample %in% replication_set_samples$index.case,]
+
+
+```
+
+- Subset the miRNA matrix
+
+```{r}
+
+name_intersect <- intersect(mirbase_gff_ranges$Name,rownames(raw_count_matrix))
+length(name_intersect) / nrow(raw_count_matrix)
+# 0.9815918
+keep_count_matrix <- as.matrix(raw_count_matrix[name_intersect,replication_sampleinfo_df$sample])
+class(keep_count_matrix) <- "numeric"
+mirna_ranges <- mirbase_gff_ranges[match(name_intersect, mirbase_gff_ranges$Name)]
+seqlevelsStyle(mirna_ranges) <- "Ensembl"
+
+```
+
+- Generate CPM matrix
+
+```{r}
+
+cpm_matrix <- t(t(keep_count_matrix) / (colSums(keep_count_matrix) / 1e6))
+
+```
+
+- Fetch the miRNA counts for rcis
+
+```{r}
+
+ol_object <- findOverlaps(mirna_ranges,de_feature_ranges_with_repeats)
+
+overlapping_rci_ranges <- de_feature_ranges_with_repeats[subjectHits(ol_object)]
+
+hash_pairs_df <- unique(data.frame(queries = queryHits(ol_object), hash_id = overlapping_rci_ranges$hash_id))
+hash_pairs_df$weight <- 1 / table(hash_pairs_df$queries)[as.character(hash_pairs_df$queries)]
+hash_pairs_df$mirna_id <- mirna_ranges$Name[hash_pairs_df$queries]
+# weight is always 1
+
+overlapping_rci_mirna_count_matrix <- do.call(rbind, lapply(split(hash_pairs_df, hash_pairs_df$hash_id), function(x){
+    current_row <- x
+    if(nrow(x) == 1){
+        return(cpm_matrix[x$queries,] * x$weight)
+    }
+    return(colSums(cpm_matrix[x$queries,] * rep(x$weight, times = ncol(cpm_matrix))))
+}))
+
+saveRDS(object = list(
+	rci_counts = overlapping_rci_mirna_count_matrix, 
+	sampleinfo_df = replication_sampleinfo_df,
+	discovery_clinical_df = replication_set_samples,
+	mirna_ranges = mirna_ranges,
+	mirna_rci_overlap = hash_pairs_df,
+	rci_ranges = overlapping_rci_ranges), 
+	file = file.path(save_dir, "01-06-rci-counts-for-replication-set.rds"))
+
+```
