@@ -1,0 +1,1059 @@
+"","subject_id","age_at_symptom_onset","age_at_death","disease_duration_in_months","mutation","site_of_motor_onset","family_history_of_als_ftd","tissue","sex_genotype","mnd_with_ftd","condition","mnd_with_dementia","repeat_intron_expr_tpm","non_repeat_intron_expr_tpm"
+"1","00-CTRL-97","Not Applicable","31","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",288.744357460545,92115.6008314402
+"2","00-CTRL-97","Not Applicable","31","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",256.827803753037,92429.8944579595
+"3","02-148-00","58","60","20","c9orf72","Limb","","Cortex","XX","N/A","als","N/A",193.079689311756,93487.5845283232
+"4","02-148-00","58","60","20","c9orf72","Limb","","Cortex_Motor","XX","N/A","als","N/A",178.389756170905,96403.6230102732
+"5","02-148-00","58","60","20","c9orf72","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",224.296153344348,83528.2595809991
+"6","02-148-00","58","60","20","c9orf72","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",243.86859895277,82038.7769562288
+"7","04-152-76","73","75","12","c9orf72","Bulbar","","Cortex","XX","N/A","als","N/A",269.084768459816,93578.2913137267
+"8","04-152-76","73","75","12","c9orf72","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",258.634405701865,94917.6729813452
+"9","06-159-51","63","66","38","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",194.293753670051,93796.8670884013
+"10","06-159-51","63","66","38","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",232.170484178434,78797.2979714932
+"11","06-159-51","63","66","38","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",239.478107772872,79609.4640575566
+"12","08-158-43","60","65","33","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",183.052824423752,90890.4164185391
+"13","08-158-43","60","65","33","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",273.492866366624,81224.0622214117
+"14","09-CTRL-05","Not Applicable","44","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",218.338578462995,85667.1841892675
+"15","09-CTRL-38","Not Applicable","57","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",228.422570290621,77707.1163715853
+"16","09-CTRL-87","Not Applicable","49","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",181.040359959231,74322.3662212084
+"17","09-CTRL-87","Not Applicable","49","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",248.975639386989,72775.4991709041
+"18","09-CTRL-98","Not Applicable","37","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",187.314974674941,74642.0399236982
+"19","09-CTRL-98","Not Applicable","37","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",236.623376920023,73184.5374922907
+"20","10-167-35","65","68","33","c9orf72","Limb","","Cortex","XY","N/A","als","N/A",174.967559930594,89311.8768071508
+"21","10-167-35","65","68","33","c9orf72","Limb","","Cortex_Motor","XY","N/A","als","N/A",162.237696019552,92418.2844308541
+"22","10-167-35","65","68","33","c9orf72","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",255.573086177863,77545.6722433756
+"23","10-167-35","65","68","33","c9orf72","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",228.317897527273,77274.5117399426
+"24","10-169-12","59","61","27","vcp","Limb","","Cortex","XX","N/A","als","N/A",190.054285554301,88465.6765554652
+"25","10-169-12","59","61","27","vcp","Limb","","Cortex_Motor","XX","N/A","als","N/A",227.02206569538,91156.261291217
+"26","10-169-12","59","61","27","vcp","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",268.792777104857,79769.5923145713
+"27","10-169-12","59","61","27","vcp","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",221.207271810069,77894.8307106012
+"28","10-CTRL-11","Not Applicable","63","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",250.751903296871,75560.9584532401
+"29","10-CTRL-30","Not Applicable","55","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",279.455773768981,79038.7835264175
+"30","10-CTRL-30","Not Applicable","55","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",305.172676998691,78475.4938881751
+"31","10-CTRL-44","Not Applicable","81","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",199.70531950517,76091.1819091208
+"32","10-CTRL-44","Not Applicable","81","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",245.709859067885,74972.5361761699
+"33","10-CTRL-45","Not Applicable","63","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",157.947007685234,77546.9997316933
+"34","10-CTRL-45","Not Applicable","63","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",199.809340896098,76831.1568748843
+"35","10-CTRL-53","Not Applicable","78","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",225.657544353322,71967.5912029289
+"36","10-CTRL-53","Not Applicable","78","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",193.205798775064,74153.530929222
+"37","10-CTRL-83","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",349.55571712925,92169.0817810225
+"38","10-CTRL-83","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",191.480306861546,78278.3806631068
+"39","10-CTRL-83","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",180.547064169238,77872.5423101629
+"40","11-178-56","61","64","34","c9orf72","Limb","","Cortex","XX","N/A","als","N/A",157.570854609228,87010.0030799771
+"41","11-178-56","61","64","34","c9orf72","Limb","","Cortex_Motor","XX","N/A","als","N/A",247.649154431143,88668.862721858
+"42","11-178-56","61","64","34","c9orf72","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",308.755174992735,74214.4121253181
+"43","11-178-56","61","64","34","c9orf72","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",282.203830197672,73211.1997428128
+"44","11-CTRL-20","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",273.196542138391,87661.8158771902
+"45","11-CTRL-20","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",215.416523431856,88144.4104348493
+"46","11-CTRL-81","Not Applicable","28","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",202.875041217788,78142.2950026718
+"47","13-189-06","59","64","57","c9orf72","Limb","","Cortex","XX","N/A","als","N/A",251.418247257289,93867.746870695
+"48","13-189-06","59","64","57","c9orf72","Limb","","Cortex_Motor","XX","N/A","als","N/A",239.306216924814,90234.3429109062
+"49","13-189-06","59","64","57","c9orf72","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",246.018439927997,77359.7458737798
+"50","13-189-06","59","64","57","c9orf72","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",238.331667520152,73766.7452986936
+"51","13-191-47","50","53","33","c9orf72","Limb","","Cortex","XY","N/A","als","N/A",220.300227230727,88125.230123966
+"52","13-191-47","50","53","33","c9orf72","Limb","","Cortex_Motor","XY","N/A","als","N/A",184.37634848051,91241.0893404279
+"53","13-192-54","62","63","7","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",199.111674074543,85480.6087384024
+"54","13-192-54","62","63","7","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",276.612021942378,76682.9100243933
+"55","13-192-54","62","63","7","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",262.577933887866,75848.5315282583
+"56","13-193-72","67","68","13","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",189.959004496914,87498.383779212
+"57","13-193-72","67","68","13","sporadic","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",185.682644697867,89569.1017082207
+"58","13-193-72","67","68","13","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",234.2755560314,78519.1696108969
+"59","13-194-74","71","73","20","sporadic","Bulbar","","Spinal_Cord_Cervical","XY","N/A","als","N/A",279.958464613509,74875.0891973835
+"60","13-195-03","77","78","13","sporadic","Limb","","Cortex","XY","N/A","als","N/A",183.553896468125,91395.9936043671
+"61","13-195-03","77","78","13","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",189.371838631412,91209.7162275097
+"62","13-195-03","77","78","13","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",276.062672687399,78522.5287682335
+"63","13-195-03","77","78","13","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",247.305533847388,77088.9914261568
+"64","13-196-12","61","68","87","sporadic","Limb","","Cortex","XY","N/A","als","N/A",150.637439996855,87862.5957823842
+"65","13-196-12","61","68","87","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",188.039286008726,88804.0783025334
+"66","13-196-12","61","68","87","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",272.187356963843,73738.1823065824
+"67","13-196-12","61","68","87","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",221.04180978075,73551.0735314128
+"68","13-197-56","53","57","40","sporadic","Limb","","Cortex","XX","N/A","als","N/A",164.016399462564,89539.0055784037
+"69","13-197-56","53","57","40","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",243.628790562104,75607.4488027732
+"70","14-198-02","63","66","33","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",182.965834694068,88927.0196970839
+"71","14-198-02","63","66","33","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",277.186805551027,82819.0638743902
+"72","14-199-05","67","68","22","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",222.14862367002,90845.8525168688
+"73","14-199-05","67","68","22","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",253.064263396947,73895.9591342253
+"74","14-199-05","67","68","22","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",249.711406537068,74942.4974403528
+"75","14-200-25","56","68","149","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",233.98107311664,89390.1259958333
+"76","14-200-25","56","68","149","sporadic","Bulbar","","Cortex_Motor","XY","N/A","als","N/A",307.749906421495,89927.014170605
+"77","14-200-25","56","68","149","sporadic","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",288.171234382775,75464.8301048012
+"78","14-201-94","59","60","12","sporadic","Limb","","Cortex","XY","N/A","als","N/A",226.42096650742,90245.5021592519
+"79","14-201-94","59","60","12","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",204.706079067372,87730.6586724266
+"80","14-201-94","59","60","12","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",245.837512634597,75184.3719193731
+"81","14-201-94","59","60","12","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",246.488543215955,74096.5075487365
+"82","14-202-10","64","68","49","sporadic","Limb","","Cortex","XX","N/A","als","N/A",227.14244656138,89191.8721956463
+"83","14-202-10","64","68","49","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",254.371429397727,74305.4338840833
+"84","14-203-19","65","69","45","c9orf72","Limb","","Cortex","XY","N/A","als","N/A",241.412432051802,87269.0469468138
+"85","14-203-19","65","69","45","c9orf72","Limb","","Cortex_Motor","XY","N/A","als","N/A",290.425339113255,90195.6616661205
+"86","14-203-19","65","69","45","c9orf72","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",234.751649508677,80840.1488057911
+"87","14-203-19","65","69","45","c9orf72","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",194.576527741763,82517.8334326405
+"88","14-204-56","60","61","12","sporadic","Limb","","Cortex_Motor","XX","N/A","als","N/A",308.077045846113,94284.2281349773
+"89","14-204-56","60","61","12","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",275.419045882987,73748.2418210682
+"90","14-204-56","60","61","12","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",300.781448724651,71923.1768848304
+"91","15-205-18","77","78","14","c9orf72","Limb","","Cortex","XY","N/A","als","N/A",218.122569105366,89329.5593729629
+"92","15-205-18","77","78","14","c9orf72","Limb","","Cortex_Motor","XY","N/A","als","N/A",219.46039725219,88989.8800254362
+"93","15-205-18","77","78","14","c9orf72","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",280.118643454111,75292.1349877545
+"94","15-207-34","76","77","15","sporadic","Limb","","Cortex_Motor","XX","N/A","als","N/A",189.875800561957,89147.538741841
+"95","15-207-34","76","77","15","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",273.884585080008,75549.9705253231
+"96","15-208-36","58","60","22","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",293.467724377505,91146.0277172355
+"97","15-208-36","58","60","22","sporadic","Bulbar","","Spinal_Cord_Cervical","XY","N/A","als","N/A",269.518759394676,73297.8722284348
+"98","15-208-36","58","60","22","sporadic","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",222.497308242079,73989.9563802004
+"99","15-209-43","50","59","117","sporadic","Limb","","Cortex","XY","N/A","als","N/A",204.362728476875,88711.1652858429
+"100","15-209-43","50","59","117","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",176.592008802523,85781.6716093313
+"101","15-209-43","50","59","117","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",284.924393121826,75331.7848984795
+"102","15-209-43","50","59","117","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",161.645087246132,78033.6049280735
+"103","15-210-54","55","56","16","sporadic","Limb","","Cortex","XX","N/A","als","N/A",258.707694384195,91064.8861967789
+"104","15-210-54","55","56","16","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",207.537107536506,76258.3315383789
+"105","15-211-72","40","50","121","sporadic","Limb","","Cortex","XY","N/A","als","N/A",175.148727411499,89943.363613068
+"106","15-211-72","40","50","121","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",317.356127264067,73137.8206851363
+"107","15-211-72","40","50","121","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",338.188527676001,72189.3937663599
+"108","15-212-81","58","60","24","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",176.346388485967,85539.5140219163
+"109","15-212-81","58","60","24","sporadic","Bulbar","","Cortex_Motor","XY","N/A","als","N/A",201.523224218497,86533.4078154267
+"110","15-212-81","58","60","24","sporadic","Bulbar","","Spinal_Cord_Cervical","XY","N/A","als","N/A",276.72990747178,74090.9779996193
+"111","15-212-81","58","60","24","sporadic","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",154.564335593088,75188.103898594
+"112","15-213-15","63","65","24","sporadic","Limb","","Cortex","XX","N/A","als","N/A",255.941984387061,90259.8482353248
+"113","15-213-15","63","65","24","sporadic","Limb","","Cortex_Motor","XX","N/A","als","N/A",299.844544009872,93738.2141182164
+"114","15-213-15","63","65","24","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",226.950597780785,77584.2266050706
+"115","15-213-15","63","65","24","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",264.115396600382,73511.5897145649
+"116","15-214-17","Unknown","62","Unknown","sporadic","Limb","","Cortex","XX","N/A","als","N/A",175.750262666292,84638.7894644241
+"117","15-214-17","Unknown","62","Unknown","sporadic","Limb","","Cortex_Motor","XX","N/A","als","N/A",223.776685750363,88296.8227148104
+"118","15-214-17","Unknown","62","Unknown","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",248.072964363351,72718.3394386326
+"119","15-214-17","Unknown","62","Unknown","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",248.046540966753,71707.0163421851
+"120","15-215-48","67","69","24","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",221.549775836614,80982.3218599005
+"121","15-215-48","67","69","24","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",210.854850915339,82332.1673963193
+"122","15-216-56","37","40","35","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",277.467228800722,91114.4325186944
+"123","15-216-56","37","40","35","sporadic","Bulbar","","Cortex_Motor","XY","N/A","als","N/A",283.634308475053,92167.3667071308
+"124","15-216-56","37","40","35","sporadic","Bulbar","","Spinal_Cord_Cervical","XY","N/A","als","N/A",235.441408047546,74361.073141766
+"125","15-216-56","37","40","35","sporadic","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",225.164195963651,73739.0108116125
+"126","15-217-60","78","80","17","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",185.164673578762,88979.5485103168
+"127","15-217-60","78","80","17","sporadic","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",188.286125424216,89992.1251900638
+"128","16-218-08","61","65","52","sporadic","Limb","","Cortex","XX","N/A","als","N/A",249.825894562016,87378.967297204
+"129","16-218-08","61","65","52","sporadic","Limb","","Cortex_Motor","XX","N/A","als","N/A",242.877894725202,88009.4952503974
+"130","16-218-08","61","65","52","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",333.401686226811,70060.5740505054
+"131","16-218-08","61","65","52","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",279.074170112524,71695.3561806571
+"132","16-219-14","63","66","35","sporadic","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",185.045893263845,86185.2431177326
+"133","16-219-14","63","66","35","sporadic","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",290.1964706482,70844.2578852855
+"134","16-219-14","63","66","35","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",280.87011981305,70021.9302400779
+"135","16-220-23","67","68","12","sporadic","Limb","","Cortex","XY","N/A","als","N/A",278.252892029576,89474.7170914602
+"136","16-220-23","67","68","12","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",243.426642641818,88816.8759352563
+"137","16-220-23","67","68","12","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",311.65533676275,73625.2490789565
+"138","16-220-23","67","68","12","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",287.944830152855,72651.5951983175
+"139","16-221-38","Unknown","71","Unknown","sporadic","Limb","","Cortex","XY","N/A","als","N/A",205.511741819553,86402.176203203
+"140","16-221-38","Unknown","71","Unknown","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",173.593719240302,90060.4353098408
+"141","16-221-38","Unknown","71","Unknown","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",219.473088338193,76244.8754515429
+"142","16-221-38","Unknown","71","Unknown","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",214.793701735258,74774.8381617287
+"143","16-222-00","71","74","31","c9orf72","Bulbar","","Cortex","XX","N/A","als","N/A",204.716757625144,88622.5300386017
+"144","16-222-00","71","74","31","c9orf72","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",217.812369753826,88532.1912831599
+"145","16-222-00","71","74","31","c9orf72","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",275.942911814173,75745.0600297651
+"146","16-222-00","71","74","31","c9orf72","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",288.378643522201,77095.0139476792
+"147","16-223-17","77","78","12","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",202.997263058005,89958.4133790584
+"148","16-223-17","77","78","12","sporadic","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",312.486656851429,75748.9937542709
+"149","16-224-35","69","73","48","optn","Bulbar","","Cortex","XY","N/A","als","N/A",173.360010820362,85120.8201662443
+"150","16-224-35","69","73","48","optn","Bulbar","","Cortex_Motor","XY","N/A","als","N/A",173.776415010194,86538.9971641215
+"151","16-224-35","69","73","48","optn","Bulbar","","Spinal_Cord_Cervical","XY","N/A","als","N/A",296.854905879244,71559.0803272015
+"152","16-224-35","69","73","48","optn","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",292.441491613128,72092.0259054753
+"153","16-225-87","66","69","24","sporadic","Limb","","Cortex","XY","N/A","als","N/A",169.394420059265,87110.1026253519
+"154","16-225-87","66","69","24","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",166.788897474093,86945.3714067383
+"155","16-225-87","66","69","24","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",285.156186860567,73611.509662066
+"156","16-225-87","66","69","24","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",279.273804881344,75789.8244200345
+"157","17-225-99","Not Applicable","64","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",296.7306899455,91497.7042907924
+"158","17-225-99","Not Applicable","64","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",252.497005923497,77296.4894700037
+"159","17-225-99","Not Applicable","64","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",306.771283293486,73771.4227004025
+"160","17-226-00","65","65","Unknown","sporadic","Limb","","Cortex","XX","N/A","als","N/A",210.16491463384,87250.9955168134
+"161","17-226-00","65","65","Unknown","sporadic","Limb","","Cortex_Motor","XX","N/A","als","N/A",200.848675371049,86623.0006239362
+"162","17-226-00","65","65","Unknown","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",217.493209514594,75755.2289187838
+"163","18-227-15","58","61","35","sporadic","Limb","","Cortex","XX","N/A","als","N/A",169.38747358653,87458.0177975164
+"164","18-227-15","58","61","35","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",280.109738173809,76253.237760045
+"165","18-228-63","76","78","24","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",196.398039576734,87058.0995013994
+"166","18-228-63","76","78","24","sporadic","Bulbar","","Cortex_Motor","XY","N/A","als","N/A",200.347611680366,91780.6553277596
+"167","18-228-63","76","78","24","sporadic","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",200.478312057303,80034.4174904732
+"168","18-229-70","66","70","48","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",215.791795249985,88210.087654508
+"169","18-229-70","66","70","48","sporadic","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",199.649208409614,86626.8192311015
+"170","18-229-70","66","70","48","sporadic","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",273.211384467495,73530.2027012986
+"171","18-229-70","66","70","48","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",259.341102789239,72270.2029645864
+"172","90-065-49","58","61","33","c9orf72","Limb","","Cortex_Motor","XY","N/A","als","N/A",239.358932102623,92851.4311231028
+"173","90-065-49","58","61","33","c9orf72","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",244.496738753711,76270.0289282627
+"174","90-065-49","58","61","33","c9orf72","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",221.635314090762,78012.8321734167
+"175","91-077-47","49","51","23","c9orf72","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",231.029098505306,79605.2681432398
+"176","91-077-47","49","51","23","c9orf72","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",262.855937232321,80139.4775300135
+"177","91-CTRL-81","Not Applicable","58","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",288.742453522237,93943.4281089114
+"178","91-CTRL-86","Not Applicable","59","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",290.560544051423,93124.6534627533
+"179","92-CTRL-25","Not Applicable","62","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",397.736050313832,97153.1205332108
+"180","93-098-25","66","67","22","c9orf72","Limb","","Cortex","XX","N/A","als","N/A",212.912599660204,91496.1296509953
+"181","93-098-25","66","67","22","c9orf72","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",259.279203866823,74076.8710654759
+"182","93-099-82","28","33","70","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",294.113852049307,73990.4880083238
+"183","94-100-17","64","66","34","c9orf72","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",233.818400813857,93499.5823111707
+"184","94-105-45","51","53","31","c9orf72","Bulbar","","Cortex_Motor","XY","N/A","als","N/A",217.420511615306,91245.3328586044
+"185","94-CTRL-04","Not Applicable","79","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",244.41414899509,93251.4977448303
+"186","97-125-35","72","73","22","c9orf72","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",248.705780532756,76249.7647870173
+"187","98-132-80","38","40","25","fus","Limb","","Cortex_Motor","XX","N/A","als","N/A",265.273628444875,92798.3079663052
+"188","98-132-80","38","40","25","fus","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",288.044557209098,81350.8814356334
+"189","98-132-80","38","40","25","fus","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",313.866301785153,82810.6930993038
+"190","98-CTRL-10","Not Applicable","60","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",204.117866072228,91175.8035292882
+"191","98-CTRL-59","Not Applicable","44","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",334.235416437991,94703.8015988724
+"192","98-CTRL-59","Not Applicable","44","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",282.123812601993,93425.1917992799
+"193","99-CTRL-58","Not Applicable","48","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",244.346444357259,91426.1544496857
+"194","EC01","Unknown","53","108","sporadic","Bulbar","","Cerebellum","XY","N/A","als","N/A",358.44884748837,95945.1462045791
+"195","EC02","Unknown","64","30","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",502.685342408748,103098.919322615
+"196","EC04","Unknown","67","18","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",386.526327784453,97736.63440642
+"197","EC05","Unknown","77","27","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",379.309124310836,99955.2170817854
+"198","EC06","Unknown","54","30","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",395.489537854188,96641.4569303111
+"199","EC07","Unknown","60","Unknown","sporadic","Limb","","Cerebellum","XX","N/A","als","N/A",435.62046017894,100919.881745682
+"200","EC12","Unknown","79","36","sporadic","Limb","","Cerebellum","XX","N/A","als","N/A",314.534159941498,97282.4941635758
+"201","EC14","Unknown","74","24","sporadic","Limb","","Cerebellum","XX","N/A","als","N/A",505.015771706607,100966.296973504
+"202","EC15","Unknown","76","Unknown","sporadic","Unknown","","Cerebellum","XY","N/A","als","N/A",294.073968177672,95875.3150363759
+"203","EC17","Unknown","63","24","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",371.860713123438,96228.8248249594
+"204","EC18","Unknown","58","20","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",359.517341140303,96196.1007258611
+"205","EC20","Unknown","78","Unknown","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",426.031046709789,99743.8164044265
+"206","EC23","Unknown","52","Unknown","sod1","Unknown","","Cerebellum","XX","N/A","als","N/A",378.879218405042,95054.9480696754
+"207","EC25","Unknown","75","108","sporadic","Unknown","","Cerebellum","XY","N/A","als","N/A",321.917972295645,95203.445732476
+"208","ECC9#1","Unknown","64","15","c9orf72","Bulbar","","Cerebellum","XX","N/A","als","N/A",480.474585502441,102401.183007623
+"209","ECC9#3","Unknown","58","20","c9orf72","Unknown","","Cerebellum","XX","N/A","als","N/A",509.181004439977,101240.696416433
+"210","ECC9#6","Unknown","73","54","c9orf72","Limb","","Cerebellum","XY","N/A","als","N/A",370.10411506407,96092.8717306023
+"211","ECC9#7","Unknown","53","48","c9orf72","Limb","","Cerebellum","XY","N/A","als","N/A",438.739633364402,95820.5017462504
+"212","JHU10","67","70","27","optn","Bulbar and Limb","Unknown","Cerebellum","XX","No","als","No",322.415820130399,95656.1973915875
+"213","JHU12","47","53","92","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",210.934059107624,91549.878759906
+"214","JHU14","48","49","10","sod1","Limb","Unknown","Cerebellum","XY","No","als","No",199.820944467791,93563.0595316517
+"215","JHU15","62","65","31","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",277.793104709158,93804.2175912279
+"216","JHU22","64","66","22","c9orf72","Limb","Unknown","Cerebellum","XY","No","als","No",444.597965917483,99729.8857210782
+"217","JHU25","61","62","15","optn","Limb","Unknown","Cerebellum","XY","No","als","No",508.081923724116,102533.606092606
+"218","JHU3","77","77","8","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",328.953075441688,96419.8204801258
+"219","JHU30","28","44","192","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",267.824123397296,95508.2161874029
+"220","JHU33","63","65","27","matr3","Limb","Unknown","Cortex","XY","No","als","No",212.312956319379,89830.4785139957
+"221","JHU38","33","34","17","c9orf72","Limb","Unknown","Cortex_Motor","XX","No","als","No",233.625726477271,88052.1044929711
+"222","JHU4","63","63","6","setx","Bulbar","Unknown","Cerebellum","XX","No","als","No",345.372995192862,97852.3369454929
+"223","JHU47","69","71","26","anxa11","Bulbar and Limb","Unknown","Cerebellum","XX","No","als","No",263.984167383308,92751.9084587793
+"224","JHU5","64","67","29","dctn1","Limb","Unknown","Cerebellum","XX","No","als","No",403.569398063361,96872.2628568433
+"225","JHU55","57","61","46","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",456.659228507792,100221.431036366
+"226","JHU58","49","51","28","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",232.352455225845,93260.4375101739
+"227","JHU64","63","64","13","nek1","Limb","No","Cortex","XY","Yes","als+ftd","Yes",323.237798061291,93994.4702020348
+"228","JHU70","54","63","98","optn","Limb","Unknown","Cerebellum","XY","No","als","No",310.121534449582,97419.8369117298
+"229","JHU73","67","70","36","nefh","Limb","Unknown","Cerebellum","XX","No","als","No",236.266298866413,97476.7223662611
+"230","JHU73","67","70","36","nefh","Limb","Unknown","Cortex","XX","No","als","No",242.366685053187,91368.8382220895
+"231","JHU73","67","70","36","nefh","Limb","Unknown","Cortex_Motor","XX","No","als","No",187.565493397013,88322.3546458615
+"232","JHU73","67","70","36","nefh","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",174.860701221191,78633.1579329451
+"233","JHU73","67","70","36","nefh","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",175.250845509663,77319.6088455952
+"234","JHU74","46","47","15","anxa11","Bulbar","Unknown","Cerebellum","XY","No","als","No",269.9080913733,95546.1087310596
+"235","JHU74","46","47","15","anxa11","Bulbar","Unknown","Cortex","XY","No","als","No",169.706700806925,89837.7847976339
+"236","JHU74","46","47","15","anxa11","Bulbar","Unknown","Cortex_Motor","XY","No","als","No",150.283308573206,87797.7381079441
+"237","JHU74","46","47","15","anxa11","Bulbar","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",232.696357640874,81643.3527262031
+"238","JHU75","54","58","60","optn","Limb","Unknown","Cortex_Motor","XX","No","als","No",165.288849222085,87191.5325428525
+"239","JHU75","54","58","60","optn","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",293.322999606665,74742.3281346553
+"240","JHU77","73","76","48","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",225.773615935038,89705.1678674669
+"241","JHU77","73","76","48","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",205.096819747749,76098.744307283
+"242","JHU79","80","82","28","sporadic","Bulbar","Unknown","Cerebellum","XY","No","als","No",484.06456569925,102427.003001261
+"243","JHU79","80","82","28","sporadic","Bulbar","Unknown","Cortex_Motor","XY","No","als","No",266.76403676381,90816.4523933262
+"244","JHU79","80","82","28","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",205.602404090427,79215.3371120204
+"245","JHU79","80","82","28","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",262.396446827489,80419.5976818493
+"246","JHU8","54","58","60","als2","Limb","Unknown","Cerebellum","XY","No","als","No",346.752947319578,96582.0235080305
+"247","JHU80","52","56","50","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",327.267196961553,96460.7964372939
+"248","JHU80","52","56","50","sporadic","Limb","Unknown","Cortex","XX","No","als","No",218.507680149223,90758.4343028329
+"249","JHU80","52","56","50","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",341.986631811419,91182.6508780802
+"250","JHU80","52","56","50","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",236.888215407245,74485.6209004187
+"251","JHU80","52","56","50","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",251.798068759277,75920.371100255
+"252","JHU82","63","66","43","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",265.893463207842,95492.156744545
+"253","JHU82","63","66","43","sporadic","Limb","Unknown","Cortex","XY","No","als","No",235.270160861151,90217.014092808
+"254","JHU82","63","66","43","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",253.769703722356,90010.5978100473
+"255","JHU82","63","66","43","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",143.355863308633,75626.9156829575
+"256","JHU82","63","66","43","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",220.134576962192,74306.2170301968
+"257","JHU82","63","66","43","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",226.12056088746,75412.9257471927
+"258","JHU83","44","50","74","sod1","Limb","Unknown","Cerebellum","XY","No","als","No",308.027403497783,95618.6666796229
+"259","JHU83","44","50","74","sod1","Limb","Unknown","Cortex","XY","No","als","No",184.855439545255,86609.1920047235
+"260","JHU83","44","50","74","sod1","Limb","Unknown","Cortex_Motor","XY","No","als","No",177.292273304032,87488.903619379
+"261","JHU83","44","50","74","sod1","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",258.215429147913,76023.362379101
+"262","JHU83","44","50","74","sod1","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",234.230853566856,77558.0808155453
+"263","JHU83","44","50","74","sod1","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",260.102429058859,76924.7232757755
+"264","MSSM-JC-24","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",244.412674332255,93863.6998534045
+"265","MSSM-JC-24","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",261.185719067741,91349.5883772069
+"266","MSSM-JC-25","Not Applicable","55","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",229.143520361888,92348.9194160044
+"267","MSSM-JC-25","Not Applicable","55","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",196.759067726007,87405.9702668415
+"268","MSSM-JC-30","Not Applicable","59","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",295.411276816522,89449.1175978553
+"269","MSSM-JC-30","Not Applicable","59","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",310.363839036322,90980.0875578707
+"270","MSSM-JC-41","Not Applicable","88","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",500.204141116273,100670.720130415
+"271","MSSM-JC-41","Not Applicable","88","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",185.489572057786,94352.5202943749
+"272","MSSM-JC-46","Not Applicable","57","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",480.962036082478,99010.6010185132
+"273","MSSM-JC-46","Not Applicable","57","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",264.865161936993,90441.9531628166
+"274","MSSM-JC-46","Not Applicable","57","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",264.18628774543,88654.9004749377
+"275","MSSM-JC-48","Not Applicable","65","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",183.439316062351,86405.5420475646
+"276","MSSM-JC-48","Not Applicable","65","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XX","N/A","ctrl","N/A",171.321388664268,79113.2557241123
+"277","MSSM-JC-53","Not Applicable","60","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",216.580817265303,94312.4986132775
+"278","MSSM-JC-8","Not Applicable","65","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",380.225696055029,96725.1907504011
+"279","MSSM-JC-8","Not Applicable","65","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",326.361373177891,92811.1152416118
+"280","MSSM-JC-8","Not Applicable","65","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",315.227117308502,92408.1933733588
+"281","NEUAG831KFQ","61","66","65","sporadic","Bulbar and Limb","Unknown","Cerebellum","XY","No","als","No",180.946528105843,88057.6141403791
+"282","NEUAG831KFQ","61","66","65","sporadic","Bulbar and Limb","Unknown","Cortex","XY","No","als","No",200.230134792655,85550.9554682703
+"283","NEUAG831KFQ","61","66","65","sporadic","Bulbar and Limb","Unknown","Cortex_Motor","XY","No","als","No",185.531835477155,85999.8894911333
+"284","NEUAG831KFQ","61","66","65","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",295.096762317874,71852.7339821412
+"285","NEUAG831KFQ","61","66","65","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",280.642040452073,70806.1596424742
+"286","NEUAL503EPH","71","72","12","sporadic","Axial","Unknown","Cerebellum","XY","Yes","als+ftd","Yes",293.175654103582,93108.6711161794
+"287","NEUAL503EPH","71","72","12","sporadic","Axial","Unknown","Cortex","XY","Yes","als+ftd","Yes",218.386992225997,84446.6651590414
+"288","NEUAL503EPH","71","72","12","sporadic","Axial","Unknown","Cortex_Motor","XY","Yes","als+ftd","Yes",214.968114629564,84678.864467724
+"289","NEUAL503EPH","71","72","12","sporadic","Axial","Unknown","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",300.517370506879,70825.5723965727
+"290","NEUAL503EPH","71","72","12","sporadic","Axial","Unknown","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",296.14868944404,70779.13913069
+"291","NEUAL503EPH","71","72","12","sporadic","Axial","Unknown","Spinal_Cord_Thoracic","XY","Yes","als+ftd","Yes",302.630272900052,70643.3250047539
+"292","NEUAP156PM4","65","69","52","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",267.435521987054,94989.3941184459
+"293","NEUAP156PM4","65","69","52","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",166.113343013074,89368.2621817159
+"294","NEUAP156PM4","65","69","52","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",129.553225426698,88694.1539334088
+"295","NEUAP156PM4","65","69","52","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",220.31401923057,81336.8857893035
+"296","NEUAP156PM4","65","69","52","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",223.576172118283,79548.1574164257
+"297","NEUAP156PM4","65","69","52","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",162.333986474688,79278.3786219826
+"298","NEUAT369TG5","79","81","24","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",226.221280549808,95274.0520426639
+"299","NEUAT369TG5","79","81","24","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",179.874225637531,90343.2837464596
+"300","NEUAT369TG5","79","81","24","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",165.544371456314,90170.9356200641
+"301","NEUAT369TG5","79","81","24","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",207.24771352664,78374.4765601815
+"302","NEUAT369TG5","79","81","24","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",219.898070918555,77374.5153290372
+"303","NEUAT369TG5","79","81","24","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",214.214051406688,77389.6195660554
+"304","NEUAV667LJK","79","85","Unknown","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",365.652088170258,98196.332036914
+"305","NEUAV667LJK","79","85","Unknown","sporadic","Limb","Unknown","Cortex","XY","No","als","No",264.337224452496,89983.1858465071
+"306","NEUAV667LJK","79","85","Unknown","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",262.452094950815,91015.5319523858
+"307","NEUAV667LJK","79","85","Unknown","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",198.02665637266,76127.134020065
+"308","NEUAV667LJK","79","85","Unknown","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",255.356866032967,74435.6756317244
+"309","NEUAV667LJK","79","85","Unknown","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",184.389582153573,76474.3325181857
+"310","NEUAY067UTB","64","67","36","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",193.632524156231,91224.2999856714
+"311","NEUAY067UTB","64","67","36","sporadic","Limb","Unknown","Cortex","XX","No","als","No",184.986978243771,87320.7937491969
+"312","NEUAY067UTB","64","67","36","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",209.545010619843,88688.5037560328
+"313","NEUAY067UTB","64","67","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",319.449400465669,71034.6663134835
+"314","NEUBB078VEG","46","51","60","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",266.321981941524,91253.3661134023
+"315","NEUBB078VEG","46","51","60","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",206.801615446227,84639.6815160415
+"316","NEUBB078VEG","46","51","60","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",197.409644387558,86099.7407315704
+"317","NEUBB078VEG","46","51","60","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",279.157632834554,76853.7584560311
+"318","NEUBB078VEG","46","51","60","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",252.226083621454,80882.1659161413
+"319","NEUBB078VEG","46","51","60","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",273.965106395787,80227.2294484505
+"320","NEUBE992ZD1","65","68","36","c9orf72","Generalized","Yes","Cerebellum","XY","No","als","No",291.515766187543,91973.7940831365
+"321","NEUBE992ZD1","65","68","36","c9orf72","Generalized","Yes","Cortex","XY","No","als","No",262.955619624921,91149.8976544174
+"322","NEUBE992ZD1","65","68","36","c9orf72","Generalized","Yes","Cortex_Motor","XY","No","als","No",218.611723226191,88258.4052655494
+"323","NEUBE992ZD1","65","68","36","c9orf72","Generalized","Yes","Spinal_Cord_Cervical","XY","No","als","No",256.294852574526,75242.4399620609
+"324","NEUBE992ZD1","65","68","36","c9orf72","Generalized","Yes","Spinal_Cord_Lumbar","XY","No","als","No",251.447547612358,76243.8103187363
+"325","NEUCG551GV1","Not Applicable","57","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",298.551707513237,99278.9104206768
+"326","NEUCG551GV1","Not Applicable","57","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",212.961126721825,93954.1447783786
+"327","NEUCV649UJK","79","80","12","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",359.10908943239,96614.6522631579
+"328","NEUCV649UJK","79","80","12","sporadic","Limb","Unknown","Cortex","XY","No","als","No",167.011364587427,84569.7602021306
+"329","NEUCV649UJK","79","80","12","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",159.548197448385,88649.9150581623
+"330","NEUCV649UJK","79","80","12","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",252.097201769722,77862.5069978295
+"331","NEUCV649UJK","79","80","12","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",299.249441969935,76323.8713442722
+"332","NEUCW292DYJ","56","67","132","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",202.048201393958,93668.9586384791
+"333","NEUCW292DYJ","56","67","132","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",173.509435699991,86378.3675259364
+"334","NEUCW292DYJ","56","67","132","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",145.624034028663,85256.555972795
+"335","NEUCW292DYJ","56","67","132","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",302.301912223435,71458.5501935924
+"336","NEUCW292DYJ","56","67","132","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",291.412009390157,72069.5379294649
+"337","NEUDA151YMK","Not Applicable","37","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",294.663784467511,96086.9133905584
+"338","NEUDA151YMK","Not Applicable","37","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",197.339931941724,88160.4859303626
+"339","NEUDA151YMK","Not Applicable","37","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",233.533663907491,89756.3326973729
+"340","NEUDA151YMK","Not Applicable","37","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XX","N/A","ctrl","N/A",120.879171050585,80430.0963346656
+"341","NEUDG361GA9","70","72","26","sporadic","Bulbar","No","Cerebellum","XX","No","als","No",300.393767880742,95005.0397930767
+"342","NEUDG361GA9","70","72","26","sporadic","Bulbar","No","Cortex","XX","No","als","No",164.892089052026,85207.3337895895
+"343","NEUDG361GA9","70","72","26","sporadic","Bulbar","No","Cortex_Motor","XX","No","als","No",183.925081073521,87869.0627525715
+"344","NEUDG361GA9","70","72","26","sporadic","Bulbar","No","Spinal_Cord_Cervical","XX","No","als","No",192.65499224249,74113.0692036032
+"345","NEUDG361GA9","70","72","26","sporadic","Bulbar","No","Spinal_Cord_Lumbar","XX","No","als","No",181.519307922919,75532.6026937099
+"346","NEUDG727NTW","60","63","36","sporadic","Bulbar and Limb","Unknown","Cerebellum","XX","No","als","No",233.578333591391,96925.3135348159
+"347","NEUDG727NTW","60","63","36","sporadic","Bulbar and Limb","Unknown","Cortex","XX","No","als","No",165.850869481699,88195.2142133904
+"348","NEUDG727NTW","60","63","36","sporadic","Bulbar and Limb","Unknown","Cortex_Motor","XX","No","als","No",142.901571020199,86945.7445393587
+"349","NEUDG727NTW","60","63","36","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",252.770490376257,76681.0654138159
+"350","NEUDG727NTW","60","63","36","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",271.322851310683,78251.9224697042
+"351","NEUDM397JGD","70","71","24","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",258.642153825928,94713.0457526564
+"352","NEUDM397JGD","70","71","24","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",166.651810727733,84796.903351889
+"353","NEUDM397JGD","70","71","24","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",153.112642466676,87359.3290985308
+"354","NEUDM397JGD","70","71","24","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",201.389546966621,75624.378808076
+"355","NEUDM397JGD","70","71","24","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",194.085475147043,76122.8133601218
+"356","NEUDR086ZDQ","69","71","24","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",298.210128007261,94576.126219479
+"357","NEUDR086ZDQ","69","71","24","sporadic","Limb","Unknown","Cortex","XX","No","als","No",177.76654512108,85738.7327561025
+"358","NEUDR086ZDQ","69","71","24","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",228.95008553429,91486.3739524426
+"359","NEUDR086ZDQ","69","71","24","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",230.596650644578,75002.740472104
+"360","NEUDR086ZDQ","69","71","24","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",216.231740218318,75361.9911964136
+"361","NEUDT233ZZ1","35","39","48","sporadic","Unknown","Unknown","Cerebellum","XY","No","als","No",262.397677397823,95394.8449952003
+"362","NEUDT233ZZ1","35","39","48","sporadic","Unknown","Unknown","Cortex","XY","No","als","No",132.973456543922,89200.5041564593
+"363","NEUDT233ZZ1","35","39","48","sporadic","Unknown","Unknown","Cortex_Motor","XY","No","als","No",186.553138729252,89272.673431342
+"364","NEUDT233ZZ1","35","39","48","sporadic","Unknown","Unknown","Spinal_Cord_Cervical","XY","No","als","No",283.865667752076,75035.9694637867
+"365","NEUDT233ZZ1","35","39","48","sporadic","Unknown","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",283.1207707437,74573.99884268
+"366","NEUDT233ZZ1","35","39","48","sporadic","Unknown","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",260.205137737069,73948.9915915068
+"367","NEUDT709YHN","63","68","60","c9orf72","Limb","Yes","Cerebellum","XX","No","als","No",326.148282184964,92952.4095020971
+"368","NEUDT709YHN","63","68","60","c9orf72","Limb","Yes","Cortex","XX","No","als","No",185.103493355221,84777.249006231
+"369","NEUDT709YHN","63","68","60","c9orf72","Limb","Yes","Cortex_Motor","XX","No","als","No",241.181754773567,90263.0790083323
+"370","NEUDT709YHN","63","68","60","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XX","No","als","No",240.033898159628,78485.6156229006
+"371","NEUDT709YHN","63","68","60","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XX","No","als","No",180.567128901741,80483.6737473409
+"372","NEUDW867LF9","Not Applicable","61","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",232.517388146964,74408.7876252736
+"373","NEUEA633EN5","69","71","25","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",334.841329741704,96244.5954831885
+"374","NEUEA633EN5","69","71","25","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",204.342415717886,90053.523155751
+"375","NEUEA633EN5","69","71","25","sporadic","Bulbar","","Cortex_Motor","XX","N/A","als","N/A",185.788986314928,87354.7383972226
+"376","NEUEA633EN5","69","71","25","sporadic","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",193.26506509943,77408.6833366628
+"377","NEUEA633EN5","69","71","25","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",180.250607422889,76782.8572665333
+"378","NEUEA633EN5","69","71","25","sporadic","Bulbar","","Spinal_Cord_Thoracic","XX","N/A","als","N/A",202.474307949999,79617.4683577534
+"379","NEUEB569WFU","57","64","90","sporadic","Bulbar","Unknown","Cerebellum","XY","No","als","No",331.431502124542,92053.0771131949
+"380","NEUEB569WFU","57","64","90","sporadic","Bulbar","Unknown","Cortex","XY","No","als","No",211.33485396586,86728.8840521529
+"381","NEUEB569WFU","57","64","90","sporadic","Bulbar","Unknown","Cortex_Motor","XY","No","als","No",213.736700381976,85718.3006469576
+"382","NEUEB569WFU","57","64","90","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XY","No","als","No",283.99763830762,72256.2373267178
+"383","NEUEB569WFU","57","64","90","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",309.922683557539,72166.0666687036
+"384","NEUEB569WFU","57","64","90","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",258.993849178512,72139.8401218804
+"385","NEUEC006FND","58","62","48","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",312.389212728554,99048.9949364939
+"386","NEUEC006FND","58","62","48","sporadic","Limb","Unknown","Cortex","XX","No","als","No",217.142849720111,87858.1540519565
+"387","NEUEC006FND","58","62","48","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",224.858716199423,89928.8929101403
+"388","NEUEC006FND","58","62","48","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",146.436505191356,75960.858534184
+"389","NEUEE362LGE","66","69","36","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",253.53626660258,91666.761755323
+"390","NEUEE362LGE","66","69","36","sporadic","Limb","Unknown","Cortex","XX","No","als","No",234.167037802541,87157.1880621787
+"391","NEUEE362LGE","66","69","36","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",222.625878545682,85640.6399063872
+"392","NEUEE362LGE","66","69","36","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",262.107403252922,71969.8471704896
+"393","NEUEE362LGE","66","69","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",276.765311931866,70694.3062073915
+"394","NEUEF397VVN","74","76","24","sporadic","Limb","Unknown","Cerebellum","XX","No","als","Yes",172.08497077819,93841.0064633943
+"395","NEUEF397VVN","74","76","24","sporadic","Limb","Unknown","Cortex","XX","No","als","Yes",175.164789224939,88266.6862259515
+"396","NEUEF397VVN","74","76","24","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","Yes",135.467093929522,85568.6826820568
+"397","NEUEF397VVN","74","76","24","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","Yes",282.690050151614,71785.112969006
+"398","NEUEF397VVN","74","76","24","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","Yes",312.044062225246,70294.7245876334
+"399","NEUEF397VVN","74","76","24","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","Yes",225.868622773606,75402.0484493231
+"400","NEUEF856BLV","60","61","12","c9orf72","Limb","Unknown","Cerebellum","XX","No","als","No",287.038369154696,92342.0240729934
+"401","NEUEF856BLV","60","61","12","c9orf72","Limb","Unknown","Cortex","XX","No","als","No",179.252716892806,87221.205522728
+"402","NEUEF856BLV","60","61","12","c9orf72","Limb","Unknown","Cortex_Motor","XX","No","als","No",220.063385938529,88211.77497647
+"403","NEUEF856BLV","60","61","12","c9orf72","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",235.050956877771,79352.2503912746
+"404","NEUEF856BLV","60","61","12","c9orf72","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",241.282620394445,75587.2642931863
+"405","NEUEG442LDR","Not Applicable","22","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",248.754682119732,95394.6769138773
+"406","NEUEG442LDR","Not Applicable","22","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",192.733871512845,87128.9813128369
+"407","NEUEG442LDR","Not Applicable","22","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",179.388019038234,87366.5389068443
+"408","NEUEG442LDR","Not Applicable","22","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",183.290754962351,77121.9984196342
+"409","NEUEG442LDR","Not Applicable","22","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XY","N/A","ctrl","N/A",201.921503943339,76539.9939745979
+"410","NEUEH612JPA","69","71","22","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","Yes",362.513201990119,98216.5522967562
+"411","NEUEH612JPA","69","71","22","sporadic","Bulbar","Unknown","Cortex","XX","No","als","Yes",208.791133414447,88092.0640446194
+"412","NEUEH612JPA","69","71","22","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","Yes",214.621486314699,89448.2882138697
+"413","NEUEH612JPA","69","71","22","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","Yes",238.699714258025,77757.7090547397
+"414","NEUEH612JPA","69","71","22","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","Yes",236.444863676737,77581.0445628394
+"415","NEUEH612JPA","69","71","22","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","Yes",202.787724138358,79437.5645967062
+"416","NEUEL133AK6","59","60","21","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",182.726520838422,96524.2931296065
+"417","NEUEL133AK6","59","60","21","sporadic","Limb","Unknown","Cortex","XX","No","als","No",184.225134983733,88949.8755668769
+"418","NEUEL133AK6","59","60","21","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",160.172322564294,87312.858956729
+"419","NEUEL133AK6","59","60","21","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",199.12860081491,77750.8864205369
+"420","NEUEL133AK6","59","60","21","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",237.894183140266,78062.1158398533
+"421","NEUEP010ZFE","Not Applicable","51","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",441.632960577292,99858.5299853206
+"422","NEUEP010ZFE","Not Applicable","51","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",263.008530040371,88900.0979611846
+"423","NEUEP010ZFE","Not Applicable","51","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",182.637244040166,85107.2684239411
+"424","NEUEP010ZFE","Not Applicable","51","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",207.043626008773,71584.7995486791
+"425","NEUEP010ZFE","Not Applicable","51","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",198.539280554283,76229.9081079974
+"426","NEUEP010ZFE","Not Applicable","51","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XY","N/A","ctrl","N/A",156.951730751331,79465.6700343095
+"427","NEUFE255AG2","47","51","48","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",184.592411690848,91354.640165553
+"428","NEUFE255AG2","47","51","48","sporadic","Limb","Unknown","Cortex","XY","No","als","No",168.975637124076,86984.0767298675
+"429","NEUFE255AG2","47","51","48","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",249.624248069231,87704.1880693542
+"430","NEUFE255AG2","47","51","48","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",284.565619523808,73866.2933233856
+"431","NEUFE255AG2","47","51","48","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",376.01228679503,73752.4847943593
+"432","NEUFF179PPT","50","59","108","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",252.951679141099,93383.4593977354
+"433","NEUFF179PPT","50","59","108","sporadic","Limb","Unknown","Cortex","XY","No","als","No",169.764925834076,91435.1196587461
+"434","NEUFF179PPT","50","59","108","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",182.291768241642,88878.7127289608
+"435","NEUFF179PPT","50","59","108","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",243.414489882505,75087.3872035157
+"436","NEUFT454ZFP","53","56","30","ang","Bulbar","No","Cerebellum","XY","No","als","No",313.224059612332,94604.5744122496
+"437","NEUFT454ZFP","53","56","30","ang","Bulbar","No","Cortex","XY","No","als","No",129.896820892251,83979.405183873
+"438","NEUFT454ZFP","53","56","30","ang","Bulbar","No","Cortex_Motor","XY","No","als","No",145.753789186159,86788.3210811335
+"439","NEUFT454ZFP","53","56","30","ang","Bulbar","No","Spinal_Cord_Cervical","XY","No","als","No",262.281484912121,74349.3588325209
+"440","NEUFT454ZFP","53","56","30","ang","Bulbar","No","Spinal_Cord_Lumbar","XY","No","als","No",238.09160068874,74435.1519702132
+"441","NEUFV843EVC","64","65","12","sporadic","Limb","Unknown","Cortex","XX","No","als","No",181.714566868192,83069.6543289018
+"442","NEUFV843EVC","64","65","12","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",212.650795626463,86211.1900357587
+"443","NEUFV843EVC","64","65","12","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",257.214039047429,73393.1996421091
+"444","NEUFV843EVC","64","65","12","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",257.765917697229,74279.2360761597
+"445","NEUGA773REC","48","49","12","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",327.51654834129,96697.4143383266
+"446","NEUGA773REC","48","49","12","sporadic","Limb","Unknown","Cortex","XY","No","als","No",195.468864503905,87253.4608493334
+"447","NEUGA773REC","48","49","12","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",200.068306010385,91785.3957076324
+"448","NEUGA773REC","48","49","12","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",274.973348530767,76660.0240132754
+"449","NEUGA773REC","48","49","12","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",269.457509165654,75098.8056578451
+"450","NEUGD887RT1","29","32","30","sod1","Limb","Yes","Cortex","XX","No","als","No",343.850840469471,89036.6482915493
+"451","NEUGD887RT1","29","32","30","sod1","Limb","Yes","Spinal_Cord_Cervical","XX","No","als","No",396.424852988008,71647.2529975202
+"452","NEUGD887RT1","29","32","30","sod1","Limb","Yes","Spinal_Cord_Lumbar","XX","No","als","No",372.913026378593,70688.6239919721
+"453","NEUGJ583BEE","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",191.15410828576,90396.2551414583
+"454","NEUGJ583BEE","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",324.643311394042,90080.0283605109
+"455","NEUGK141CFH","75","78","36","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",294.49504693996,91129.6922766557
+"456","NEUGK141CFH","75","78","36","sporadic","Limb","Unknown","Cortex","XX","No","als","No",249.420791323656,87350.2852753093
+"457","NEUGK141CFH","75","78","36","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",211.611243398123,86885.4713637334
+"458","NEUGK141CFH","75","78","36","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",312.214956686518,72837.2749401611
+"459","NEUGK141CFH","75","78","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",259.72960276689,70883.2640353735
+"460","NEUGK141CFH","75","78","36","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",309.119632865166,73387.4306975053
+"461","NEUGL022MN2","52","55","36","c9orf72","Bulbar","Yes","Cerebellum","XX","No","als","No",358.288422495831,92402.1165807165
+"462","NEUGL022MN2","52","55","36","c9orf72","Bulbar","Yes","Cortex","XX","No","als","No",202.049735408446,82055.870143334
+"463","NEUGL022MN2","52","55","36","c9orf72","Bulbar","Yes","Cortex_Motor","XX","No","als","No",243.354827634676,87500.5449640419
+"464","NEUGL022MN2","52","55","36","c9orf72","Bulbar","Yes","Spinal_Cord_Cervical","XX","No","als","No",288.820839817159,74886.8054048364
+"465","NEUGP259EBV","40","44","48","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",420.762876209571,96536.8478641011
+"466","NEUGP259EBV","40","44","48","sporadic","Limb","Unknown","Cortex","XY","No","als","No",236.047838595593,91826.4316762455
+"467","NEUGP259EBV","40","44","48","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",179.773389401311,84526.0814933719
+"468","NEUGP259EBV","40","44","48","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",351.899693798901,76561.4422625907
+"469","NEUGP259EBV","40","44","48","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",387.406808095808,76731.9612141352
+"470","NEUGP259EBV","40","44","48","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",362.372745075574,75900.0533957765
+"471","NEUGU437VNF","61","66","60","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",420.544198499283,98953.1535582545
+"472","NEUGU437VNF","61","66","60","sporadic","Limb","Unknown","Cortex","XX","No","als","No",281.128282681984,90296.5690613408
+"473","NEUGU437VNF","61","66","60","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",265.20774534729,91491.1151339521
+"474","NEUGU437VNF","61","66","60","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",240.292766419384,74711.4199107002
+"475","NEUGU437VNF","61","66","60","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",235.720490488541,81440.0038459002
+"476","NEUGV102NYT","Not Applicable","63","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",202.695816075761,84730.0276536391
+"477","NEUGV399KJW","61","63","24","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",440.402025753198,99334.6540142137
+"478","NEUGV399KJW","61","63","24","sporadic","Limb","Unknown","Cortex","XX","No","als","No",291.277067643407,90421.5839615235
+"479","NEUGV399KJW","61","63","24","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",257.300768558318,91210.6442665234
+"480","NEUGV399KJW","61","63","24","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",296.627619762295,76651.6424928523
+"481","NEUGV399KJW","61","63","24","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",234.313771164468,78991.0702369744
+"482","NEUGY575NUQ","67","69","21","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",413.702880369526,98574.5457138553
+"483","NEUGY575NUQ","67","69","21","sporadic","Limb","Unknown","Cortex","XY","No","als","No",230.308970382925,88600.8184013926
+"484","NEUGY575NUQ","67","69","21","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",281.275610920781,88297.7975392311
+"485","NEUGY575NUQ","67","69","21","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",277.594768579133,76279.9192737289
+"486","NEUGY575NUQ","67","69","21","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",307.800614933924,76217.2578994925
+"487","NEUGY575NUQ","67","69","21","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",253.813233633671,75539.8690809992
+"488","NEUGY741GH8","Not Applicable","59","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",196.216651301011,74967.7630555555
+"489","NEUHA141EEC","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",220.113752402302,87527.1493085256
+"490","NEUHA141EEC","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",201.055826993985,79355.1296981506
+"491","NEUHA141EEC","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",170.430100384565,78253.7301596825
+"492","NEUHA141EEC","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XY","N/A","ctrl","N/A",144.427117626652,79518.6455546166
+"493","NEUHC282LVJ","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",246.31406287919,98184.6752310322
+"494","NEUHC282LVJ","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",152.082622436826,92388.6920112403
+"495","NEUHC282LVJ","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",147.682901690313,93132.5731669263
+"496","NEUHC282LVJ","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",185.192308074777,79498.9178215869
+"497","NEUHC282LVJ","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",197.422907500849,77684.4840906324
+"498","NEUHC282LVJ","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XX","N/A","ctrl","N/A",191.927149453015,77793.9019680802
+"499","NEUHD481VCL","Not Applicable","54","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",226.579703512341,93346.9308013188
+"500","NEUHD481VCL","Not Applicable","54","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",164.029084859464,85064.7308234778
+"501","NEUHD481VCL","Not Applicable","54","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",146.195873562354,88970.8068338547
+"502","NEUHD481VCL","Not Applicable","54","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",199.883393850788,73964.8686395074
+"503","NEUHD481VCL","Not Applicable","54","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",206.870614228839,76013.8544872093
+"504","NEUHM340FBZ","79","80","10","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",327.660896196661,96084.9024714161
+"505","NEUHM340FBZ","79","80","10","sporadic","Limb","Unknown","Cortex","XY","No","als","No",239.911521489505,86497.0131192295
+"506","NEUHM340FBZ","79","80","10","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",223.580969126018,85637.3476281045
+"507","NEUHM340FBZ","79","80","10","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",227.054981804395,77522.4085731599
+"508","NEUHM340FBZ","79","80","10","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",250.564367404887,77262.6784949618
+"509","NEUHM399CBL","65","68","36","sporadic","Limb","No","Cerebellum","XY","No","als","No",462.083206143901,95119.8845848381
+"510","NEUHM399CBL","65","68","36","sporadic","Limb","No","Cortex","XY","No","als","No",189.044999031385,81850.9378678798
+"511","NEUHM399CBL","65","68","36","sporadic","Limb","No","Cortex_Motor","XY","No","als","No",175.199207893473,85717.7817395664
+"512","NEUHM399CBL","65","68","36","sporadic","Limb","No","Spinal_Cord_Cervical","XY","No","als","No",352.797621203871,71971.7563553746
+"513","NEUHM399CBL","65","68","36","sporadic","Limb","No","Spinal_Cord_Lumbar","XY","No","als","No",306.60426699627,70882.9478284558
+"514","NEUHX090PGV","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",240.212895824767,93859.9643543839
+"515","NEUHX090PGV","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XY","N/A","ctrl","N/A",227.76983429147,91652.8150325894
+"516","NEUHX090PGV","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",140.319519493392,79546.4093803145
+"517","NEUHX090PGV","Not Applicable","72","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XY","N/A","ctrl","N/A",188.384354295532,80141.070987657
+"518","NEUJB238MJR","Not Applicable","50","Not Applicable","ctrl","Not Applicable","Unknown","Cortex","XY","N/A","ctrl","N/A",358.823455470528,92732.2722975795
+"519","NEUJB238MJR","Not Applicable","50","Not Applicable","ctrl","Not Applicable","Unknown","Cortex_Motor","XY","N/A","ctrl","N/A",291.972386476297,92226.4878487572
+"520","NEUJL308UBK","52","59","84","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",247.786092565368,94528.3891482953
+"521","NEUJL308UBK","52","59","84","sporadic","Limb","Unknown","Cortex","XX","No","als","No",182.349994117592,89765.9864791073
+"522","NEUJL308UBK","52","59","84","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",279.15611212293,87736.0097968169
+"523","NEUJL308UBK","52","59","84","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",327.574255693644,71052.3660322271
+"524","NEUJR139GPF","58","69","108","sporadic","Limb","Unknown","Cortex","XY","No","als","No",286.037289261414,94091.7864823675
+"525","NEUJR139GPF","58","69","108","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",247.982438327274,79497.8138378098
+"526","NEUJR139GPF","58","69","108","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",255.655765637949,77738.6095657069
+"527","NEUJZ255ZC5","67","68","15","tardbp","Limb","Yes","Cerebellum","XY","No","als","No",410.417657914956,96896.7269126297
+"528","NEUJZ255ZC5","67","68","15","tardbp","Limb","Yes","Cortex","XY","No","als","No",187.553962576989,89374.9781408165
+"529","NEUJZ255ZC5","67","68","15","tardbp","Limb","Yes","Cortex_Motor","XY","No","als","No",160.326752665657,85360.0901966559
+"530","NEUJZ255ZC5","67","68","15","tardbp","Limb","Yes","Spinal_Cord_Cervical","XY","No","als","No",175.93984051775,77397.9407191476
+"531","NEUJZ255ZC5","67","68","15","tardbp","Limb","Yes","Spinal_Cord_Lumbar","XY","No","als","No",195.993970619061,79304.2282924401
+"532","NEUJZ255ZC5","67","68","15","tardbp","Limb","Yes","Spinal_Cord_Thoracic","XY","No","als","No",191.562606046705,76272.581546598
+"533","NEUKD974CXJ","54","56","24","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",496.554965241806,103064.479822338
+"534","NEUKD974CXJ","54","56","24","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",354.457565530258,91644.0505883587
+"535","NEUKD974CXJ","54","56","24","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",344.571812696307,92469.0235746336
+"536","NEUKD974CXJ","54","56","24","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",289.611253369158,79513.3209303977
+"537","NEUKD974CXJ","54","56","24","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",309.601413853614,83457.1624408417
+"538","NEUKD974CXJ","54","56","24","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",321.211761619433,74082.1703896857
+"539","NEUKG838WER","58","60","24","sporadic","Bulbar","Unknown","Cerebellum","XY","No","als","No",322.995356174442,91391.0060349642
+"540","NEUKG838WER","58","60","24","sporadic","Bulbar","Unknown","Cortex","XY","No","als","No",268.654679192703,86548.6454551627
+"541","NEUKG838WER","58","60","24","sporadic","Bulbar","Unknown","Cortex_Motor","XY","No","als","No",269.332581276542,90389.1307326171
+"542","NEUKG838WER","58","60","24","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XY","No","als","No",264.248023094569,73696.7193728424
+"543","NEUKJ257ZPG","66","67","12","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",270.801748873364,89447.0831544298
+"544","NEUKJ257ZPG","66","67","12","sporadic","Limb","Unknown","Cortex","XY","No","als","No",193.944540396515,82070.9596424516
+"545","NEUKJ257ZPG","66","67","12","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",220.300335717312,85059.9207133773
+"546","NEUKJ257ZPG","66","67","12","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",215.03885410216,76703.8389678926
+"547","NEUKJ257ZPG","66","67","12","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",250.238570051557,75510.1076254555
+"548","NEUKM699KKH","67","69","18","c9orf72","Bulbar","Yes","Cerebellum","XX","Yes","als+ftd","Yes",287.35569207166,99546.2496714748
+"549","NEUKM699KKH","67","69","18","c9orf72","Bulbar","Yes","Cortex","XX","Yes","als+ftd","Yes",220.805639972545,90127.3737233426
+"550","NEUKM699KKH","67","69","18","c9orf72","Bulbar","Yes","Cortex_Motor","XX","Yes","als+ftd","Yes",180.841681614247,87945.9532922757
+"551","NEUKM699KKH","67","69","18","c9orf72","Bulbar","Yes","Spinal_Cord_Cervical","XX","Yes","als+ftd","Yes",201.589214491969,83130.2473444378
+"552","NEUKM699KKH","67","69","18","c9orf72","Bulbar","Yes","Spinal_Cord_Lumbar","XX","Yes","als+ftd","Yes",180.412238370627,82464.7002695822
+"553","NEUKM699KKH","67","69","18","c9orf72","Bulbar","Yes","Spinal_Cord_Thoracic","XX","Yes","als+ftd","Yes",203.163048472805,82372.0954383151
+"554","NEUKN179PH8","60","62","24","sporadic","Limb","Yes","Cerebellum","XX","Yes","als+ftd","Yes",292.342846975471,90370.9695716868
+"555","NEUKN179PH8","60","62","24","tardbp","Limb","Yes","Cortex","XX","Yes","als+ftd","Yes",235.403085189911,85246.9217075192
+"556","NEUKN209FNW","47","48","12","sod1","Limb","Unknown","Cerebellum","XY","No","als","No",169.550892978272,91707.7326986442
+"557","NEUKN209FNW","47","48","12","sod1","Limb","Unknown","Cortex","XY","No","als","No",161.530333303634,88842.900470121
+"558","NEUKN209FNW","47","48","12","sod1","Limb","Unknown","Cortex_Motor","XY","No","als","No",176.954531426602,84930.3964895668
+"559","NEUKN209FNW","47","48","12","sod1","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",335.552029640325,79171.9977080864
+"560","NEUKN209FNW","47","48","12","sod1","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",335.050148156824,75683.4182167349
+"561","NEUKN209FNW","47","48","12","sod1","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",283.701349634618,77984.7530939532
+"562","NEUKV592NUT","42","45","27","sod1","Limb","Unknown","Cerebellum","XX","No","als","No",236.967510932672,89487.4859062009
+"563","NEUKV592NUT","42","45","27","sod1","Limb","Unknown","Cortex","XX","No","als","No",196.661687177905,82966.4905486704
+"564","NEUKV592NUT","42","45","27","sod1","Limb","Unknown","Cortex_Motor","XX","No","als","No",187.64541603302,82594.1881127736
+"565","NEUKV592NUT","42","45","27","sod1","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",286.162438466295,69670.912668991
+"566","NEUKV592NUT","42","45","27","sod1","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",292.082987627959,69332.4271188366
+"567","NEUKX037NKA","67","74","~84","c9orf72","Bulbar and Limb","Yes","Cerebellum","XY","Yes","als+ftd","Yes",495.332441433594,99458.6199587816
+"568","NEUKY135CV6","70","74","48","sporadic","Unknown","Unknown","Cerebellum","XY","No","als","Yes",186.591095506561,96135.1102881649
+"569","NEUKY135CV6","70","74","48","sporadic","Unknown","Unknown","Cortex","XY","No","als","Yes",163.149371413403,89339.2555076767
+"570","NEUKY135CV6","70","74","48","sporadic","Unknown","Unknown","Cortex_Motor","XY","No","als","Yes",181.794316262217,89479.1617942549
+"571","NEUKY135CV6","70","74","48","sporadic","Unknown","Unknown","Spinal_Cord_Cervical","XY","No","als","Yes",267.520157744475,78269.2208723116
+"572","NEUKY135CV6","70","74","48","sporadic","Unknown","Unknown","Spinal_Cord_Lumbar","XY","No","als","Yes",282.262161395769,75430.6724495155
+"573","NEUKY135CV6","70","74","48","sporadic","Unknown","Unknown","Spinal_Cord_Thoracic","XY","No","als","Yes",267.786335521946,74619.6700811649
+"574","NEUKZ727YY5","68","70","24","c9orf72","Limb","Yes","Cerebellum","XY","No","als","No",370.998791319867,93074.3705634941
+"575","NEUKZ727YY5","68","70","24","c9orf72","Limb","Yes","Cortex","XY","No","als","No",246.574807116306,87486.0551325374
+"576","NEUKZ727YY5","68","70","24","c9orf72","Limb","Yes","Cortex_Motor","XY","No","als","No",234.415073787268,86552.3169506364
+"577","NEUKZ727YY5","68","70","24","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XY","No","als","No",198.08977430818,74481.4695356312
+"578","NEUKZ727YY5","68","70","24","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XY","No","als","No",229.523381663121,71276.8739764841
+"579","NEULA285XJ0","65","67","24","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",205.66346657402,89646.9024607689
+"580","NEULA285XJ0","65","67","24","sporadic","Limb","Unknown","Cortex","XY","No","als","No",228.812006139691,84840.4465742863
+"581","NEULA285XJ0","65","67","24","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",194.971516343351,84653.5123548251
+"582","NEULA285XJ0","65","67","24","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",222.987919526101,74091.5497889581
+"583","NEULA285XJ0","65","67","24","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",225.604654349115,72938.0670200415
+"584","NEULH417FZJ","53","60","72","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",294.367990965297,91938.4380661055
+"585","NEULH417FZJ","53","60","72","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",238.592578758079,86173.2199830901
+"586","NEULH417FZJ","53","60","72","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",320.640668413483,71116.001823845
+"587","NEULH417FZJ","53","60","72","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",298.455632369176,71071.1050206962
+"588","NEULH901PYF","58","59","12","c9orf72","Limb","Yes","Cerebellum","XY","No","als","No",305.925123394269,96536.112971343
+"589","NEULH901PYF","58","59","12","c9orf72","Limb","Yes","Cortex","XY","No","als","No",194.238800859385,85729.1774451831
+"590","NEULH901PYF","58","59","12","c9orf72","Limb","Yes","Cortex_Motor","XY","No","als","No",198.427360972984,89280.115652689
+"591","NEULH901PYF","58","59","12","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XY","No","als","No",227.417619960575,79533.3479870124
+"592","NEULH901PYF","58","59","12","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XY","No","als","No",235.625923409652,78202.5580713837
+"593","NEULJ443PF5","71","77","72","sporadic","Limb","Unknown","Cerebellum","XY","No","als","Yes",305.334573219186,97681.4613762114
+"594","NEULJ443PF5","71","77","72","sporadic","Limb","Unknown","Cortex","XY","No","als","Yes",207.507208175902,95573.4467979173
+"595","NEULJ443PF5","71","77","72","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","Yes",233.715210503787,96487.8710845667
+"596","NEULJ443PF5","71","77","72","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","Yes",193.416721482525,85503.5163054913
+"597","NEULJ443PF5","71","77","72","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","Yes",144.552743886866,81307.63866129
+"598","NEULJ443PF5","71","77","72","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","Yes",189.964952564904,88358.6498807601
+"599","NEULM733WR7","Not Applicable","65","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",155.925231162676,78945.6878492861
+"600","NEULN488RD5","67","69","30","sporadic","Bulbar and Limb","Unknown","Cerebellum","XY","No","als","No",274.081382310432,93856.1613709467
+"601","NEULN488RD5","67","69","30","sporadic","Bulbar and Limb","Unknown","Cortex","XY","No","als","No",184.25888244541,86522.4854061443
+"602","NEULN488RD5","67","69","30","sporadic","Bulbar and Limb","Unknown","Cortex_Motor","XY","No","als","No",194.14505167739,87000.9730015845
+"603","NEULN488RD5","67","69","30","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",248.662815580315,71209.932021188
+"604","NEULN488RD5","67","69","30","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",257.884349235159,69865.617928655
+"605","NEULN488RD5","67","69","30","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",238.905902253844,72512.4535875892
+"606","NEULP959LBP","53","59","72","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",293.508373832265,93363.8726839705
+"607","NEULP959LBP","53","59","72","sporadic","Limb","Unknown","Cortex","XY","No","als","No",210.811122419068,88713.6168635076
+"608","NEULP959LBP","53","59","72","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",244.012113590667,86145.4727124992
+"609","NEULP959LBP","53","59","72","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",321.72364098909,72218.3782171917
+"610","NEULP959LBP","53","59","72","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",292.17565228811,75052.1910148073
+"611","NEULT268RM4","72","73","12","c9orf72","Limb","Yes","Cerebellum","XY","Yes","als+ftd","Yes",347.955373988511,98347.4495694461
+"612","NEULT268RM4","72","73","12","c9orf72","Limb","Yes","Cortex","XY","Yes","als+ftd","Yes",440.06215457001,89104.0974128044
+"613","NEULT268RM4","72","73","12","c9orf72","Limb","Yes","Cortex_Motor","XY","Yes","als+ftd","Yes",407.470351089418,93638.4209406815
+"614","NEULT268RM4","72","73","12","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",258.049326702275,74374.1360851358
+"615","NEULT268RM4","72","73","12","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",230.667724636498,74715.6446076792
+"616","NEULV114EY9","52","55","36","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",356.438245806028,93823.5338690201
+"617","NEULV114EY9","52","55","36","sporadic","Limb","Unknown","Cortex","XY","No","als","No",212.87622193423,84687.8259645238
+"618","NEULV114EY9","52","55","36","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",301.494994651961,88484.7104613391
+"619","NEULV114EY9","52","55","36","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",254.552697896274,79461.879775534
+"620","NEULV114EY9","52","55","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",397.155311301727,74394.0827962301
+"621","NEUME287RK2","65","67","30","sporadic","Bulbar","Unknown","Cerebellum","XX","Yes","als+ftd","Yes",264.570916779495,95995.3050421044
+"622","NEUME287RK2","65","67","30","sporadic","Bulbar","Unknown","Cortex","XX","Yes","als+ftd","Yes",284.526794544209,90019.6424652775
+"623","NEUME287RK2","65","67","30","sporadic","Bulbar","Unknown","Cortex_Motor","XX","Yes","als+ftd","Yes",241.614723905354,91654.6220793841
+"624","NEUME287RK2","65","67","30","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","Yes","als+ftd","Yes",79.725163995572,76659.4144489431
+"625","NEUMK638LUX","69","72","42","anxa11","Limb","Yes","Cerebellum","XY","No","als","No",583.158715008164,99667.3580201098
+"626","NEUMK638LUX","69","72","42","anxa11","Limb","Yes","Cortex","XY","No","als","No",334.350869221306,91062.2856648976
+"627","NEUMK638LUX","69","72","42","anxa11","Limb","Yes","Cortex_Motor","XY","No","als","No",293.829730824147,91893.7913155404
+"628","NEUMK638LUX","69","72","42","anxa11","Limb","Yes","Spinal_Cord_Cervical","XY","No","als","No",307.399098320838,78892.7185383955
+"629","NEUMK638LUX","69","72","42","anxa11","Limb","Yes","Spinal_Cord_Thoracic","XY","No","als","No",285.113055542993,81031.6160089528
+"630","NEUML172BXK","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",265.697079951617,96311.2749507385
+"631","NEUML172BXK","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",218.724343746516,89847.4807099348
+"632","NEUML172BXK","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",158.004134554086,87969.0823166831
+"633","NEUML172BXK","Not Applicable","70","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XX","N/A","ctrl","N/A",185.523024443158,76918.6165839978
+"634","NEUMP035RP4","57","69","156","sporadic","Bulbar","","Cerebellum","XY","N/A","als","N/A",445.702684110785,99318.6968638292
+"635","NEUMP035RP4","57","69","156","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",185.915756637767,85545.025764182
+"636","NEUMP035RP4","57","69","156","sporadic","Bulbar","","Cortex_Motor","XY","N/A","als","N/A",237.902779911294,90219.5875900392
+"637","NEUMP035RP4","57","69","156","sporadic","Bulbar","","Spinal_Cord_Cervical","XY","N/A","als","N/A",264.253029592986,71670.6747694655
+"638","NEUMP035RP4","57","69","156","sporadic","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",262.706221483926,72933.0940390592
+"639","NEUMT947ALA","Unknown","74","Unknown","sporadic","Unknown","Unknown","Cerebellum","XY","No","als","No",162.35160936397,97090.5653798409
+"640","NEUMT947ALA","Unknown","74","Unknown","sporadic","Unknown","Unknown","Cortex","XY","No","als","No",160.567952468897,87771.0920378624
+"641","NEUMT947ALA","Unknown","74","Unknown","sporadic","Unknown","Unknown","Cortex_Motor","XY","No","als","No",137.222216568573,87050.8355783217
+"642","NEUMT947ALA","Unknown","74","Unknown","sporadic","Unknown","Unknown","Spinal_Cord_Cervical","XY","No","als","No",218.71684852465,78075.9648849343
+"643","NEUMT947ALA","Unknown","74","Unknown","sporadic","Unknown","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",223.096716370988,77286.0491627114
+"644","NEUMT947ALA","Unknown","74","Unknown","sporadic","Unknown","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",212.79725791508,76564.6502583773
+"645","NEUMY028JH4","50","54","48","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",178.172458903032,91766.5725035478
+"646","NEUMY028JH4","50","54","48","sporadic","Limb","Unknown","Cortex","XX","No","als","No",180.057412621906,88455.9047711869
+"647","NEUMY028JH4","50","54","48","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",197.205446530118,84879.6066330133
+"648","NEUMY028JH4","50","54","48","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",343.308550062343,69483.1559275422
+"649","NEUMY028JH4","50","54","48","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",293.086157189152,73384.5056810436
+"650","NEUMY028JH4","50","54","48","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",258.457332018505,70815.8719992565
+"651","NEUNJ406FRR","Not Applicable","16","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",167.623994403129,75210.0210995729
+"652","NEUNJ406FRR","Not Applicable","16","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",198.47429706238,76877.5724536641
+"653","NEUNL548ZBN","59","60","8","c9orf72","Limb","Yes","Cerebellum","XY","Yes","als+ftd","Yes",243.553222152001,93431.5830062519
+"654","NEUNL548ZBN","59","60","8","c9orf72","Limb","Yes","Cortex","XY","Yes","als+ftd","Yes",197.46260201339,87483.6491063179
+"655","NEUNL548ZBN","59","60","8","c9orf72","Limb","Yes","Cortex_Motor","XY","Yes","als+ftd","Yes",156.134404852143,88104.3122185117
+"656","NEUNL548ZBN","59","60","8","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",227.475550160812,78993.4377906651
+"657","NEUNL548ZBN","59","60","8","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",210.990686451771,76898.2005841765
+"658","NEUNL974RU6","50","53","42","sporadic","Limb","No","Cerebellum","XY","No","als","No",208.494767850243,92496.6708511792
+"659","NEUNL974RU6","50","53","42","sporadic","Limb","No","Cortex","XY","No","als","No",170.469403737218,86417.0986593517
+"660","NEUNL974RU6","50","53","42","sporadic","Limb","No","Cortex_Motor","XY","No","als","No",137.095750340145,89609.5183415188
+"661","NEUNL974RU6","50","53","42","sporadic","Limb","No","Spinal_Cord_Cervical","XY","No","als","No",300.997988418107,73456.1872033532
+"662","NEUNL974RU6","50","53","42","sporadic","Limb","No","Spinal_Cord_Lumbar","XY","No","als","No",315.776278278104,72935.5772938106
+"663","NEUNL974RU6","50","53","42","sporadic","Limb","No","Spinal_Cord_Thoracic","XY","No","als","No",346.253911066721,73858.9442299207
+"664","NEUNW210GCW","Unknown","53","Unknown","sporadic","Unknown","Unknown","Cerebellum","XY","No","als","No",214.975461158906,95318.4969017081
+"665","NEUNW210GCW","Unknown","53","Unknown","sporadic","Unknown","Unknown","Cortex","XY","No","als","No",172.036645696183,87621.5965901761
+"666","NEUNW210GCW","Unknown","53","Unknown","sporadic","Unknown","Unknown","Cortex_Motor","XY","No","als","No",170.746491432167,88530.8394706752
+"667","NEUNW210GCW","Unknown","53","Unknown","sporadic","Unknown","Unknown","Spinal_Cord_Cervical","XY","No","als","No",247.743778788681,76418.0831662802
+"668","NEUNW210GCW","Unknown","53","Unknown","sporadic","Unknown","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",250.339730908541,72456.5666948686
+"669","NEUNW244GF0","57","61","48","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",202.773194319019,94967.446295227
+"670","NEUNW244GF0","57","61","48","sporadic","Limb","Unknown","Cortex","XX","No","als","No",129.408269622439,85046.4280370403
+"671","NEUNW244GF0","57","61","48","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",109.652819870007,84916.1009379949
+"672","NEUNW244GF0","57","61","48","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",227.925503837867,74395.9543174553
+"673","NEUNW244GF0","57","61","48","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",211.295899981822,75590.3899252012
+"674","NEUNW244GF0","57","61","48","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",225.329388859751,77386.9500027534
+"675","NEUNY116EZW","64","68","48","c9orf72","Bulbar","Yes","Cerebellum","XX","No","als","Yes",303.857005668223,94174.4090493679
+"676","NEUNY116EZW","64","68","48","c9orf72","Bulbar","Yes","Cortex","XX","No","als","Yes",195.340777488425,88933.2949334228
+"677","NEUNY116EZW","64","68","48","c9orf72","Bulbar","Yes","Cortex_Motor","XX","No","als","Yes",206.696602157815,86108.7588884276
+"678","NEUNY116EZW","64","68","48","c9orf72","Bulbar","Yes","Spinal_Cord_Cervical","XX","No","als","Yes",233.895397591678,78417.1114187139
+"679","NEUNY116EZW","64","68","48","c9orf72","Bulbar","Yes","Spinal_Cord_Lumbar","XX","No","als","Yes",241.231185561563,75179.3463678787
+"680","NEUPG876HJT","77","80","36","sporadic","Limb","Unknown","Cerebellum","XY","No","als","Yes",260.262666435905,94424.204298828
+"681","NEUPG876HJT","77","80","36","sporadic","Limb","Unknown","Cortex","XY","No","als","Yes",238.847225981974,86399.6167161197
+"682","NEUPG876HJT","77","80","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","Yes",251.731343318847,78493.4569783764
+"683","NEUPK732LNT","72","76","48","tardbp","Limb","Yes","Cerebellum","XX","No","als","No",359.586798108486,96977.2677947472
+"684","NEUPK732LNT","72","76","48","tardbp","Limb","Yes","Cortex","XX","No","als","No",138.205017359612,83826.0019290137
+"685","NEUPK732LNT","72","76","48","tardbp","Limb","Yes","Cortex_Motor","XX","No","als","No",192.278710403003,88064.6515872945
+"686","NEUPK732LNT","72","76","48","tardbp","Limb","Yes","Spinal_Cord_Cervical","XX","No","als","No",279.188876980875,73532.0895448687
+"687","NEUPM864FBE","65","67","30","sporadic","Bulbar and Limb","Unknown","Cerebellum","XY","No","als","No",379.032961813764,93455.0830377447
+"688","NEUPM864FBE","65","67","30","sporadic","Bulbar and Limb","Unknown","Cortex","XY","No","als","No",247.83937129278,87418.27807123
+"689","NEUPM864FBE","65","67","30","sporadic","Bulbar and Limb","Unknown","Cortex_Motor","XY","No","als","No",216.113501177904,83631.8886925754
+"690","NEUPM864FBE","65","67","30","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",266.865078223018,72554.0614611895
+"691","NEUPM864FBE","65","67","30","sporadic","Bulbar and Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",215.956153876482,71930.3063933299
+"692","NEUPU334DL1","65","66","12","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",249.738269183348,98163.6997236127
+"693","NEUPU334DL1","65","66","12","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",220.489899550633,89770.6977962333
+"694","NEUPU334DL1","65","66","12","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",312.285142771934,93589.8134163448
+"695","NEUPU334DL1","65","66","12","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",237.567929741986,79902.1256464211
+"696","NEUPU334DL1","65","66","12","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",296.521819273174,76064.9272827267
+"697","NEUPU334DL1","65","66","12","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",215.954698125601,79144.0781614263
+"698","NEURJ387PPV","64","68","71","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",225.250799310201,89145.4291565296
+"699","NEURJ387PPV","64","68","71","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",262.863822101886,77737.3497640072
+"700","NEURJ387PPV","64","68","71","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",242.593068333021,77931.1679846803
+"701","NEURJ886YZU","61","64","36","sporadic","Limb","Unknown","Cortex","XY","No","als","No",288.562329035251,89435.1818103958
+"702","NEURJ886YZU","61","64","36","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",415.272300899582,91735.4468745255
+"703","NEURJ886YZU","61","64","36","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",224.968798349877,73479.7638661215
+"704","NEURJ886YZU","61","64","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",254.673659429463,71569.5869654127
+"705","NEURK749WFB","58","65","84","c9orf72","Limb","Yes","Cerebellum","XX","No","als","No",400.75271541658,96191.9880008482
+"706","NEURK749WFB","58","65","84","c9orf72","Limb","Yes","Cortex","XX","No","als","No",373.665708504246,89345.0430740615
+"707","NEURK749WFB","58","65","84","c9orf72","Limb","Yes","Cortex_Motor","XX","No","als","No",315.589406216397,88237.0141966242
+"708","NEURK749WFB","58","65","84","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XX","No","als","No",311.491554575225,74463.6747629199
+"709","NEURK749WFB","58","65","84","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XX","No","als","No",224.458110340708,76010.6457756008
+"710","NEURN516YR8","57","58","12","c9orf72","Limb","Yes","Cerebellum","XX","No","als","No",332.453317381164,95190.7275178599
+"711","NEURN516YR8","57","58","12","c9orf72","Limb","Yes","Cortex","XX","No","als","No",186.265593058463,83180.4701636697
+"712","NEURN516YR8","57","58","12","c9orf72","Limb","Yes","Cortex_Motor","XX","No","als","No",224.412297689427,84719.5050085029
+"713","NEURN516YR8","57","58","12","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XX","No","als","No",199.032628386014,81492.3295506338
+"714","NEURN516YR8","57","58","12","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XX","No","als","No",194.218124403119,83176.5113216712
+"715","NEURW761XNG","67","69","24","sporadic","Unknown","Unknown","Cerebellum","XX","No","als","Yes",283.781951279758,95930.5440924819
+"716","NEURW761XNG","67","69","24","sporadic","Unknown","Unknown","Cortex","XX","No","als","Yes",327.217407357988,89314.2983627862
+"717","NEURW761XNG","67","69","24","sporadic","Unknown","Unknown","Cortex_Motor","XX","No","als","Yes",317.754529784653,90509.8676012514
+"718","NEURW761XNG","67","69","24","sporadic","Unknown","Unknown","Spinal_Cord_Cervical","XX","No","als","Yes",207.6784413486,79900.9329487826
+"719","NEURW761XNG","67","69","24","sporadic","Unknown","Unknown","Spinal_Cord_Lumbar","XX","No","als","Yes",212.356508658478,75224.8097220466
+"720","NEURW761XNG","67","69","24","sporadic","Unknown","Unknown","Spinal_Cord_Thoracic","XX","No","als","Yes",223.788053858025,77161.1710302205
+"721","NEURX991BWB","57","59","24","dctn1","Axial and Bulbar","No","Cerebellum","XX","No","als","No",279.401949847136,95912.7509242409
+"722","NEURX991BWB","57","59","24","dctn1","Axial and Bulbar","No","Cortex","XX","No","als","No",209.964200221135,89274.3514053121
+"723","NEURX991BWB","57","59","24","dctn1","Axial and Bulbar","No","Cortex_Motor","XX","No","als","No",260.202139649191,90916.4124094208
+"724","NEURX991BWB","57","59","24","dctn1","Axial and Bulbar","No","Spinal_Cord_Cervical","XX","No","als","No",127.167437100903,78853.6993313572
+"725","NEURX991BWB","57","59","24","dctn1","Axial and Bulbar","No","Spinal_Cord_Thoracic","XX","No","als","No",189.908980331647,81864.5474924734
+"726","NEURY396DC4","47","58","132","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",492.758635930013,97568.2860138057
+"727","NEURY396DC4","47","58","132","sporadic","Limb","Unknown","Cortex","XX","No","als","No",227.660678335014,91915.5612144261
+"728","NEURY396DC4","47","58","132","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",335.10492282901,91883.00995504
+"729","NEURY396DC4","47","58","132","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",215.254683715302,71331.9007875378
+"730","NEURY396DC4","47","58","132","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",276.804600795459,71913.8410713361
+"731","NEUTB398FC9","81","83","24","sporadic","Unknown","Unknown","Cerebellum","XY","No","als","No",487.724997007881,103294.459615788
+"732","NEUTB398FC9","81","83","24","sporadic","Unknown","Unknown","Cortex","XY","No","als","No",148.370253167792,91724.5491441268
+"733","NEUTB398FC9","81","83","24","sporadic","Unknown","Unknown","Cortex_Motor","XY","No","als","No",209.22864004849,92361.1900969359
+"734","NEUTB398FC9","81","83","24","sporadic","Unknown","Unknown","Spinal_Cord_Cervical","XY","No","als","No",232.873148320445,75915.4213861756
+"735","NEUTB398FC9","81","83","24","sporadic","Unknown","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",276.414150092837,74609.5191112343
+"736","NEUTB398FC9","81","83","24","sporadic","Unknown","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",215.93025793918,73331.2429328217
+"737","NEUTC651YRK","76","78","24","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",353.77181046972,88513.2473230879
+"738","NEUTC651YRK","76","78","24","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",249.712606628501,75542.9058233974
+"739","NEUTD254HL0","44","48","48","sporadic","Limb","No","Cerebellum","XY","No","als","No",281.74413781921,92930.727173965
+"740","NEUTD254HL0","44","48","48","sporadic","Limb","No","Cortex","XY","No","als","No",208.656937299462,85452.0896225046
+"741","NEUTD254HL0","44","48","48","sporadic","Limb","No","Cortex_Motor","XY","No","als","No",298.655801481514,91378.0190932237
+"742","NEUTD254HL0","44","48","48","sporadic","Limb","No","Spinal_Cord_Cervical","XY","No","als","No",265.068857399788,76219.1005020289
+"743","NEUTD254HL0","44","48","48","sporadic","Limb","No","Spinal_Cord_Lumbar","XY","No","als","No",267.397588590116,76748.8238222951
+"744","NEUTL441LZ7","63","67","48","c9orf72","Limb","Unknown","Cerebellum","XY","No","als","No",600.371874312857,102952.68115538
+"745","NEUTL441LZ7","63","67","48","c9orf72","Limb","Unknown","Cortex_Motor","XY","No","als","No",360.254726523313,93868.7750770269
+"746","NEUTL441LZ7","63","67","48","c9orf72","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",338.190597724158,70099.8260149513
+"747","NEUTL441LZ7","63","67","48","c9orf72","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",266.85029131961,75568.7246160457
+"748","NEUTL588HAA","59","61","24","sporadic","Unknown","Unknown","Cerebellum","XX","No","als","No",339.231193900257,93338.5833768956
+"749","NEUTL588HAA","59","61","24","sporadic","Unknown","Unknown","Cortex","XX","No","als","No",265.799209344314,86568.5100147363
+"750","NEUTL588HAA","59","61","24","sporadic","Unknown","Unknown","Cortex_Motor","XX","No","als","No",228.33286883909,91441.6777429758
+"751","NEUTL588HAA","59","61","24","sporadic","Unknown","Unknown","Spinal_Cord_Cervical","XX","No","als","No",308.349707059384,75040.1543271568
+"752","NEUTL588HAA","59","61","24","sporadic","Unknown","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",238.568159245835,71487.7012469129
+"753","NEUTL588HAA","59","61","24","sporadic","Unknown","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",278.713759834904,73596.8299766878
+"754","NEUTP019MY9","60","61","12","c9orf72","Unknown","Unknown","Cerebellum","XX","No","als","No",285.900300954423,96840.9375656693
+"755","NEUTP019MY9","60","61","12","c9orf72","Unknown","Unknown","Cortex","XX","No","als","No",140.136049149167,87165.0634994428
+"756","NEUTP019MY9","60","61","12","c9orf72","Unknown","Unknown","Cortex_Motor","XX","No","als","No",217.127607810336,90348.8096652889
+"757","NEUTP019MY9","60","61","12","c9orf72","Unknown","Unknown","Spinal_Cord_Cervical","XX","No","als","No",227.604276213763,76340.5544497426
+"758","NEUTP019MY9","60","61","12","c9orf72","Unknown","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",202.372922698442,77722.1018649473
+"759","NEUTP019MY9","60","61","12","c9orf72","Unknown","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",214.833428571773,77672.4137417679
+"760","NEUTP414KZ2","Not Applicable","52","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",212.723295472612,91763.7352110658
+"761","NEUTP414KZ2","Not Applicable","52","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",185.030582470467,86630.7205419651
+"762","NEUTP414KZ2","Not Applicable","52","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",172.778032423488,87591.6952326654
+"763","NEUUE532LFF","70","74","48","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",326.718219027132,96526.6926524193
+"764","NEUUE532LFF","70","74","48","sporadic","Limb","Unknown","Cortex","XY","No","als","No",212.300272724928,89137.6093976559
+"765","NEUUE532LFF","70","74","48","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",195.30889255195,88440.6903143713
+"766","NEUUE532LFF","70","74","48","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",241.993353650054,78779.0059629202
+"767","NEUUE532LFF","70","74","48","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",252.006540627596,77895.5721179327
+"768","NEUUF289NRL","68","72","48","sporadic","Axial and Limb","Unknown","Cerebellum","XY","No","als","No",243.281281251756,93730.7337927819
+"769","NEUUF289NRL","68","72","48","sporadic","Axial and Limb","Unknown","Cortex","XY","No","als","No",162.322703775921,90012.4004150344
+"770","NEUUF289NRL","68","72","48","sporadic","Axial and Limb","Unknown","Cortex_Motor","XY","No","als","No",272.806584326414,89353.5435294667
+"771","NEUUF289NRL","68","72","48","sporadic","Axial and Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",340.752114035412,74562.6317751161
+"772","NEUUF289NRL","68","72","48","sporadic","Axial and Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",339.333365327756,79964.6861600959
+"773","NEUUF289NRL","68","72","48","sporadic","Axial and Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",278.961404297359,75705.6882876557
+"774","NEUUK557CZW","64","68","48","sporadic","Limb","Unknown","Cortex","XX","No","als","Yes",188.103668723867,88717.0976005346
+"775","NEUUT049NND","Not Applicable","71","Not Applicable","ctrl","Not Applicable","Unknown","Cortex","XX","N/A","ctrl","N/A",237.913216251208,89967.4121312668
+"776","NEUUT049NND","Not Applicable","71","Not Applicable","ctrl","Not Applicable","Unknown","Spinal_Cord_Thoracic","XX","N/A","ctrl","N/A",191.850288912674,76820.6769110126
+"777","NEUUW911LWA","57","59","20","nefh","Bulbar","Yes","Cerebellum","XY","Yes","als+ftd","Yes",380.708879975629,101334.834704963
+"778","NEUUW911LWA","57","59","20","nefh","Bulbar","Yes","Cortex_Motor","XY","Yes","als+ftd","Yes",376.618835572948,93524.689826197
+"779","NEUUW911LWA","57","59","20","nefh","Bulbar","Yes","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",132.593747294945,79588.6884218719
+"780","NEUUW911LWA","57","59","20","nefh","Bulbar","Yes","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",176.157445607997,77222.9561162415
+"781","NEUUY552RBK","58","61","29","c9orf72","Limb","Yes","Cerebellum","XX","Yes","als+ftd","Yes",223.802763662651,89419.8881160828
+"782","NEUUY552RBK","58","61","29","c9orf72","Limb","Yes","Cortex","XX","Yes","als+ftd","Yes",206.709636684927,85378.834288006
+"783","NEUUY552RBK","58","61","29","c9orf72","Limb","Yes","Cortex_Motor","XX","Yes","als+ftd","Yes",234.618659966876,87655.1192342498
+"784","NEUUY552RBK","58","61","29","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XX","Yes","als+ftd","Yes",242.385176780065,75827.9796475593
+"785","NEUUY552RBK","58","61","29","c9orf72","Limb","Yes","Spinal_Cord_Lumbar","XX","Yes","als+ftd","Yes",261.698569732694,74081.5070687231
+"786","NEUVB305VU7","75","78","28","sporadic","Limb","Unknown","Cortex","XY","No","als","Yes",171.383502645056,92310.6451003255
+"787","NEUVB305VU7","75","78","28","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","Yes",188.511412000176,89494.6924961711
+"788","NEUVB305VU7","75","78","28","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","Yes",245.832489038715,75553.4971146091
+"789","NEUVB305VU7","75","78","28","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","Yes",252.074600497168,77814.2021172078
+"790","NEUVZ387WGH","63","66","36","sporadic","Axial","Unknown","Cortex","XX","No","als","Yes",270.345460874516,94231.7874151206
+"791","NEUWC334RTZ","51","59","96","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",331.913580592453,96101.1942144195
+"792","NEUWC334RTZ","51","59","96","sporadic","Limb","Unknown","Cortex","XY","No","als","No",268.861930502238,91047.6605914037
+"793","NEUWC334RTZ","51","59","96","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",224.727310624483,87159.7098231474
+"794","NEUWC334RTZ","51","59","96","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",301.600628597954,72138.853184666
+"795","NEUWC334RTZ","51","59","96","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",254.668261609287,76032.4558757054
+"796","NEUWD570BTK","Not Applicable","68","Not Applicable","ctrl","Not Applicable","Unknown","Cortex","XY","N/A","ctrl","N/A",334.487686778382,91127.282729213
+"797","NEUWD570BTK","Not Applicable","68","Not Applicable","ctrl","Not Applicable","Unknown","Cortex_Motor","XY","N/A","ctrl","N/A",372.207617363418,90984.8158160543
+"798","NEUWD570BTK","Not Applicable","68","Not Applicable","ctrl","Not Applicable","Unknown","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",312.798087307793,72110.4628332522
+"799","NEUWD570BTK","Not Applicable","68","Not Applicable","ctrl","Not Applicable","Unknown","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",272.774550712915,74641.2085863874
+"800","NEUWG326WUJ","66","67","12","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",277.337806574063,90755.2627331895
+"801","NEUWG326WUJ","66","67","12","sporadic","Limb","Unknown","Cortex","XY","No","als","No",179.644985471494,83481.6629078209
+"802","NEUWG326WUJ","66","67","12","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",181.479915233596,81640.1150072536
+"803","NEUWG326WUJ","66","67","12","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",286.066775628168,68840.7335944153
+"804","NEUWG326WUJ","66","67","12","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",295.304060531737,69064.8873152426
+"805","NEUWG523WRV","36","38","28","setx","Limb","Yes","Cortex","XY","No","als","No",163.641071927562,88108.2312997088
+"806","NEUWG523WRV","36","38","28","setx","Limb","Yes","Cortex_Motor","XY","No","als","No",170.969833598983,87951.9576753481
+"807","NEUWG523WRV","36","38","28","setx","Limb","Yes","Spinal_Cord_Cervical","XY","No","als","No",214.22955603222,79002.9685801493
+"808","NEUWG523WRV","36","38","28","setx","Limb","Yes","Spinal_Cord_Lumbar","XY","No","als","No",259.403415910377,75061.5869690248
+"809","NEUWG523WRV","36","38","28","setx","Limb","Yes","Spinal_Cord_Thoracic","XY","No","als","No",253.184645488854,79358.413255537
+"810","NEUWL993GU2","61","69","101","setx","Limb","Unknown","Cortex","XY","No","als","No",293.137388427518,90162.552463592
+"811","NEUWL993GU2","61","69","101","setx","Limb","Unknown","Cortex_Motor","XY","No","als","No",377.678174525138,92147.9232828666
+"812","NEUWL993GU2","61","69","101","setx","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",200.454366242728,75761.5743716088
+"813","NEUWP285RM6","57","60","36","sporadic","Limb","Unknown","Cerebellum","XX","No","als","Yes",366.913722609692,101319.921961443
+"814","NEUWP285RM6","57","60","36","sporadic","Limb","Unknown","Cortex","XX","No","als","Yes",134.510749119531,89270.328765988
+"815","NEUWP285RM6","57","60","36","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","Yes",200.580433620148,89963.4943684873
+"816","NEUWP285RM6","57","60","36","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","Yes",294.354892809897,77735.1517237174
+"817","NEUWP285RM6","57","60","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","Yes",280.168344182068,76459.5761568482
+"818","NEUWP285RM6","57","60","36","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","Yes",289.857688071744,74257.9873318761
+"819","NEUWT414AYT","Not Applicable","52","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",363.951443031276,93483.6673470461
+"820","NEUWT414AYT","Not Applicable","52","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",195.978688341115,74617.4144138412
+"821","NEUWX051HMF","45","55","120","sporadic","Axial and Bulbar","Unknown","Cerebellum","XY","Yes","als+ftd","Yes",242.892374957879,91114.1788669812
+"822","NEUWX051HMF","45","55","120","sporadic","Axial and Bulbar","Unknown","Cortex","XY","Yes","als+ftd","Yes",222.665306962525,86149.8371666524
+"823","NEUWX051HMF","45","55","120","sporadic","Axial and Bulbar","Unknown","Cortex_Motor","XY","Yes","als+ftd","Yes",167.651269857949,85487.6246686213
+"824","NEUWX051HMF","45","55","120","sporadic","Axial and Bulbar","Unknown","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",274.8712243479,75037.7738858492
+"825","NEUWX051HMF","45","55","120","sporadic","Axial and Bulbar","Unknown","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",301.862543298702,72544.8672638502
+"826","NEUWX086DGZ","67","70","30","sporadic","Bulbar","Unknown","Cerebellum","XX","No","als","No",308.313907500616,95117.1497875618
+"827","NEUWX086DGZ","67","70","30","sporadic","Bulbar","Unknown","Cortex","XX","No","als","No",173.577631850129,86973.68605572
+"828","NEUWX086DGZ","67","70","30","sporadic","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",164.256933609525,88284.7061913106
+"829","NEUWX086DGZ","67","70","30","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",209.593285576856,79442.506342738
+"830","NEUWX086DGZ","67","70","30","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",204.939493070338,79780.8684634892
+"831","NEUWZ373ZHA","65","69","48","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",172.419027986853,96112.0961340512
+"832","NEUWZ373ZHA","65","69","48","sporadic","Limb","Unknown","Cortex","XX","No","als","No",151.189369068628,89040.2894071576
+"833","NEUWZ373ZHA","65","69","48","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",165.599619711168,88478.0043269842
+"834","NEUWZ373ZHA","65","69","48","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",295.836858432875,76840.0474833876
+"835","NEUWZ373ZHA","65","69","48","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",261.786372894011,80393.8103124515
+"836","NEUWZ373ZHA","65","69","48","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",256.220600344051,79325.140859146
+"837","NEUXD265LJ8","67","72","60","sporadic","Limb","Unknown","Cerebellum","XY","Yes","als+ftd","Yes",267.256780159038,90353.6123677983
+"838","NEUXD265LJ8","67","72","60","sporadic","Limb","Unknown","Cortex","XY","Yes","als+ftd","Yes",276.837146418969,87799.7057969343
+"839","NEUXD265LJ8","67","72","60","sporadic","Limb","Unknown","Cortex_Motor","XY","Yes","als+ftd","Yes",286.247063376483,87309.0917068755
+"840","NEUXD265LJ8","67","72","60","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",281.381898120083,73292.7121863377
+"841","NEUXD265LJ8","67","72","60","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",124.948649244412,79227.6143510621
+"842","NEUXD817GGZ","68","70","24","c9orf72","Limb","Yes","Cerebellum","XY","Yes","als+ftd","Yes",245.921024512015,93673.0353364892
+"843","NEUXN530DK8","49","53","48","sporadic","Bulbar","Unknown","Cortex","XY","No","als","No",179.471167588381,84219.1176546625
+"844","NEUXN530DK8","49","53","48","sporadic","Bulbar","Unknown","Cortex_Motor","XY","No","als","No",199.603197565939,87516.6072560158
+"845","NEUXN530DK8","49","53","48","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XY","No","als","No",231.281380931198,73260.7483564873
+"846","NEUXN530DK8","49","53","48","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",217.893600241933,72977.716838267
+"847","NEUXR099CKK","Not Applicable","50","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",191.206238164361,71640.1585525178
+"848","NEUXR099CKK","Not Applicable","50","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",249.710907065172,70878.429626238
+"849","NEUXR145UBL","66","66","Unknown","sporadic","Bulbar","Unknown","Cerebellum","XY","Yes","als+ftd","Yes",183.702278536094,92054.5599809769
+"850","NEUXR145UBL","66","66","Unknown","sporadic","Bulbar","Unknown","Cortex","XY","Yes","als+ftd","Yes",141.736127834309,91623.3760473821
+"851","NEUXR145UBL","66","66","Unknown","sporadic","Bulbar","Unknown","Cortex_Motor","XY","Yes","als+ftd","Yes",199.880976670742,85706.8488705268
+"852","NEUXR145UBL","66","66","Unknown","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",272.096481270458,81502.6815635709
+"853","NEUXR145UBL","66","66","Unknown","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",214.684099090528,79797.1303079666
+"854","NEUXR145UBL","66","66","Unknown","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XY","Yes","als+ftd","Yes",198.118102125978,87206.8850432577
+"855","NEUXT258BD4","65","65","6","c9orf72","Limb","Yes","Cerebellum","XX","No","als","No",229.976271015478,93774.3673445335
+"856","NEUXT258BD4","65","65","6","c9orf72","Limb","Yes","Cortex","XX","No","als","No",233.445882419584,88633.0244615123
+"857","NEUXT258BD4","65","65","6","c9orf72","Limb","Yes","Cortex_Motor","XX","No","als","No",180.423359108185,86318.8444764479
+"858","NEUXT258BD4","65","65","6","c9orf72","Limb","Yes","Spinal_Cord_Cervical","XX","No","als","No",225.928339369983,79279.8424961271
+"859","NEUXT979EZV","70","74","72","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",349.046476471279,98082.1692062332
+"860","NEUXT979EZV","70","74","72","sporadic","Limb","","Cortex","XY","N/A","als","N/A",201.371321635347,89175.0003166267
+"861","NEUXT979EZV","70","74","72","sporadic","Limb","","Cortex_Motor","XY","N/A","als","N/A",218.033961187749,88122.112670307
+"862","NEUXT979EZV","70","74","72","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",196.208096182021,77004.7143646524
+"863","NEUXT979EZV","70","74","72","sporadic","Limb","","Spinal_Cord_Thoracic","XY","N/A","als","N/A",258.691088587013,76508.2755019148
+"864","NEUXW599BNC","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",364.192445666283,94990.0419035684
+"865","NEUXW599BNC","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",222.622970848275,88950.0036359248
+"866","NEUXW599BNC","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Cortex_Motor","XX","N/A","ctrl","N/A",227.895763348083,88509.9616119274
+"867","NEUXW599BNC","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",236.422645875574,78845.1323337494
+"868","NEUXW599BNC","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",248.478751300918,72549.7689114187
+"869","NEUXW599BNC","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Thoracic","XX","N/A","ctrl","N/A",248.40505197041,75781.054325783
+"870","NEUXY076JMB","70","72","28","fig4","Bulbar","Unknown","Cerebellum","XX","No","als","No",217.745756402828,92803.196417231
+"871","NEUXY076JMB","70","72","28","fig4","Bulbar","Unknown","Cortex","XX","No","als","No",167.546994160183,86708.7382540488
+"872","NEUXY076JMB","70","72","28","fig4","Bulbar","Unknown","Cortex_Motor","XX","No","als","No",172.435357894213,87724.181151473
+"873","NEUXY076JMB","70","72","28","fig4","Bulbar","Unknown","Spinal_Cord_Cervical","XX","No","als","No",214.369033734563,73996.9351463865
+"874","NEUXY076JMB","70","72","28","fig4","Bulbar","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",166.195646608158,73378.260088355
+"875","NEUXY076JMB","70","72","28","fig4","Bulbar","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",235.677712739605,76722.4451091626
+"876","NEUXZ213MVF","50","54","48","sporadic","Bulbar","Unknown","Cortex","XY","No","als","No",254.625579138995,88565.0872171495
+"877","NEUXZ213MVF","50","54","48","sporadic","Bulbar","Unknown","Cortex_Motor","XY","No","als","No",262.510806138581,86534.2245533348
+"878","NEUXZ213MVF","50","54","48","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XY","No","als","No",226.013206191973,75841.529396979
+"879","NEUXZ213MVF","50","54","48","sporadic","Bulbar","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",220.062278608946,75798.3192039488
+"880","NEUYB686REL","73","74","9","sporadic","Axial and Limb","Unknown","Cerebellum","XY","No","als","No",439.2578281641,100211.186794227
+"881","NEUYB686REL","73","74","9","sporadic","Axial and Limb","Unknown","Cortex","XY","No","als","No",271.087875510501,92036.5402848834
+"882","NEUYB686REL","73","74","9","sporadic","Axial and Limb","Unknown","Cortex_Motor","XY","No","als","No",306.551723524984,92648.8246525844
+"883","NEUYB686REL","73","74","9","sporadic","Axial and Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","No",275.55914248771,77513.3708864942
+"884","NEUYB686REL","73","74","9","sporadic","Axial and Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",257.837665144831,73991.5508018735
+"885","NEUYT145HVC","32","40","96","sporadic","Limb","Unknown","Cerebellum","XY","Yes","als+ftd","Yes",245.360069595249,90699.1525561641
+"886","NEUYT145HVC","32","40","96","sporadic","Limb","Unknown","Cortex","XY","Yes","als+ftd","Yes",163.23498104064,83830.0908654333
+"887","NEUYT145HVC","32","40","96","sporadic","Limb","Unknown","Cortex_Motor","XY","Yes","als+ftd","Yes",297.090731411025,88217.1435117784
+"888","NEUYT145HVC","32","40","96","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",271.503062904299,69783.6616024076
+"889","NEUYV496XLP","70","71","21","sporadic","Bulbar","Unknown","Cerebellum","XY","Yes","als+ftd","Yes",395.278121473846,98380.4872450309
+"890","NEUYV496XLP","70","71","21","sporadic","Bulbar","Unknown","Cortex","XY","Yes","als+ftd","Yes",253.810197769747,89183.5934552335
+"891","NEUYV496XLP","70","71","21","sporadic","Bulbar","Unknown","Cortex_Motor","XY","Yes","als+ftd","Yes",258.709418300846,88114.2260255585
+"892","NEUYV496XLP","70","71","21","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",308.318539058083,73331.712040837
+"893","NEUYV496XLP","70","71","21","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XY","Yes","als+ftd","Yes",243.059536096722,74040.7319604625
+"894","NEUYX020CB0","64","67","36","sporadic","Limb","Unknown","Cerebellum","XY","No","als","Yes",287.295867108433,96366.5141759849
+"895","NEUYX020CB0","64","67","36","sporadic","Limb","Unknown","Cortex","XY","No","als","Yes",224.606559855922,89023.2304795232
+"896","NEUYX020CB0","64","67","36","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","Yes",296.73050119036,91659.5810839869
+"897","NEUYX020CB0","64","67","36","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XY","No","als","Yes",287.321740949938,80976.5757673027
+"898","NEUYX020CB0","64","67","36","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","Yes",311.582978394027,78809.6392687438
+"899","NEUYX020CB0","64","67","36","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XY","No","als","Yes",258.805698232801,81160.9993560186
+"900","NEUYY221HZA","59","65","72","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",256.873727670428,98769.1711856772
+"901","NEUYY221HZA","59","65","72","sporadic","Limb","Unknown","Cortex","XY","No","als","No",211.120071549214,90683.1792644516
+"902","NEUYY221HZA","59","65","72","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",234.770079006589,91163.945249043
+"903","NEUYY221HZA","59","65","72","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XY","No","als","No",253.796383596514,76605.4942441125
+"904","NEUZB953VCD","67","68","15","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",529.467873087245,100282.935287446
+"905","NEUZB953VCD","67","68","15","sporadic","Limb","Unknown","Cortex","XX","No","als","No",284.392631311364,92862.3641469335
+"906","NEUZB953VCD","67","68","15","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",263.015948292912,91395.8704341625
+"907","NEUZB953VCD","67","68","15","sporadic","Limb","Unknown","Spinal_Cord_Cervical","XX","No","als","No",225.526183094053,78370.6662300759
+"908","NEUZB953VCD","67","68","15","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",323.874871916896,77285.4076090615
+"909","NEUZK186ZK4","50","54","36","ubqln2","Limb","Yes","Cerebellum","XX","No","als","No",496.075379977154,100050.013010846
+"910","NEUZK186ZK4","50","54","36","ubqln2","Limb","Yes","Cortex","XX","No","als","No",217.482000418181,89354.4355172194
+"911","NEUZK186ZK4","50","54","36","ubqln2","Limb","Yes","Cortex_Motor","XX","No","als","No",274.143871557018,91182.7402924486
+"912","NEUZK186ZK4","50","54","36","ubqln2","Limb","Yes","Spinal_Cord_Cervical","XX","No","als","No",276.738698065157,73775.442414804
+"913","NEUZK186ZK4","50","54","36","ubqln2","Limb","Yes","Spinal_Cord_Lumbar","XX","No","als","No",238.040274327651,84101.1116375463
+"914","NEUZK186ZK4","50","54","36","ubqln2","Limb","Yes","Spinal_Cord_Thoracic","XX","No","als","No",238.298693991751,76576.5589839723
+"915","NEUZK363UAQ","72","73","12","c9orf72","Bulbar","Unknown","Cortex","XX","Yes","als+ftd","Yes",262.126994245819,88011.8230114936
+"916","NEUZK363UAQ","72","73","12","c9orf72","Bulbar","Unknown","Cortex_Motor","XX","Yes","als+ftd","Yes",282.768183158674,88075.9579923691
+"917","NEUZK363UAQ","72","73","12","c9orf72","Bulbar","Unknown","Spinal_Cord_Cervical","XX","Yes","als+ftd","Yes",250.67744443828,74514.4202413309
+"918","NEUZU200WEQ","55","62","84","sporadic","Bulbar","Unknown","Cerebellum","XY","No","als","No",276.986046735539,95468.5973497816
+"919","NEUZU200WEQ","55","62","84","sporadic","Bulbar","Unknown","Cortex","XY","No","als","No",186.288933534688,88659.4886142428
+"920","NEUZU200WEQ","55","62","84","sporadic","Bulbar","Unknown","Cortex_Motor","XY","No","als","No",261.992884364904,88123.6193353727
+"921","NEUZU200WEQ","55","62","84","sporadic","Bulbar","Unknown","Spinal_Cord_Cervical","XY","No","als","No",181.35641865905,75788.8784800574
+"922","NEUZU200WEQ","55","62","84","sporadic","Bulbar","Unknown","Spinal_Cord_Thoracic","XY","No","als","No",193.647262220773,73981.4633675955
+"923","NEUZV622ZHF","67","68","21","sporadic","Limb","Unknown","Cerebellum","XY","No","als","No",439.808334576115,99427.6718053628
+"924","NEUZV622ZHF","67","68","21","sporadic","Limb","Unknown","Cortex","XY","No","als","No",211.454532635627,88646.4411379299
+"925","NEUZV622ZHF","67","68","21","sporadic","Limb","Unknown","Cortex_Motor","XY","No","als","No",254.006533010671,92334.6685787057
+"926","NEUZX073BDK","59","68","108","sporadic","Limb","Unknown","Cerebellum","XX","No","als","No",187.748519634281,95550.1778931749
+"927","NEUZX073BDK","59","68","108","sporadic","Limb","Unknown","Cortex","XX","No","als","No",128.561272605633,89353.6100098743
+"928","NEUZX073BDK","59","68","108","sporadic","Limb","Unknown","Cortex_Motor","XX","No","als","No",121.65980936099,89034.0105280221
+"929","NEUZX073BDK","59","68","108","sporadic","Limb","Unknown","Spinal_Cord_Lumbar","XX","No","als","No",248.254177607301,77809.2675657664
+"930","NEUZX073BDK","59","68","108","sporadic","Limb","Unknown","Spinal_Cord_Thoracic","XX","No","als","No",247.095427527366,75538.6020871731
+"931","NEUZX847VWV-NEUWR459TCY","55","57","24","sporadic","Axial","Unknown","Cerebellum","XY","Yes","als+ftd","Yes",489.392515461216,97588.0155203071
+"932","NEUZX847VWV-NEUWR459TCY","55","57","24","sporadic","Axial","Unknown","Cortex","XY","Yes","als+ftd","Yes",245.43639101887,83772.186121184
+"933","NEUZX847VWV-NEUWR459TCY","55","57","24","sporadic","Axial","Unknown","Cortex_Motor","XY","Yes","als+ftd","Yes",258.604445277769,85049.8140362539
+"934","NEUZX847VWV-NEUWR459TCY","55","57","24","sporadic","Axial","Unknown","Spinal_Cord_Cervical","XY","Yes","als+ftd","Yes",355.261678694215,76259.4723639322
+"935","NEUZX847VWV-NEUWR459TCY","55","57","24","sporadic","Axial","Unknown","Spinal_Cord_Lumbar","XY","Yes","als+ftd","Yes",137.078390859049,81672.5314517022
+"936","PF-UCL-1","Not Applicable","89","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",435.303498565284,99117.0086923905
+"937","PF-UCL-1","Not Applicable","89","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",261.750285277741,93771.7643735501
+"938","PF-UCL-1","Not Applicable","89","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",199.100943726942,79069.0793252257
+"939","PF-UCL-1","Not Applicable","89","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",171.229556841487,79222.7940208474
+"940","PF-UCL-10","80","84","48","sporadic","Unknown","","Cerebellum","XY","N/A","als","N/A",557.734613642821,100891.228478969
+"941","PF-UCL-10","80","84","48","sporadic","Unknown","","Cortex","XY","N/A","als","N/A",293.579038811624,91735.5193023215
+"942","PF-UCL-10","80","84","48","sporadic","Unknown","","Spinal_Cord_Cervical","XY","N/A","als","N/A",208.939847374223,76853.9626254499
+"943","PF-UCL-10","80","84","48","sporadic","Unknown","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",176.079035747787,77544.3431761092
+"944","PF-UCL-11","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",185.170646103493,76869.2345367987
+"945","PF-UCL-11","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",209.127533034151,74595.2859784105
+"946","PF-UCL-116","Not Applicable","88","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",500.36289886106,99926.0775504994
+"947","PF-UCL-116","Not Applicable","88","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",318.453693892667,94029.3198912833
+"948","PF-UCL-117","Not Applicable","80","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",330.0830452581,94317.1252464352
+"949","PF-UCL-118","Not Applicable","79","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",236.873358681049,92383.9607764701
+"950","PF-UCL-119","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",485.337298778209,97658.0588573263
+"951","PF-UCL-119","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",294.837812852864,90120.471402749
+"952","PF-UCL-120","Not Applicable","86","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",491.336041806545,98258.2238214502
+"953","PF-UCL-120","Not Applicable","86","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",245.728771688993,90146.1491345198
+"954","PF-UCL-121","Not Applicable","83","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",447.698089093122,99166.8480419905
+"955","PF-UCL-121","Not Applicable","83","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",270.249374528317,92524.4803185038
+"956","PF-UCL-122","Not Applicable","69","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",494.396187828768,96274.6488806058
+"957","PF-UCL-122","Not Applicable","69","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",229.420696757516,88731.7160738828
+"958","PF-UCL-123","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",247.719322534327,90712.4813359182
+"959","PF-UCL-124","Not Applicable","38","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",514.501318281691,98950.9499394968
+"960","PF-UCL-124","Not Applicable","38","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",294.885735386435,90399.8369848109
+"961","PF-UCL-125","Not Applicable","71","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",479.724314958391,96952.2980366264
+"962","PF-UCL-125","Not Applicable","71","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",258.119560804801,88925.4238808127
+"963","PF-UCL-13","Not Applicable","81","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",504.626848084233,97840.6847659988
+"964","PF-UCL-14","Unknown","77","24","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",324.484746606017,91551.011767185
+"965","PF-UCL-15","Not Applicable","79","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",571.806124121537,98790.9053820189
+"966","PF-UCL-16","Unknown","79","60","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",185.899841060366,78348.6218926743
+"967","PF-UCL-16","Unknown","79","60","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",169.76996066343,76601.6404415601
+"968","PF-UCL-17","Not Applicable","81","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",356.25802935587,91078.9102882391
+"969","PF-UCL-18","Unknown","82","12","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",275.281915866688,90610.7234103325
+"970","PF-UCL-18","Unknown","82","12","sporadic","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",297.675406021038,76446.0864051719
+"971","PF-UCL-19","Not Applicable","83","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",469.979570071318,98672.7556324712
+"972","PF-UCL-2","81","82","6","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",490.850092899401,98757.7314174672
+"973","PF-UCL-2","81","82","6","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",239.369329531727,88971.4475865863
+"974","PF-UCL-2","81","82","6","sporadic","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",211.196405944773,77692.0195512648
+"975","PF-UCL-2","81","82","6","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",208.393033642619,77346.2740345439
+"976","PF-UCL-20","Unknown","76","30","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",281.947677973758,90271.352494185
+"977","PF-UCL-21","Not Applicable","71","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",313.568565820653,90095.709400499
+"978","PF-UCL-21","Not Applicable","71","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",192.063892284428,76161.0006672204
+"979","PF-UCL-21","Not Applicable","71","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",225.308831257286,76552.5324170925
+"980","PF-UCL-22","Unknown","71","11","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",387.30635197462,90443.7004590595
+"981","PF-UCL-23","Not Applicable","77","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",554.437627917251,99469.2051571176
+"982","PF-UCL-23","Not Applicable","77","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",320.997719711768,89302.3605940861
+"983","PF-UCL-24","Unknown","73","43","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",456.26706849813,98090.5865900232
+"984","PF-UCL-24","Unknown","73","43","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",241.823371618439,91928.1826059715
+"985","PF-UCL-24","Unknown","73","43","sporadic","Bulbar","","Spinal_Cord_Cervical","XX","N/A","als","N/A",229.516773442234,76893.6563635351
+"986","PF-UCL-24","Unknown","73","43","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",253.755590418497,75218.913917862
+"987","PF-UCL-25","Not Applicable","59","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",283.237215119947,75939.6842010159
+"988","PF-UCL-26","Unknown","59","48","sporadic","Limb","","Cortex","XY","N/A","als","N/A",257.522885403846,88530.4898256556
+"989","PF-UCL-26","Unknown","59","48","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",253.006139216929,74586.1085190042
+"990","PF-UCL-27","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",268.734902901772,90616.4170848543
+"991","PF-UCL-28","Unknown","74","26","sporadic","Limb","","Cerebellum","XX","N/A","als","N/A",525.545715038785,98646.8615329024
+"992","PF-UCL-28","Unknown","74","26","sporadic","Limb","","Cortex","XX","N/A","als","N/A",334.164888556404,91920.8165588205
+"993","PF-UCL-28","Unknown","74","26","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",269.592223654343,78445.1327511346
+"994","PF-UCL-3","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",507.146804795049,98616.3562103718
+"995","PF-UCL-3","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",271.657234163561,91805.8573255503
+"996","PF-UCL-3","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",200.395871202859,74749.4864992239
+"997","PF-UCL-30","Unknown","66","36","sporadic","Limb","","Cortex","XX","N/A","als","N/A",319.741467058646,90293.7941389019
+"998","PF-UCL-30","Unknown","66","36","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",283.382453585559,74926.831379693
+"999","PF-UCL-33","Not Applicable","80","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",214.002091112812,75512.224782755
+"1000","PF-UCL-33","Not Applicable","80","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",238.607769658508,75230.6179548613
+"1001","PF-UCL-34","Unknown","76","30","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",489.429416908883,96808.4707963486
+"1002","PF-UCL-34","Unknown","76","30","sporadic","Limb","","Cortex","XY","N/A","als","N/A",329.512188180392,91376.5815831018
+"1003","PF-UCL-34","Unknown","76","30","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",262.045988529997,75040.7675526917
+"1004","PF-UCL-36","Unknown","74","24","sporadic","Unknown","","Spinal_Cord_Cervical","XX","N/A","als","N/A",258.123587290889,79095.3045207671
+"1005","PF-UCL-36","Unknown","74","24","sporadic","Unknown","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",261.159893819382,78163.2864986517
+"1006","PF-UCL-37","Not Applicable","77","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",315.792400040457,75007.4622982523
+"1007","PF-UCL-39","Not Applicable","60","Unknown","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",497.064879396969,98589.2499180416
+"1008","PF-UCL-39","Not Applicable","60","Unknown","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",240.862384538443,86664.8233924476
+"1009","PF-UCL-4","63","68","60","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",443.280035195301,97602.7032167968
+"1010","PF-UCL-4","63","68","60","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",255.810426728603,89071.4748025557
+"1011","PF-UCL-40","Unknown","60","19","sporadic","Limb","","Cortex","XY","N/A","als","N/A",282.736897063371,89621.6191362721
+"1012","PF-UCL-40","Unknown","60","19","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",286.93067512797,77676.0708239791
+"1013","PF-UCL-43","Not Applicable","67","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",237.087261993009,87624.3039145244
+"1014","PF-UCL-44","Unknown","70","29","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",417.830777417866,98395.2858580749
+"1015","PF-UCL-44","Unknown","70","29","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",240.280805409968,90928.5068063046
+"1016","PF-UCL-44","Unknown","70","29","sporadic","Bulbar","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",210.87947370232,76512.3108428192
+"1017","PF-UCL-45","Not Applicable","75","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",249.522536321077,76180.7396590097
+"1018","PF-UCL-46","65","70","60","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",467.245243540607,99001.4924836059
+"1019","PF-UCL-46","65","70","60","sporadic","Limb","","Cortex","XY","N/A","als","N/A",209.719167259887,87862.1253596595
+"1020","PF-UCL-46","65","70","60","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",257.867866534579,71964.4791129305
+"1021","PF-UCL-47","Not Applicable","45","Not Applicable","ctrl","Not Applicable","","Cerebellum","XY","N/A","ctrl","N/A",459.26347784698,94528.9869990737
+"1022","PF-UCL-47","Not Applicable","45","Not Applicable","ctrl","Not Applicable","","Cortex","XY","N/A","ctrl","N/A",234.603895589392,85770.8225305401
+"1023","PF-UCL-47","Not Applicable","45","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",181.795996699932,73997.2384250625
+"1024","PF-UCL-48","Unknown","58","16","sporadic","Bulbar","","Spinal_Cord_Cervical","XY","N/A","als","N/A",252.643706368148,77308.1474243801
+"1025","PF-UCL-48","Unknown","58","16","sporadic","Bulbar","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",276.306033963266,76704.7486068638
+"1026","PF-UCL-49","Not Applicable","66","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",218.997699364751,77776.8293174396
+"1027","PF-UCL-49","Not Applicable","66","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",207.949786369697,77009.7135611866
+"1028","PF-UCL-50","Unknown","62","42","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",239.120881277242,88264.453779799
+"1029","PF-UCL-51","Not Applicable","54","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",223.521786510279,75716.3508157638
+"1030","PF-UCL-52","Unknown","53","96","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",275.363771031476,76643.9661011988
+"1031","PF-UCL-53","Not Applicable","63","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XY","N/A","ctrl","N/A",269.209846918564,76763.6968710051
+"1032","PF-UCL-54","Unknown","63","60","sporadic","Bulbar","","Cerebellum","XX","N/A","als","N/A",440.349556578849,94387.5092474485
+"1033","PF-UCL-54","Unknown","63","60","sporadic","Bulbar","","Cortex","XX","N/A","als","N/A",229.496810104887,87650.5535270869
+"1034","PF-UCL-55","Not Applicable","69","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",266.659249792572,75233.2278738745
+"1035","PF-UCL-56","Unknown","69","13","sporadic","Limb","","Cortex","XX","N/A","als","N/A",264.58641710414,88698.749712391
+"1036","PF-UCL-56","Unknown","69","13","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",248.008731851151,75650.6526487176
+"1037","PF-UCL-58","Unknown","54","34","sporadic","Limb","","Cerebellum","XY","N/A","als","N/A",450.238899903278,95607.3209420278
+"1038","PF-UCL-58","Unknown","54","34","sporadic","Limb","","Cortex","XY","N/A","als","N/A",211.989648182712,93044.5775394696
+"1039","PF-UCL-58","Unknown","54","34","sporadic","Limb","","Spinal_Cord_Cervical","XY","N/A","als","N/A",287.755762222549,75179.5160523456
+"1040","PF-UCL-58","Unknown","54","34","sporadic","Limb","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",296.252221455607,73759.7185930793
+"1041","PF-UCL-59","Not Applicable","64","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",258.726280783608,87400.3695310158
+"1042","PF-UCL-6","77","80","36","sporadic","Limb","","Cerebellum","XX","N/A","als","N/A",486.165228603292,99227.7355008809
+"1043","PF-UCL-6","77","80","36","sporadic","Limb","","Cortex","XX","N/A","als","N/A",275.733767534022,91581.2997678854
+"1044","PF-UCL-6","77","80","36","sporadic","Limb","","Spinal_Cord_Cervical","XX","N/A","als","N/A",180.920279242255,77762.8741841198
+"1045","PF-UCL-6","77","80","36","sporadic","Limb","","Spinal_Cord_Lumbar","XX","N/A","als","N/A",162.949297804497,78358.9524787188
+"1046","PF-UCL-61","Not Applicable","52","Not Applicable","ctrl","Not Applicable","","Cerebellum","XX","N/A","ctrl","N/A",537.532321867012,98970.2790253952
+"1047","PF-UCL-61","Not Applicable","52","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",335.012897196767,71391.6200577742
+"1048","PF-UCL-62","Unknown","61","24","sporadic","Bulbar","","Cerebellum","XY","N/A","als","N/A",560.076426479949,99032.8974944824
+"1049","PF-UCL-62","Unknown","61","24","sporadic","Bulbar","","Cortex","XY","N/A","als","N/A",344.439592553493,92313.7987296812
+"1050","PF-UCL-63","Not Applicable","74","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",306.579312246601,90737.6116421374
+"1051","PF-UCL-7","Not Applicable","68","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XY","N/A","ctrl","N/A",199.879036258656,80548.214739122
+"1052","PF-UCL-8","68","69","12","sporadic","Axial","","Cerebellum","XY","N/A","als","N/A",486.747324807811,98718.7391486113
+"1053","PF-UCL-8","68","69","12","sporadic","Axial","","Cortex","XY","N/A","als","N/A",248.467666863755,87687.9150622305
+"1054","PF-UCL-8","68","69","12","sporadic","Axial","","Spinal_Cord_Cervical","XY","N/A","als","N/A",214.209417965289,73996.5721423248
+"1055","PF-UCL-8","68","69","12","sporadic","Axial","","Spinal_Cord_Lumbar","XY","N/A","als","N/A",226.018222161311,73966.1546059784
+"1056","PF-UCL-9","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Cortex","XX","N/A","ctrl","N/A",326.648396872284,93488.8432843466
+"1057","PF-UCL-9","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Cervical","XX","N/A","ctrl","N/A",151.2213782447,75619.479919586
+"1058","PF-UCL-9","Not Applicable","90 or Older","Not Applicable","ctrl","Not Applicable","","Spinal_Cord_Lumbar","XX","N/A","ctrl","N/A",157.436150513747,75705.2034071704
