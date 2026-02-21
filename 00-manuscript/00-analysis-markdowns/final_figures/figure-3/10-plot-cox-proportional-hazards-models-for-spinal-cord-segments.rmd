@@ -1,0 +1,185 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/scratch/projects/CFP03/CFP03-SF-111/koustav.pal/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+library(rlang)
+library(riskRegression)
+library(survival)
+library(survminer)
+library(pammtools)
+library(gganimate)
+library(transformr)
+library(plotly)
+library(reshape2)
+library(knitr)
+library(rmarkdown)
+
+require("contsurvplot")
+require("RColorBrewer")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-3"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load penetrance data
+
+```{r}
+
+nygc_penetrance_list <- readRDS(file.path("final-figures/figure-2/rdata_files/02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
+clinical_metadata_df <- read.csv("13-nygc-consortium/input_files/samplesheet.csv")
+nygc_patient_liability_df <- nygc_penetrance_list$liability_df
+nygc_penetrance_matrix <- nygc_penetrance_list$penetrance_matrix
+
+```
+
+### Analysis
+
+
+- Get the genetic group 
+
+```{r}
+
+genetic_test_df <- unique(clinical_metadata_df[,c("external_subject_id", "genetic_test")])
+genetic_test_df$C9orf72_status <- "Unknown"
+genetic_test_df$C9orf72_status[grepl(x = genetic_test_df$genetic_test, pattern = "Positive for C9orf72 Repeat Expansion")] <- "Positive"
+genetic_test_df$C9orf72_status[grepl(x = genetic_test_df$genetic_test, pattern = "Positive for C9orf72 Repeat Expansion") & grepl(x = genetic_test_df$genetic_test, pattern = "conflicts")] <- "Negative"
+genetic_test_df$C9orf72_status[grepl(x = genetic_test_df$genetic_test, pattern = "Negative for C9orf72 Repeat Expansion")] <- "Negative"
+genetic_test_df$C9orf72_status[grepl(x = genetic_test_df$genetic_test, pattern = "Negative for C9orf72 Repeat Expansion") & grepl(x = genetic_test_df$genetic_test, pattern = "conflicts")] <- "Negative"
+
+
+```
+
+
+- Prepare data for brain and spinal cord age at death
+
+
+```{r}
+
+nygc_patient_liability_df$type <- factor(nygc_patient_liability_df$type, levels = c("control", "c9orf72-ALS", "other_mutation-fALS", "sporadic"))
+nygc_patient_liability_df$type_group <- as.character(nygc_patient_liability_df$type)
+nygc_patient_liability_df$type_group[nygc_patient_liability_df$type %in% c("other_mutation-fALS", "sporadic")] <- "sporadic+other_fALS"
+nygc_patient_liability_df$tissue_group <- "spinal_cord"
+nygc_patient_liability_df$tissue_group[nygc_patient_liability_df$tissue %in% c("Cortex", "Cortex_Motor", "Cerebellum")] <- "brain"
+
+patient_surv_df <- do.call(rbind, lapply(split(nygc_patient_liability_df, paste(nygc_patient_liability_df$subject_id, nygc_patient_liability_df$tissue)), function(temp_df){
+    message(unique(temp_df$subject_id))
+    data.frame(subject_id = unique(temp_df$subject_id),
+        tissue = unique(temp_df$tissue),
+        # tissue_group = unique(temp_df$tissue_group),
+        age_at_onset = unique(temp_df$age_at_symptom_onset),
+        age_at_death = unique(temp_df$age_at_death),
+        disease_duration_in_months = unique(temp_df$disease_duration_in_months),
+        sex_genotype = unique(temp_df$sex_genotype),
+        mnd_with_ftd = unique(temp_df$mnd_with_ftd),
+        condition = unique(temp_df$condition),
+        mnd_with_dementia = unique(temp_df$mnd_with_dementia),
+        type_group = unique(temp_df$type_group),
+        rci_liability = mean(temp_df$rci_liability),
+        intron_expression_rate = mean(temp_df$intron_expression_rate))
+}))
+
+patient_surv_df$age_at_death[patient_surv_df$age_at_death == "90 or Older"] <- "90"
+patient_surv_df$age_at_death <- as.numeric(patient_surv_df$age_at_death)
+patient_surv_df$age_at_onset <- as.numeric(patient_surv_df$age_at_onset)
+patient_surv_df$disease_duration <- as.numeric(patient_surv_df$disease_duration_in_months)
+
+patient_surv_df$expansion_status <- genetic_test_df$C9orf72_status[match(patient_surv_df$subject_id, genetic_test_df$external_subject_id)]
+patient_surv_df$expansion_status <- factor(patient_surv_df$expansion_status, levels = c("Unknown", "Positive", "Negative"))
+
+```
+
+- Perform modelling of the age of onset survival function using rci liability
+
+```{r}
+
+require(patchwork)
+als_surv_df <- patient_surv_df[!(patient_surv_df$condition %in% c("als+ftd")),]
+als_surv_df$condition <- factor(als_surv_df$condition, levels = c("ctrl", "als"))
+als_surv_df$sex_genotype <- factor(als_surv_df$sex_genotype, levels = c("XX", "XY"))
+als_surv_df$status <- 1
+als_surv_df$status[is.na(als_surv_df$age_at_death)] <- 0
+
+onset_vs_liability_model_plots <- lapply(unique(als_surv_df$tissue), function(x){
+    current_als_surv_df <- als_surv_df[als_surv_df$tissue == x,]
+    current_als_surv_df$rci_liability_scaled <- scale(current_als_surv_df$rci_liability)
+    model <- coxph(Surv(age_at_death, status) ~ condition + sex_genotype + rci_liability_scaled, 
+        data=current_als_surv_df, x=TRUE)
+    ggforest(model, data = current_als_surv_df)
+})
+names(onset_vs_liability_model_plots) <- unique(als_surv_df$tissue)
+
+all_onset_plots <- wrap_plots(onset_vs_liability_model_plots[
+    c("Spinal_Cord_Cervical", "Spinal_Cord_Lumbar", "Spinal_Cord_Thoracic")])
+
+ggsave(file = file.path(plot_dir, "07-04-plot-cox-model-output-for-age-at-onset.pdf"),
+all_onset_plots, width = 10, height = 5)
+
+```
+
+- Perform modelling of the disease duration survival function using rci liability
+
+```{r}
+
+require(patchwork)
+als_surv_df <- patient_surv_df[(patient_surv_df$condition %in% c("als")),]
+als_surv_df$sex_genotype <- factor(als_surv_df$sex_genotype, levels = c("XX", "XY"))
+als_surv_df$status <- 1
+als_surv_df$status[als_surv_df$age_atis.na(als_surv_df$disease_duration)] <- 0
+
+duration_vs_emission_model_plots <- lapply(unique(als_surv_df$tissue), function(x){
+    current_als_surv_df <- als_surv_df[als_surv_df$tissue == x,]
+    current_als_surv_df$rci_emission_scaled <- scale(current_als_surv_df$intron_expression_rate)
+    model <- coxph(Surv(disease_duration, status) ~ age_at_onset + sex_genotype + rci_emission_scaled, 
+        data = current_als_surv_df, x=TRUE)
+    ggforest(model, data = current_als_surv_df)
+})
+names(duration_vs_emission_model_plots) <- unique(als_surv_df$tissue)
+
+all_duration_plots <- wrap_plots(duration_vs_emission_model_plots[
+    c("Spinal_Cord_Cervical", "Spinal_Cord_Lumbar", "Spinal_Cord_Thoracic")])
+
+ggsave(file = file.path(plot_dir, "07-05-forest-plot-of-cox-proportional-hazards-model-for-disease-duration.pdf"), all_duration_plots, width = 10, height = 5)
+
+```
+

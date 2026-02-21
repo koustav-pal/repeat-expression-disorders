@@ -1,0 +1,403 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+library(rlang)
+library(riskRegression)
+library(survival)
+library(survminer)
+library(pammtools)
+library(gganimate)
+library(transformr)
+library(plotly)
+library(reshape2)
+library(knitr)
+library(rmarkdown)
+library(parallel)
+require("contsurvplot")
+require("RColorBrewer")
+require("STRINGdb")
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "final-figures/figure-3"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+
+```
+
+### 3.0 Imports
+
+- Load penetrance data
+
+```{r}
+
+nygc_penetrance_list <- readRDS(file.path("final-figures/figure-2/rdata_files/02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
+patient_df <- readRDS("13-nygc-consortium/rdata_files/03-05-nygc-patient-sampleinfo-datasheet.rds")
+clinical_metadata_df <- read.csv("0103-NYGC-consortium/input_files/samplesheet.csv")
+
+postmortem_list <- readRDS("13-nygc-consortium/rdata_files/03-02-list_of_counts_stat_samplesheet_from_nygc.rds")
+feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+
+disease_duration_rsf_df <- readRDS("final-figures/figure-3/rdata_files/04-01-save-patients-with-rsf-risk-based-on-disease-duration.rds")
+age_of_onset_rsf_df <- readRDS("final-figures/figure-3/rdata_files/02-summarised-patient-dataframe-with-rsf-risk-scores.rds")
+
+```
+
+### Analysis
+
+
+- Get gene level counts
+
+```{r}
+
+patient_df$tissue_group <- "spinal_cord"
+patient_df$tissue_group[patient_df$tissue %in% c("Cortex", "Cortex_Motor", "Cerebellum")] <- "brain"
+counts_matrix <- postmortem_list$counts
+
+gene_level_counts_matrix <- do.call(rbind, mclapply(split(feature_ranges$hash_id[feature_ranges$type == "exon"], feature_ranges$gene_id[feature_ranges$type == "exon"]), function(hash_id){
+    if(length(hash_id) == 1){
+        return(counts_matrix[hash_id,])
+    }
+    return(colSums(counts_matrix[hash_id,]))
+}, mc.cores = 8))
+
+summarised_gene_count_matrix <- do.call(cbind, mclapply(split(patient_df$column_id, paste(patient_df$subject_id, patient_df$tissue_group)), function(column_ids){
+    if(length(column_ids) == 1){
+        return(gene_level_counts_matrix[,column_ids])
+    }
+    return(rowMeans(gene_level_counts_matrix[,column_ids]))
+}, mc.cores = 8))
+
+
+```
+
+- Import gtf
+
+```{r}
+
+require("rtracklayer")
+annotation_gtf <- "/nemo/lab/patanir/home/users/palk/Genomes/ENSEMBL_hg38/Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf"
+annotation_ranges <- import.gff2(annotation_gtf)
+annotation_gene_ranges <- annotation_ranges[annotation_ranges$type == "gene"]
+
+```
+
+- Intersect risks
+
+
+```{r}
+
+age_of_onset_rsf_df$unique_id <- paste(age_of_onset_rsf_df$subject_id, age_of_onset_rsf_df$tissue_group)
+disease_duration_rsf_df$unique_id <- paste(disease_duration_rsf_df$subject_id, disease_duration_rsf_df$tissue_group)
+
+intersect_ids <- intersect(age_of_onset_rsf_df$unique_id, disease_duration_rsf_df$unique_id)
+
+select_age_of_onset_rsf_df <- age_of_onset_rsf_df[age_of_onset_rsf_df$unique_id %in% intersect_ids,]
+select_age_of_onset_rsf_df$disease_duration <- disease_duration_rsf_df$disease_duration[match(select_age_of_onset_rsf_df$unique_id, disease_duration_rsf_df$unique_id)]
+select_age_of_onset_rsf_df$onset_risk <- select_age_of_onset_rsf_df$risk_group
+select_age_of_onset_rsf_df$onset_risk[select_age_of_onset_rsf_df$onset_risk == "high"] <- "early"
+select_age_of_onset_rsf_df$onset_risk[select_age_of_onset_rsf_df$onset_risk == "low"] <- "late"
+
+select_age_of_onset_rsf_df$duration_risk <- disease_duration_rsf_df$risk_group[match(select_age_of_onset_rsf_df$unique_id, disease_duration_rsf_df$unique_id)]
+select_age_of_onset_rsf_df$duration_risk[select_age_of_onset_rsf_df$duration_risk == "high"] <- "fast"
+select_age_of_onset_rsf_df$duration_risk[select_age_of_onset_rsf_df$duration_risk == "low"] <- "slow"
+
+```
+
+- How many patients are in each group
+
+```{r}
+
+table(select_age_of_onset_rsf_df$onset_risk, select_age_of_onset_rsf_df$duration_risk)
+
+  #      high low
+  # high  107 106
+  # low    61  61
+
+
+```
+
+- Perform differential expression profiling
+
+
+```{r}
+
+require("DESeq2")
+
+selected_gene_counts_matrix <- summarised_gene_count_matrix[rowMeans(summarised_gene_count_matrix) > 1,]
+deseq_object <- DESeqDataSetFromMatrix(countData = round(selected_gene_counts_matrix[,select_age_of_onset_rsf_df$unique_id[select_age_of_onset_rsf_df$tissue_group == "spinal_cord"]]), 
+    colData = select_age_of_onset_rsf_df[select_age_of_onset_rsf_df$tissue_group == "spinal_cord",], 
+    design = ~ onset_risk + duration_risk + onset_risk:duration_risk)
+differential_object <- DESeq(deseq_object)
+
+
+```
+
+- Make contrasts to determine processes governing duration risk
+
+```{r}
+
+model_matrix <- model.matrix(design(differential_object), colData(differential_object))
+
+
+```
+
+- Identify factors governing onset risk
+
+
+```{r}
+
+onset <- colMeans(model_matrix[differential_object$onset_risk == "early",]) - colMeans(model_matrix[differential_object$onset_risk == "late",])
+results_object <- results(differential_object, contrast = onset)
+results_object$contrast <- "early_vs_late"
+early_vs_late_df <- results_object
+early_vs_late_df[early_vs_late_df$pvalue < 0.05 & !is.na(early_vs_late_df$pvalue),]
+
+
+```
+
+
+- Identify factors governing duration risk 
+
+```{r}
+
+duration <- colMeans(model_matrix[differential_object$duration_risk == "fast",]) - colMeans(model_matrix[differential_object$duration_risk == "slow",])
+results_object <- results(differential_object, contrast = duration)
+results_object$contrast <- "fast_vs_slow"
+fast_vs_slow_df <- results_object
+fast_vs_slow_df[fast_vs_slow_df$pvalue < 0.05 & !is.na(fast_vs_slow_df$pvalue),]
+
+```
+
+- Identify factors governing fast progressors in late onset patients
+
+```{r}
+
+late_fast_vs_late_slow <- colMeans(model_matrix[differential_object$onset_risk == "late" & differential_object$duration_risk == "fast",]) - colMeans(model_matrix[differential_object$onset_risk == "late" & differential_object$duration_risk == "slow",])
+
+results_object <- results(differential_object, contrast = late_fast_vs_late_slow)
+results_object$contrast <- "late_fast_vs_late_slow"
+late_fast_vs_late_slow <- results_object
+late_fast_vs_late_slow[late_fast_vs_late_slow$pvalue < 0.05 & !is.na(late_fast_vs_late_slow$pvalue),]
+
+
+```
+
+- Identify factors governing fast progressors in early onset patients
+
+```{r}
+
+# No genes detected
+
+early_fast_vs_early_slow <- colMeans(model_matrix[differential_object$onset_risk == "early" & differential_object$duration_risk == "fast",]) - colMeans(model_matrix[differential_object$onset_risk == "early" & differential_object$duration_risk == "slow",])
+
+results_object <- results(differential_object, contrast = early_fast_vs_early_slow)
+results_object$contrast <- "early_fast_vs_early_slow"
+early_fast_vs_early_slow <- results_object
+early_fast_vs_early_slow[early_fast_vs_early_slow$pvalue < 0.05 & !is.na(early_fast_vs_early_slow$pvalue),]
+
+
+```
+
+- Identify factors governing early onset fast progressors vs late onset slow progressors
+
+```{r}
+
+# No genes detected
+
+early_fast_vs_late_slow <- colMeans(model_matrix[differential_object$onset_risk == "early" & differential_object$duration_risk == "fast",]) - colMeans(model_matrix[differential_object$onset_risk == "late" & differential_object$duration_risk == "slow",])
+
+results_object <- results(differential_object, contrast = early_fast_vs_late_slow)
+results_object$contrast <- "early_fast_vs_late_slow"
+early_fast_vs_late_slow <- results_object
+early_fast_vs_late_slow[early_fast_vs_late_slow$pvalue < 0.05 & !is.na(early_fast_vs_late_slow$pvalue),]
+
+
+```
+
+
+- Perform gsea
+
+```{r}
+
+require("msigdbr")
+require("fgsea")
+require("parallel")
+
+hallmark_gene_sets = msigdbr(species = "human", category = "H")
+
+msigdbr_list = split(x = hallmark_gene_sets$gene_symbol, f = hallmark_gene_sets$gs_name)
+
+
+contrast_df <- rbind(early_vs_late_df[early_vs_late_df$pvalue < 0.05 & !is.na(early_vs_late_df$pvalue),], 
+    fast_vs_slow_df[fast_vs_slow_df$pvalue < 0.05 & !is.na(fast_vs_slow_df$pvalue),], 
+    early_fast_vs_early_slow[early_fast_vs_early_slow$pvalue < 0.05 & !is.na(early_fast_vs_early_slow$pvalue),], 
+    late_fast_vs_late_slow[late_fast_vs_late_slow$pvalue < 0.05 & !is.na(late_fast_vs_late_slow$pvalue),],
+    early_fast_vs_late_slow[early_fast_vs_late_slow$pvalue < 0.05 & !is.na(early_fast_vs_late_slow$pvalue),])
+
+contrast_df$gene_name <- annotation_gene_ranges$gene_name[match(rownames(contrast_df), annotation_gene_ranges$gene_id)]
+contrast_split <- split(contrast_df, contrast_df$contrast)
+
+
+# hallmark_gsea_df_list <- lapply(contrast_split, function(temp_df){
+#     temp_non_na_df <- temp_df[!is.na(temp_df$gene_name) & !is.na(temp_df$log2FoldChange) & !is.na(temp_df$padj),]
+#     temp_non_na_df$ranks <- rank(temp_non_na_df$log2FoldChange)
+#     temp_non_na_df <- temp_non_na_df[order(temp_non_na_df$log2FoldChange, decreasing = T),]
+#     a_vector <- temp_non_na_df$log2FoldChange
+#     names(a_vector) <- temp_non_na_df$gene_name
+#     fgsea(msigdbr_list, a_vector)
+# })
+
+
+# significant_go_bp_gsea_df_list <- lapply(hallmark_gsea_df_list, function(temp_df){
+#     up_df <- temp_df[temp_df$padj < 0.05 & !is.na(temp_df$log2err) & temp_df$NES > 0,]
+#     sig_up_df <- up_df[order(up_df$NES, decreasing = T),][1:min(nrow(up_df),10),]
+#     sig_up_df$direction <- "up"
+
+#     down_df <- temp_df[temp_df$padj < 0.05 & !is.na(temp_df$log2err) & temp_df$NES < 0,]
+#     sig_down_df <- down_df[order(down_df$NES, decreasing = F),][1:min(nrow(down_df),10),]
+#     sig_down_df$direction <- "down"
+    
+#     return(rbind(sig_up_df, sig_down_df))
+# })
+
+```
+
+- Perform gene set enrichment
+
+```{r}
+
+library("enrichR")
+dbs <- "GO_Biological_Process_2023"
+directions <- c("up", "down")
+
+
+contrast_df <- rbind(
+    early_vs_late_df[early_vs_late_df$pvalue < 0.05 & !is.na(early_vs_late_df$pvalue),], 
+    fast_vs_slow_df[fast_vs_slow_df$pvalue < 0.05 & !is.na(fast_vs_slow_df$pvalue),], 
+    early_fast_vs_early_slow[early_fast_vs_early_slow$pvalue < 0.05 & !is.na(early_fast_vs_early_slow$pvalue),], 
+    late_fast_vs_late_slow[late_fast_vs_late_slow$pvalue < 0.05 & !is.na(late_fast_vs_late_slow$pvalue),],
+    early_fast_vs_late_slow[early_fast_vs_late_slow$pvalue < 0.05 & !is.na(early_fast_vs_late_slow$pvalue),])
+
+contrast_df$gene_name <- annotation_gene_ranges$gene_name[match(rownames(contrast_df), annotation_gene_ranges$gene_id)]
+contrast_df$direction <- ifelse(contrast_df$log2FoldChange > 0, "up", "down")
+
+contrast_split <- split(contrast_df, paste(contrast_df$contrast, contrast_df$direction))
+enrichment_result_df <- do.call(rbind, lapply(contrast_split, function(temp_df){
+    db_df_list <- lapply(dbs, function(a_database){
+        current_genes <- temp_df$gene_name[!is.na(temp_df$gene_name)]
+        an_enrichment_df <- enrichr(current_genes,  a_database)[[1]]
+        if(nrow(an_enrichment_df) == 0){
+            return(NULL)
+        }
+        an_enrichment_df$contrast <- unique(temp_df$contrast)
+        an_enrichment_df$direction <- unique(temp_df$direction)
+        an_enrichment_df$num_gene <- length(current_genes)
+        an_enrichment_df$db <- a_database
+        Sys.sleep(5)
+        return(an_enrichment_df)
+    })
+    db_df <- do.call(rbind, db_df_list)
+}))
+
+
+enrichment_result_df$gene_ratio <- vapply(enrichment_result_df$Overlap, function(x){
+    eval(parse(text = x))
+},1)
+significant_gene_set_enrichment <- enrichment_result_df[enrichment_result_df$P.value < 0.05 &
+    (enrichment_result_df$gene_ratio > 0.1),]
+# significant_gene_set_enrichment$ids <- vapply(str_extract_all(string = significant_gene_set_enrichment$Term, pattern = "(?<=\\()(.*?)(?=\\))"), function(x){x[length(x)]},"1")
+# # write.csv(significant_gene_set_enrichment, file = file.path(output_dir, "03-gene-set-enrichment-with-go-bp.csv"))
+# # Perform enrichment smplify
+
+
+selected_significant_gene_set_enrichment <- lapply(split(significant_gene_set_enrichment, paste(significant_gene_set_enrichment$contrast, significant_gene_set_enrichment$direction)), function(temp_df){
+    return_df <- temp_df[order(temp_df$P.value, decreasing = F),][1:min(c(nrow(temp_df), 10)),]
+    return_df$term_only <- vapply(str_split(return_df$Term, pattern = " "), function(x){ paste(x[-length(x)], collapse = " ")}, "1")
+    return_df$term_only <- factor(return_df$term_only, levels = rev(return_df$term_only))
+    return(return_df)
+})
+
+
+# selected_significant_gene_set_enrichment[selected_significant_gene_set_enrichment$contrast == "early_fast_vs_late_slow",c("Term", "direction")]
+
+
+# contrast_split <- split(selected_significant_gene_set_enrichment, selected_significant_gene_set_enrichment$contrast)
+
+lapply(selected_significant_gene_set_enrichment, function(temp_df){
+    current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 8),
+    axis.text.y = element_text(size = 8),
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 8),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+    colours <- c("down" = "#065A82", "up" = "#E3655B")
+    ThePlot <- ggplot(temp_df, aes(x = -log10(P.value), y = term_only))
+    # ThePlot <- ThePlot + geom_vline(xintercept = 0, linetype = "dashed", colour = "#000000")
+    ThePlot <- ThePlot + geom_point(aes(fill = direction, size = gene_ratio), colour = "#000000", shape = 21)
+    ThePlot <- ThePlot + scale_x_continuous("-log10(p-value)")
+    ThePlot <- ThePlot + scale_y_discrete("GO:BP enriched terms")
+    ThePlot <- ThePlot + theme_bw()
+    ThePlot <- ThePlot + scale_fill_manual("Direction", values = colours)
+    ThePlot <- ThePlot + facet_wrap(. ~ direction, scales = "free", nrow = 1, ncol = 2)
+    ThePlot <- ThePlot + ggtitle("gene set enrichment for repeat containing genes")
+    ThePlot <- ThePlot + current_theme
+    ggsave(height = 7, width = 5, file = file.path(plot_dir, paste(paste("09-08-plot-gene-set-enrichment-for",unique(temp_df$direction), unique(temp_df$contrast), sep = "-"), ".pdf", sep = "")), ThePlot)
+})
+
+
+```
+
+
+
+
+
+
+
