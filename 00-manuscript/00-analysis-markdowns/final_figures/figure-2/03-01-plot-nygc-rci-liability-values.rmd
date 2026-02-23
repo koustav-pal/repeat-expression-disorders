@@ -11,18 +11,15 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("ggbeeswarm")
 
@@ -34,7 +31,7 @@ require("ggbeeswarm")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-2"
+analysis_path <- here("final-figures","figure-2")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -54,10 +51,10 @@ dir.create(output_dir, recursive = T)
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
-feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
-patient_liability_df <- readRDS("final-figures/figure-2/rdata_files/01-save-nygc-rci-liabilities-in-patient-samples.rds")
-non_rci_patient_liability_df <- readRDS("final-figures/figure-2/rdata_files/01-save-nygc-non-rci-liabilities-in-patient-samples.rds")
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files","00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling","rdata_files","01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+patient_liability_df <- readRDS(here("final-figures","figure-2","rdata_files","01-save-nygc-rci-liabilities-in-patient-samples.rds"))
+non_rci_patient_liability_df <- readRDS(here("final-figures","figure-2","rdata_files","01-save-nygc-non-rci-liabilities-in-patient-samples.rds"))
 patient_liability_df <- cbind(patient_liability_df, non_repeat_intron_expr_tpm = non_rci_patient_liability_df$non_repeat_intron_expr_tpm)
 
 ```

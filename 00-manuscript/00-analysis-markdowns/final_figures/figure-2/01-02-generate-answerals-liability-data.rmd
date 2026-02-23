@@ -11,11 +11,12 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
@@ -56,11 +57,11 @@ sampleinfo_df <- read.csv(here("39-answerals-complete","input_files","metadata",
 
 # cell_line_markers_csv <- read.csv("13-01-answerals/input_files/Baxi-et-al-IF-raw-data-file-for-Koustav-Pal-confirmed-data.csv")
 
-participant_info_df <- read.csv("39-answerals-complete/input_files/metadata/aals_participants.csv")
-external_controls_df <- read.csv("39-answerals-complete/input_files/metadata/external_controls.csv") 
-family_history_log <- read.csv("39-answerals-complete/input_files/metadata/clinical/Family_History_Log.csv")
-mutation_df <- read.csv("39-answerals-complete/input_files/metadata/clinical/ALS_Gene_Mutations.csv")
-nfl_df <- read.csv("39-answerals-complete/input_files/metadata/NfL/NfL_Seimens_Atellica_Immunoassay_Proteomics_2022_07.csv")
+participant_info_df <- read.csv("39-answerals-complete","input_files","metadata","aals_participants.csv")
+external_controls_df <- read.csv("39-answerals-complete","input_files","metadata","external_controls.csv") 
+family_history_log <- read.csv("39-answerals-complete","input_files","metadata","clinical","Family_History_Log.csv")
+mutation_df <- read.csv("39-answerals-complete","input_files","metadata","clinical","ALS_Gene_Mutations.csv")
+nfl_df <- read.csv("39-answerals-complete","input_files","metadata","NfL","NfL_Seimens_Atellica_Immunoassay_Proteomics_2022_07.csv")
 
 ```
 

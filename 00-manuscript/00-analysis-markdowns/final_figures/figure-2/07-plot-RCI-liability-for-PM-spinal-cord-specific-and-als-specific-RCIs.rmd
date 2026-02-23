@@ -11,18 +11,15 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("ggbeeswarm")
 
@@ -34,7 +31,7 @@ require("ggbeeswarm")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-2"
+analysis_path <- here("final-figures","figure-2")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -53,14 +50,14 @@ dir.create(output_dir, recursive = T)
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
-feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
-sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
-repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files","00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling","rdata_files","01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+sig_result_list <- readRDS(here("20-import-significant-events","rdata_files","02-significantly-differentially-expressed-events.rds"))
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files","00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
 patient_penetrance_list <- readRDS(file.path(save_dir, "03-save-answerals-rci-expression-summary-with-penetrance-matrix.rds"))
-answerals_object_list <- readRDS("39-answerals-complete/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
-sampleinfo_df <- read.csv("39-answerals-complete/input_files/metadata/aals_dataportal_datatable.csv")
-nygc_penetrance_list <- readRDS(file.path("final-figures/figure-2/rdata_files/02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
+answerals_object_list <- readRDS(here("39-answerals-complete","rdata_files","01-02-list_of_counts_stat_samplesheet_from_answerals.rds"))
+sampleinfo_df <- read.csv(here("39-answerals-complete","input_files","metadata","aals_dataportal_datatable.csv"))
+nygc_penetrance_list <- readRDS(here("final-figures","figure-2","rdata_files","02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
 
 patient_liability_df <- patient_penetrance_list$liability_df
 penetrance_matrix <- patient_penetrance_list$penetrance_matrix

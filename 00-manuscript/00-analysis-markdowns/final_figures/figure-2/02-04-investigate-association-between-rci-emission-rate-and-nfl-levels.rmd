@@ -11,18 +11,15 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 
 ```
@@ -56,10 +53,10 @@ liability_with_residuals_list <- readRDS(file.path(save_dir, "02-01-modelled-lia
 liability_df <- liability_with_residuals_list$liability
 residuals_df <- liability_with_residuals_list$residuals
 residuals_df$subject_id <- liability_df$subject_id[match(residuals_df$Participant_ID, liability_df$Participant_ID)]
-participant_info_df <- read.csv("39-answerals-complete/input_files/metadata/aals_participants.csv")
-external_controls_df <- read.csv("39-answerals-complete/input_files/metadata/external_controls.csv")
-nfl_df <- read.csv("39-answerals-complete/input_files/metadata/NfL/NfL_Seimens_Atellica_Immunoassay_Proteomics_2022_07.csv")
-sampleinfo_df <- read.csv("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons//analysis/00-manuscript/39-answerals-complete/input_files/metadata/aals_dataportal_datatable.csv")
+participant_info_df <- read.csv(here("39-answerals-complete","input_files","metadata","aals_participants.csv"))
+external_controls_df <- read.csv(here("39-answerals-complete","input_files","metadata","external_controls.csv"))
+nfl_df <- read.csv(here("39-answerals-complete","input_files","metadata","NfL","NfL_Seimens_Atellica_Immunoassay_Proteomics_2022_07.csv"))
+sampleinfo_df <- read.csv("39-answerals-complete","input_files","metadata","aals_dataportal_datatable.csv")
 
 ```
 
