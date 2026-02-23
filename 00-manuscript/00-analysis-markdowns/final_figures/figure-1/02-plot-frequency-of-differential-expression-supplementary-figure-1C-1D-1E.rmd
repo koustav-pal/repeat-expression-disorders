@@ -11,13 +11,12 @@ We want to understand if Microsatellites are expressed and incorporated into mat
 
 ### 1.0 Package requirements
 
-
-
-- change to current working directory `/camp/home/palk/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
@@ -36,7 +35,7 @@ require("dplyr")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-1"
+analysis_path <- here("final-figures","figure-1")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -85,9 +84,9 @@ summarise_for_barplot <- function(events_df, total_length){
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-sig_results_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
-feature_ranges <- readRDS(file.path("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
-repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+sig_results_list <- readRDS(here("20-import-significant-events", "rdata_files", "02-significantly-differentially-expressed-events.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling","rdata_files","01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files","00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
 sig_result_df <- sig_results_list$significant_events
 feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
 

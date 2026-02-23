@@ -12,12 +12,13 @@ We want to understand if Microsatellites are expressed and incorporated into mat
 ### 1.0 Package requirements
 
 
-
-- change to current working directory `/camp/home/palk/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library(here)
+i_am("00-analysis-markdowns/final_figures/figure-1/01-prepare-figure-1A.rmd")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
@@ -35,7 +36,7 @@ require("ggplot2")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-1"
+analysis_path <- here("final-figures","figure-1")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -54,17 +55,17 @@ dir.create(output_dir, recursive = T)
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-repeat_sequence_files <- c(trinucleotide = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_trinucleotide.fa.tsv",
-    quadnucleotide = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_quad.sense.fa.tsv",
-    pentanucleotide = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_penta.sense.fa.tsv",
-    hexanucleotide_GP = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_GP.sense.fa.tsv",
-    hexanucleotide_GA = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_GA.sense.fa.tsv",
-    hexanucleotide_GR = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_GR.sense.fa.tsv",
-    hexanucleotide_PA = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_PA.sense.fa.tsv",
-    hexanucleotide_PR = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_PR.sense.fa.tsv",
-    hexanucleotide_GL = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_GL.sense.fa.tsv",
-    hexanucleotide_PS = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_PS.sense.fa.tsv",
-    dodecanucleotide = "01-repeat-characterisation/input_files/02-00-nonoverlapping_genic_sequences_chr1-22_dodeca.sense.fa.tsv")
+repeat_sequence_files <- c(trinucleotide = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_trinucleotide.fa.tsv"),
+    quadnucleotide = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_quad.sense.fa.tsv"),
+    pentanucleotide = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_penta.sense.fa.tsv"),
+    hexanucleotide_GP = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_GP.sense.fa.tsv"),
+    hexanucleotide_GA = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_GA.sense.fa.tsv"),
+    hexanucleotide_GR = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_GR.sense.fa.tsv"),
+    hexanucleotide_PA = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_PA.sense.fa.tsv"),
+    hexanucleotide_PR = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_PR.sense.fa.tsv"),
+    hexanucleotide_GL = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_GL.sense.fa.tsv"),
+    hexanucleotide_PS = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_PS.sense.fa.tsv"),
+    dodecanucleotide = here("01-repeat-characterisation","input_files","02-00-nonoverlapping_genic_sequences_chr1-22_dodeca.sense.fa.tsv"))
 
 
 repeat_sequence_df <- do.call(rbind, lapply(names(repeat_sequence_files), function(x){
@@ -108,7 +109,7 @@ repeat_coord_ranges$span_group[grepl(x = repeat_coord_ranges$span_group, pattern
 
 ```{r}
 
-feature_ranges <- readRDS(file.path("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling","rdata_files","01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
 
 ```
 
@@ -137,14 +138,14 @@ mapped_repeat_ranges <- repeat_coord_ranges[queryHits(ol_object)]
 mapped_repeat_ranges$repeat_id <- names(mapped_repeat_ranges)
 mapped_repeat_ranges$feature_hash_id <- feature_ranges$hash_id[subjectHits(ol_object)]
 names(mapped_repeat_ranges) <- NULL
-write.table(as.data.frame(mapped_repeat_ranges), file = file.path(output_dir, "01-01-genomic-coordinates-of-repeat-regions.txt"), sep = "\t")
+write.table(as.data.frame(mapped_repeat_ranges), file = here("final-figures", "figure-1", "output_files", "01-01-genomic-coordinates-of-repeat-regions.txt"), sep = "\t")
 
 mapped_feature_ranges <- feature_ranges[subjectHits(ol_object)]
 names(mapped_feature_ranges) <- NULL
 mapped_feature_ranges$repeat_id <- mapped_repeat_ranges$repeat_id
 elementMetadata(mapped_feature_ranges) <- elementMetadata(mapped_feature_ranges)[!(names(elementMetadata(mapped_feature_ranges)) %in% 
     c("tx_id", "tx_name", "exon_id", "exon_name", "exon_rank"))]
-write.table(as.data.frame(mapped_feature_ranges), file = file.path(output_dir, "01-02-genomic-coordinates-of-features-containing-any-repeat-overlap.txt"), sep = "\t")
+write.table(as.data.frame(mapped_feature_ranges), file = here("final-figures", "figure-1", "output_files", "01-02-genomic-coordinates-of-features-containing-any-repeat-overlap.txt"), sep = "\t")
 
 ```
 

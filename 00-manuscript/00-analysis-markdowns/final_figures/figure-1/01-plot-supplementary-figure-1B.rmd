@@ -13,11 +13,13 @@ We want to understand if Microsatellites are expressed and incorporated into mat
 
 
 
-- change to current working directory `/camp/home/palk/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+i_am("00-analysis-markdowns/final_figures/figure-1/01-plot-supplementary-figure-1B.rmd")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
@@ -36,7 +38,7 @@ require("dplyr")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-1"
+analysis_path <- here("final-figures","figure-1")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -73,7 +75,7 @@ source(file.path(source_dir, "source.R"))
 
 repeat_ranges_list <- readRDS(file.path(save_dir, "00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
 repeat_coord_ranges <- repeat_ranges_list$repeat_ranges
-feature_ranges <- readRDS(file.path("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling", "rdata_files", "01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
 
 ```
 

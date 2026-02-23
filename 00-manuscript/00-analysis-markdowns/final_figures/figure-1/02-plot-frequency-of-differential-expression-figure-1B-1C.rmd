@@ -11,11 +11,13 @@ We are investigating the differential expression profiling statistics of DE intr
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/` and include required packages 
+- change to current project root directory and include required packages 
+
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("parallel")
 require("HiCBricks")
 require("GenomicRanges")
@@ -34,7 +36,7 @@ require("ggplot2")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-1"
+analysis_path <- here("final-figures","figure-1")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -45,9 +47,9 @@ dir.create(plot_dir, recursive = T)
 dir.create(input_dir, recursive = T)
 dir.create(output_dir, recursive = T)
 
-feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
-sig_result_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
-repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling","rdata_files","01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+sig_result_list <- readRDS(here("20-import-significant-events","rdata_files","02-significantly-differentially-expressed-events.rds"))
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files","00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
 
 ```
 
@@ -65,7 +67,6 @@ unique_intron_df <- unique(sig_results_df[,c("tissue_type", "feature_ids", "stat
 frequency_df <- as.data.frame(table(unique_intron_df[,"tissue_type"]))
 colnames(frequency_df) <- c("tissue_type", "frequency")
 frequency_df$tissue_type <- factor(frequency_df$tissue_type, levels = c("iPSCs", "postmortem"))
-
 
 ```
 

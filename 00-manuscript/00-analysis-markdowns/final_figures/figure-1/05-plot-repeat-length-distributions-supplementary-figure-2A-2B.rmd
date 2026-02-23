@@ -11,19 +11,15 @@ Investigate length distribution of microsatellites
 
 ### 1.0 Package requirements
 
-
-
-- change to current working directory `/camp/home/palk/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
 require("GenomicFeatures")
 require("ggplot2")
 require("dplyr")
@@ -36,7 +32,7 @@ require("dplyr")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-1"
+analysis_path <- here("final-figures","figure-1")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -73,9 +69,9 @@ require("stringr")
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
-feature_ranges <- readRDS(file.path("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
-sig_result_list <- readRDS(file.path("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files", "00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling", "rdata_files", "01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+sig_result_list <- readRDS(here("20-import-significant-events", "rdata_files", "02-significantly-differentially-expressed-events.rds"))
 
 repeat_colour_groups <- c("trinucleotide" = "#EEB902", "quadnucleotide" = "#97CC04", 
     "pentanucleotide" = "#F45D01", "hexanucleotide" = "#2D7DD2")
