@@ -1,0 +1,179 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+This document contains all of the data required for analysing the AnswerALS data.
+
+
+### 1.0 Package requirements
+
+- change to current project root directory and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+
+library("here")
+message("Project root:", here(), "\n")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+require("ggplot2")
+require("ggbeeswarm")
+require("ggvenn")
+require("STRINGdb")
+require("parallel")
+require("GenomicFeatures")
+require("Biostrings")
+
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- here("final-figures", "figure-4")
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+tmp_dir <- file.path(analysis_path, "temp")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+dir.create(tmp_dir, recursive = T)
+
+
+```
+
+### 3.0 Imports
+
+- Load data files 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files","00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
+sig_result_list <- readRDS(here("20-import-significant-events","rdata_files","02-significantly-differentially-expressed-events.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling","rdata_files","01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+annotation_gtf <- here("Genomes","Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf")
+rloop_ranges <- readRDS(here("30-sequence-analysis-of-introns","rdata_files","90-01-merged-rloop-ranges-in-differentially-expressed-introns.rds"))
+
+```
+
+- Select significantly affected genes
+
+```{r}
+
+repeat_ranges <- repeat_ranges_list$repeat_ranges
+feature_ranges_with_repeats <- repeat_ranges_list$repeat_containing_ranges
+sig_result_df <- sig_result_list$significant_events
+sig_result_df <- sig_result_df[sig_result_df$region == "intron",]
+
+```
+
+
+- Isolate differentially expressed features and change seqlevels to ucsc.
+
+```{r}
+
+
+seqlevelsStyle(feature_ranges) <- "UCSC"
+de_feature_ranges <- feature_ranges[feature_ranges$feature_id %in% sig_result_df$feature_id,]
+de_feature_ranges$status <- ifelse(de_feature_ranges$feature_id %in% feature_ranges_with_repeats$feature_id, "repeat_containing", "non_repeat_containing")
+
+
+```
+
+
+- Compute R-loop density
+
+
+```{r}
+
+
+rloop_split <- split(rloop_ranges, rloop_ranges$feature_id)
+rloop_density_df <- do.call(rbind, mclapply(rloop_split, function(x){
+    message(unique(x$feature_id))
+    ret_df <- data.frame(feature_id = unique(x$feature_id),
+        rloop_length = sum(width(reduce(x))),
+        total_rloop_length = sum(width(x)),
+        rloop_frequency = length(x))
+    return(ret_df)
+},mc.cores = 6))
+
+rloop_density_df$status <- ifelse(rloop_density_df$feature_id %in% feature_ranges_with_repeats$feature_id, "repeat_containing", "non_repeat_containing")
+
+rloop_frequency_df <- as.data.frame(table(rloop_density_df$status))
+colnames(rloop_frequency_df) <- c("status", "frequency")
+rloop_frequency_df$proportion <- rloop_frequency_df$frequency / table(de_feature_ranges$status)
+
+
+contingency_matrix <- matrix(data = c(length(de_feature_ranges[de_feature_ranges$status == "repeat_containing" & de_feature_ranges$feature_id %in% rloop_density_df$feature_id]),
+    length(de_feature_ranges[de_feature_ranges$status != "repeat_containing" & de_feature_ranges$feature_id %in% rloop_density_df$feature_id]),
+    length(de_feature_ranges[de_feature_ranges$status == "repeat_containing" & !(de_feature_ranges$feature_id %in% rloop_density_df$feature_id)]),
+    length(de_feature_ranges[de_feature_ranges$status != "repeat_containing" & !(de_feature_ranges$feature_id %in% rloop_density_df$feature_id)])),
+    nrow = 2, ncol = 2)
+
+rownames(contingency_matrix) <- c("rci", "non-rci")
+colnames(contingency_matrix) <- c("has_rloop", "no_rloop")
+
+#         has_rloop no_rloop
+# rci          3320     1728
+# non-rci     48828   207186
+
+fisher.test(contingency_matrix)
+#         Fisher's Exact Test for Count Data
+
+# data:  contingency_matrix
+# p-value < 2.2e-16
+# alternative hypothesis: true odds ratio is not equal to 1
+# 95 percent confidence interval:
+#  7.683461 8.652134
+# sample estimates:
+# odds ratio
+#   8.153039
+
+chisq.test(contingency_matrix)$stdres
+#         has_rloop  no_rloop
+# rci      82.17554 -82.17554
+# non-rci -82.17554  82.17554
+
+```
+
+- Plot Proportion of introns containing repeats
+
+
+```{r}
+
+Colours <- c("repeat_containing" = "#ff6b6c", "non_repeat_containing" = "#f3f9e3")
+ThePlot <- ggplot(rloop_frequency_df, aes(x = status, y = proportion))
+ThePlot <- ThePlot + geom_col(aes(fill = status), colour = "#000000")
+# ThePlot <- ThePlot + geom_hline(yintercept = log10(100), colour = "#000000",linetype = "dashed")
+ThePlot <- ThePlot + scale_x_discrete("Intron group")
+ThePlot <- ThePlot + scale_y_continuous("proportion of differentially expressed introns containing rloops")
+ThePlot <- ThePlot + scale_fill_manual("Intron groups", values = Colours)
+ThePlot <- ThePlot + theme_bw()
+ThePlot <- ThePlot + ggtitle("proportion of introns containing R-loop")
+ThePlot <- ThePlot + theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+ggsave(width = 5, height = 10, file = file.path(plot_dir, "04-01-proportion-of-introns-containing-rloops-figure-5B.pdf"), ThePlot)
+
+```
