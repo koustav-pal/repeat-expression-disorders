@@ -11,19 +11,16 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
 require("rtracklayer")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("matrixStats")
 
@@ -35,7 +32,7 @@ require("matrixStats")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "41-magen-et-al-miRNA-seq"
+analysis_path <- here("41-magen-et-al-miRNA-seq")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -54,7 +51,7 @@ dir.create(output_dir, recursive = T)
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-longitudinal_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-04-rci-counts-with-longitudinal-sampleinfo.rds")
+longitudinal_data_list <- readRDS(here("41-magen-et-al-miRNA-seq/rdata_files/01-04-rci-counts-with-longitudinal-sampleinfo.rds"))
 
 
 magen_longitudinal_sampleinfo_df <- longitudinal_data_list$sampleinfo_df

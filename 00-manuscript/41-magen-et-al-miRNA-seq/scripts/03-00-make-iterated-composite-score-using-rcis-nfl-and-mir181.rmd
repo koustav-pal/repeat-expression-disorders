@@ -11,11 +11,14 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
+
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+proj_root <- here()
+message("Project root:", proj_root, "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
@@ -37,7 +40,7 @@ source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "41-magen-et-al-miRNA-seq"
+analysis_path <- here("41-magen-et-al-miRNA-seq")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -59,7 +62,7 @@ dir.create(output_dir, recursive = T)
 discovery_clinical_df <- readRDS(file.path(save_dir, "01-07-discovery-clinical-with-mirna-counts-in-rcis.rds"))
 # cutpoint_analysis_results <- readRDS(file.path(save_dir, "02-01-cutpoint-analysis-results-for-enrollment-and-onset.rds"))
 
-discovery_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-05-rci-counts-for-discovery-set.rds")
+discovery_data_list <- readRDS(here("41-magen-et-al-miRNA-seq/rdata_files/01-05-rci-counts-for-discovery-set.rds"))
 hash_pair_df <- discovery_data_list$mirna_rci_overlap
 rci_set <- unique(hash_pair_df$hash_id[hash_pair_df$hash_id %in% colnames(discovery_clinical_df)])
 
@@ -130,7 +133,7 @@ onset_hr_df_list <- lapply(names(score_list), function(x){
   test_df_onset <- test_df[,c("survival_onset", "status", scores_to_test)]
   
   evaluateCutpoints(
-    mainDir = "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/",
+    mainDir = here("41-magen-et-al-miRNA-seq/output_files/"),
     resultsDirName = "onset-composite-score-analysis-results",
     df = test_df_onset,
     biomarkerList = scores_to_test,
@@ -138,9 +141,10 @@ onset_hr_df_list <- lapply(names(score_list), function(x){
     event = "status",
     setCutpoint = NULL,
     setCutpoint2 = NULL)
-  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
   
-  cutpoint_dir <- "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/onset-composite-score-analysis-results"
+  setwd(proj_root)
+  
+  cutpoint_dir <- here("41-magen-et-al-miRNA-seq/output_files/onset-composite-score-analysis-results")
   current_date <- "2025-04-10"
   rci_onset_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x){
     return_df <- read.csv(file.path(cutpoint_dir, current_date, x, "2", "maxstat", "MaxStatResults.csv"))[,-1]
@@ -176,7 +180,7 @@ enrollment_hr_df_list <- lapply(names(score_list), function(x){
   test_df_enrollment <- test_df[,c("survival_enrolment", "status", scores_to_test)]
   # colnames(test_df) <- c("time", "event", names(biomarkers))
   evaluateCutpoints(
-    mainDir = "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/",
+    mainDir = here("41-magen-et-al-miRNA-seq/output_files/"),
     resultsDirName = "enrollment-composite-score-analysis-results",
     df = test_df_enrollment,
     biomarkerList = scores_to_test,
@@ -184,9 +188,10 @@ enrollment_hr_df_list <- lapply(names(score_list), function(x){
     event = "status",
     setCutpoint = NULL,
     setCutpoint2 = NULL)
+  
+  setwd(proj_root)
 
-  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
-  cutpoint_dir <- "/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/41-magen-et-al-miRNA-seq/output_files/enrollment-composite-score-analysis-results"
+  cutpoint_dir <- here("41-magen-et-al-miRNA-seq/output_files/enrollment-composite-score-analysis-results")
   current_date <- "2025-04-10"
   rci_enrollment_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x){
     return_df <- read.csv(file.path(cutpoint_dir, current_date, x, "2", "maxstat", "MaxStatResults.csv"))[,-1]

@@ -11,18 +11,15 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("ggvenn")
 require("DESeq2")
@@ -37,7 +34,7 @@ require("parallel")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-4"
+analysis_path <- here("final-figures", "figure-4")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -58,15 +55,15 @@ dir.create(tmp_dir, recursive = T)
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-repeat_ranges_list <- readRDS("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
-pan_als_diff_object <- readRDS("13-03-public-data/rdata_files/02-02-01-save-deseq2-all-samples-als-vs-control-differential-object.rds")
-pan_als_contrast_list <- readRDS("13-03-public-data/rdata_files/03-01-02-assembled-contrasts-from-pan-als-comparison.rds")
-pan_als_gene_contrast_list <- readRDS("13-03-public-data/rdata_files/05-02-assembled-contrasts-from-pan-als-comparison.rds")
+repeat_ranges_list <- readRDS(here("final-figures","figure-1","rdata_files","00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
+pan_als_diff_object <- readRDS(here("13-03-public-data","rdata_files","02-02-01-save-deseq2-all-samples-als-vs-control-differential-object.rds"))
+pan_als_contrast_list <- readRDS(here("13-03-public-data","rdata_files","03-01-02-assembled-contrasts-from-pan-als-comparison.rds"))
+pan_als_gene_contrast_list <- readRDS(here("13-03-public-data","rdata_files","05-02-assembled-contrasts-from-pan-als-comparison.rds"))
 candidate_genes_df <- readRDS(file.path(save_dir, "02-save-genes-where-the-variation-due-to-their-native-repeat-containing-intron-is-significant.rds"))
 # diff_df <- readRDS(file.path(save_dir, "02-03-difference-of-median-distances-between-repeat-containing-and-non-repeat-containing-features.rds"))
 hpo_terms_with_cluster_df <- readRDS(file.path(save_dir, "03-hpo-interesting-terms-with-group-assignment-and-plot-order.rds"))
-significant_de_event_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
-feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+significant_de_event_list <- readRDS(here("20-import-significant-events","rdata_files","02-significantly-differentially-expressed-events.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling","rdata_files","01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
 model_output_list <- readRDS(file.path(save_dir, "01-save-model-output.rds"))
 
 ```

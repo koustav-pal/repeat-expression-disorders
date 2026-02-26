@@ -16,7 +16,7 @@ nygc_als_vs_control_results_df <-  readRDS(file.path(analysis_save_dir, "01-03-i
 public_als_vs_control_results_df <- readRDS(file.path(analysis_save_dir, "01-02-import-public-datasets-differential-expression.rds"))
 answerals_list <- readRDS("../13-01-answerals/rdata_files/01-02-list_of_counts_stat_samplesheet_from_answerals.rds")
 public_data_list <- readRDS("../13-03-public-data/rdata_files/02-list_of_counts_stat_samplesheet_from_public_data.rds")
-annotation_gtf <- "/nemo/lab/patanir/home/users/palk/Genomes/ENSEMBL_hg38/Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf"
+annotation_gtf <- here("Genomes","Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf")
 # ==========================================================================
 # Packages and Data
 # ==========================================================================

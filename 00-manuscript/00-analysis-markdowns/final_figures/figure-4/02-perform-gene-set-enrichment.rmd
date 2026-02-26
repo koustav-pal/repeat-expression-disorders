@@ -11,18 +11,15 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("ggvenn")
 require("DESeq2")
@@ -36,7 +33,7 @@ require("STRINGdb")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-4"
+analysis_path <- here("final-figures", "figure-4")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -59,7 +56,7 @@ dir.create(tmp_dir, recursive = T)
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
 candidate_genes_df <- readRDS(file.path(save_dir, "02-save-genes-where-the-variation-due-to-their-native-repeat-containing-intron-is-significant.rds"))
-sig_result_list <- readRDS("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds")
+sig_result_list <- readRDS(here("20-import-significant-events", "rdata_files", "02-significantly-differentially-expressed-events.rds"))
 
 
 ```

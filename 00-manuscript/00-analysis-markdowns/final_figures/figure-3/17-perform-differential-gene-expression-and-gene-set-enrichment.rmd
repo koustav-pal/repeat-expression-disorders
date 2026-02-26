@@ -11,18 +11,15 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 library(rlang)
 library(riskRegression)
@@ -48,7 +45,7 @@ require("STRINGdb")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-3"
+analysis_path <- here("final-figures","figure-3")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -71,15 +68,15 @@ dir.create(tmp_dir, recursive = T)
 
 ```{r}
 
-nygc_penetrance_list <- readRDS(file.path("final-figures/figure-2/rdata_files/02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
-patient_df <- readRDS("13-nygc-consortium/rdata_files/03-05-nygc-patient-sampleinfo-datasheet.rds")
-clinical_metadata_df <- read.csv("0103-NYGC-consortium/input_files/samplesheet.csv")
+nygc_penetrance_list <- readRDS(here("final-figures", "figure-2", "rdata_files", "02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
+patient_df <- readRDS(here("13-nygc-consortium", "rdata_files", "03-05-nygc-patient-sampleinfo-datasheet.rds"))
+clinical_metadata_df <- read.csv(here("0103-NYGC-consortium", "input_files", "samplesheet.csv"))
 
-postmortem_list <- readRDS("13-nygc-consortium/rdata_files/03-02-list_of_counts_stat_samplesheet_from_nygc.rds")
-feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+postmortem_list <- readRDS(here("13-nygc-consortium", "rdata_files", "03-02-list_of_counts_stat_samplesheet_from_nygc.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling", "rdata_files", "01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
 
-disease_duration_rsf_df <- readRDS("final-figures/figure-3/rdata_files/04-01-save-patients-with-rsf-risk-based-on-disease-duration.rds")
-age_of_onset_rsf_df <- readRDS("final-figures/figure-3/rdata_files/02-summarised-patient-dataframe-with-rsf-risk-scores.rds")
+disease_duration_rsf_df <- readRDS(here("final-figures", "figure-3", "rdata_files", "04-01-save-patients-with-rsf-risk-based-on-disease-duration.rds"))
+age_of_onset_rsf_df <- readRDS(here("final-figures", "figure-3", "rdata_files", "02-summarised-patient-dataframe-with-rsf-risk-scores.rds"))
 
 ```
 
@@ -116,7 +113,7 @@ summarised_gene_count_matrix <- do.call(cbind, mclapply(split(patient_df$column_
 ```{r}
 
 require("rtracklayer")
-annotation_gtf <- "/nemo/lab/patanir/home/users/palk/Genomes/ENSEMBL_hg38/Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf"
+annotation_gtf <- here("Genomes","Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf")
 annotation_ranges <- import.gff2(annotation_gtf)
 annotation_gene_ranges <- annotation_ranges[annotation_ranges$type == "gene"]
 

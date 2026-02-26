@@ -11,19 +11,18 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+proj_root <- here()
+message("Project root:", proj_root, "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
 require("rtracklayer")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("matrixStats")
 require("glmnet")
@@ -37,7 +36,7 @@ source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "41-magen-et-al-miRNA-seq"
+analysis_path <- here("41-magen-et-al-miRNA-seq")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -59,7 +58,7 @@ dir.create(output_dir, recursive = T)
 discovery_clinical_df <- readRDS(file.path(save_dir, "01-07-discovery-clinical-with-mirna-counts-in-rcis.rds"))
 clinical_df_in_use <- discovery_clinical_df
 
-discovery_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-06-rci-counts-for-replication-set.rds")
+discovery_data_list <- readRDS(here("41-magen-et-al-miRNA-seq/rdata_files/01-06-rci-counts-for-replication-set.rds"))
 hash_pair_df <- discovery_data_list$mirna_rci_overlap
 rci_set <- unique(hash_pair_df$hash_id[hash_pair_df$hash_id %in% colnames(clinical_df_in_use)])
 keep_hash_pair_df <- hash_pair_df[hash_pair_df$hash_id %in% rci_set,]
@@ -70,10 +69,10 @@ keep_hash_pair_df <- hash_pair_df[hash_pair_df$hash_id %in% rci_set,]
 
 ```{r}
 
-feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
 keep_hash_pair_df$gene_id <- feature_ranges$gene_id[match(keep_hash_pair_df$hash_id, feature_ranges$hash_id)]
 
-annotation_gtf <- "/nemo/lab/patanir/home/users/palk/Genomes/ENSEMBL_hg38/Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf"
+annotation_gtf <- here("Genomes","Homo_sapiens.GRCh38.104.chr_patch_hapl_scaff.gtf")
 annotation_ranges <- import.gff2(annotation_gtf)
 
 ```

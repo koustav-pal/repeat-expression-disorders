@@ -11,18 +11,15 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+message("Project root:", here(), "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 library(rlang)
 library(riskRegression)
@@ -47,7 +44,7 @@ require("RColorBrewer")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "final-figures/figure-3"
+analysis_path <- here("final-figures", "figure-3")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -66,8 +63,8 @@ dir.create(output_dir, recursive = T)
 
 ```{r}
 
-nygc_penetrance_list <- readRDS(file.path("final-figures/figure-2/rdata_files/02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
-clinical_metadata_df <- read.csv("0103-NYGC-consortium/input_files/samplesheet.csv")
+nygc_penetrance_list <- readRDS(here("final-figures", "figure-2", "rdata_files", "02-save-nygc-rci-expression-summary-with-penetrance-matrix.rds"))
+clinical_metadata_df <- read.csv(here("0103-NYGC-consortium", "input_files", "samplesheet.csv"))
 nygc_patient_liability_df <- nygc_penetrance_list$liability_df
 nygc_penetrance_matrix <- nygc_penetrance_list$penetrance_matrix
 

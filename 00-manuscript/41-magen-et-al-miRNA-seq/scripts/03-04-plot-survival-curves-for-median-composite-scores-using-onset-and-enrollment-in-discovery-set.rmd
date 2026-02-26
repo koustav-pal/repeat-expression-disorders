@@ -11,19 +11,17 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+proj_root <- here()
+message("Project root:", proj_root, "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
 require("rtracklayer")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("matrixStats")
 require("glmnet")
@@ -37,7 +35,7 @@ source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "41-magen-et-al-miRNA-seq"
+analysis_path <- here("41-magen-et-al-miRNA-seq")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -158,84 +156,8 @@ score_list <- list(
   rci_and_mir181 = c("rci_and_mir181_ridge_prob"),
   rci_and_nfl_and_mir181 = c("rci_and_nfl_and_mir181_ridge_prob"))
 
-onset_cutpoint_analysis_df_list <- lapply(names(score_list), function(x){
-  scores_to_test <- score_list[[x]]
-
-  current_clinical_df <- all_rci_score_list[[x]]
-  test_df_onset <- current_clinical_df[,c("survival_onset", "status", scores_to_test)]
-
-  cutpoint_dir <- file.path(output_dir, "onset-composite-score-analysis-results")
-  current_date <- "2025-04-10"
-  rci_onset_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
-    return_df <- read.csv(file.path(cutpoint_dir, current_date, x1, "2", "maxstat", "MaxStatResults.csv"))[,-1]
-    return_df <- as.data.frame(t(return_df))
-    colnames(return_df) <- return_df[1,]
-    return_df <- cbind(data.frame(molecule = x, score = x1), return_df[-1,])
-    return_df[,"P-value"] <- as.numeric(return_df[,"P-value"])
-    return_df[,"Cutpoint"] <- as.numeric(return_df[,"Cutpoint"])
-    return_df[,"HR"] <- as.numeric(return_df[,"HR"])
-    return(return_df)
-  }))
-  rci_onset_reported_hr_values_df$sig <- "NS"
-  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.1] <- "."
-  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.05] <- "*"
-  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.01] <- "**"
-  rci_onset_reported_hr_values_df$sig[rci_onset_reported_hr_values_df[,"P-value"] < 0.001] <- "***"
-
-  log_rank_stat_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
-    current_cutpoint_df <- rci_onset_reported_hr_values_df[rci_onset_reported_hr_values_df$score == x1,]
-    test_df_onset$current_group <- ifelse(test_df_onset[,x1] > current_cutpoint_df[,"Cutpoint"], "High", "Low")
-    num_groups <- length(unique(test_df_onset$current_group)) 
-    if(num_groups == 1){
-      diff_surv_summary_df <- data.frame(
-        molecule = x,
-        score = x1,
-        logrank_stat = NA,
-        pval = NA,
-        hr = NA,
-        median_high = NA,
-        median_low = NA)
-      return(diff_surv_summary_df)
-    }
-    diff_surv <- survdiff(Surv(survival_onset, status) ~ current_group, data = test_df_onset)
-    diff_surv_summary_df <- data.frame(
-      molecule = x, 
-      score = x1,
-      logrank_stat = diff_surv$chisq,
-      pval = diff_surv$pvalue,
-      hr = (diff_surv$obs[1] / diff_surv$exp[1]) / (diff_surv$obs[2] / diff_surv$exp[2]),
-      median_high = median(test_df_onset$survival_onset[test_df_onset$current_group == "High"]),
-      median_low = median(test_df_onset$survival_onset[test_df_onset$current_group == "Low"]))
-    return(diff_surv_summary_df)
-  }))
-  log_rank_stat_df$sig <- "NS"
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.1] <- "."
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.05] <- "*"
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.01] <- "**"
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.001] <- "***"
-
-  plot_list <- lapply(scores_to_test, function(x1){
-    current_cutpoint_df <- rci_onset_reported_hr_values_df[rci_onset_reported_hr_values_df$score == x1,]
-    current_logrank_df <- log_rank_stat_df[log_rank_stat_df$score == x1,]
-    test_df_onset$current_group <- ifelse(test_df_onset[,x1] > current_cutpoint_df[,"Cutpoint"], "High", "Low")
-
-    fit <- survfit(Surv(survival_onset, status) ~ current_group, data = test_df_onset)
-
-    the_plot <- ggsurvplot(fit, 
-    data = test_df_onset,
-    palette = c("#EF767A", "#7D7ABC"),
-    pval = T, pval.method = T,
-    conf.int = F,
-    title = paste(x, " LRT=", round(current_logrank_df$logrank_stat, 2), ", p=", round(current_logrank_df$pval, 3), sep = ""),
-    # surv.median.line = c("v"),
-    risk.table = "absolute",
-    ggtheme = theme_bw() + current_theme)$plot
-  })
-  names(plot_list) <- scores_to_test
-  return(list(cutpoint_df = rci_onset_reported_hr_values_df, log_rank = log_rank_stat_df, plots = plot_list))
-})
-names(onset_cutpoint_analysis_df_list) <- names(score_list)
-
+  onset_file <- file.path(save_dir, "03-04-saved-cutpoint-analysis-data.rds")
+  onset_cutpoint_analysis_df_list <- readRDS(onset_file)
 
 selected_plots <- lapply(onset_cutpoint_analysis_df_list, function(x){
   x$plots[vapply(names(x$plots), function(y){
@@ -304,84 +226,8 @@ score_list <- list(
   rci_and_mir181 = c("rci_and_mir181_ridge_prob"),
   rci_and_nfl_and_mir181 = c("rci_and_nfl_and_mir181_ridge_prob"))
 
-enrollment_cutpoint_analysis_df_list <- lapply(names(score_list), function(x){
-  scores_to_test <- score_list[[x]]
-
-  current_clinical_df <- all_rci_score_list[[x]]
-  test_df_enrollment <- current_clinical_df[,c("survival_enrolment", "status", scores_to_test)]
-
-  cutpoint_dir <- file.path(output_dir, "enrollment-composite-score-analysis-results")
-  current_date <- "2025-04-10"
-  rci_enrollment_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
-    return_df <- read.csv(file.path(cutpoint_dir, current_date, x1, "2", "maxstat", "MaxStatResults.csv"))[,-1]
-    return_df <- as.data.frame(t(return_df))
-    colnames(return_df) <- return_df[1,]
-    return_df <- cbind(data.frame(molecule = x, score = x1), return_df[-1,])
-    return_df[,"P-value"] <- as.numeric(return_df[,"P-value"])
-    return_df[,"Cutpoint"] <- as.numeric(return_df[,"Cutpoint"])
-    return_df[,"HR"] <- as.numeric(return_df[,"HR"])
-    return(return_df)
-  }))
-  rci_enrollment_reported_hr_values_df$sig <- "NS"
-  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.1] <- "."
-  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.05] <- "*"
-  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.01] <- "**"
-  rci_enrollment_reported_hr_values_df$sig[rci_enrollment_reported_hr_values_df[,"P-value"] < 0.001] <- "***"
-
-  log_rank_stat_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
-    current_cutpoint_df <- rci_enrollment_reported_hr_values_df[rci_enrollment_reported_hr_values_df$score == x1,]
-    test_df_enrollment$current_group <- ifelse(test_df_enrollment[,x1] > current_cutpoint_df[,"Cutpoint"], "High", "Low")
-    num_groups <- length(unique(test_df_enrollment$current_group)) 
-    if(num_groups == 1){
-      diff_surv_summary_df <- data.frame(
-        molecule = x,
-        score = x1,
-        logrank_stat = NA,
-        pval = NA,
-        hr = NA,
-        median_high = NA,
-        median_low = NA)
-      return(diff_surv_summary_df)
-    }
-    diff_surv <- survdiff(Surv(survival_enrolment, status) ~ current_group, data = test_df_enrollment)
-    diff_surv_summary_df <- data.frame(
-      molecule = x, 
-      score = x1,
-      logrank_stat = diff_surv$chisq,
-      pval = diff_surv$pvalue,
-      hr = (diff_surv$obs[1] / diff_surv$exp[1]) / (diff_surv$obs[2] / diff_surv$exp[2]),
-      median_high = median(test_df_enrollment$survival_enrolment[test_df_enrollment$current_group == "High"]),
-      median_low = median(test_df_enrollment$survival_enrolment[test_df_enrollment$current_group == "Low"]))
-    return(diff_surv_summary_df)
-  }))
-  log_rank_stat_df$sig <- "NS"
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.1] <- "."
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.05] <- "*"
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.01] <- "**"
-  log_rank_stat_df$sig[log_rank_stat_df[,"pval"] < 0.001] <- "***"
-
-  plot_list <- lapply(scores_to_test, function(x1){
-    current_cutpoint_df <- rci_enrollment_reported_hr_values_df[rci_enrollment_reported_hr_values_df$score == x1,]
-    current_logrank_df <- log_rank_stat_df[log_rank_stat_df$score == x1,]
-    test_df_enrollment$current_group <- ifelse(test_df_enrollment[,x1] > current_cutpoint_df[,"Cutpoint"], "High", "Low")
-
-    fit <- survfit(Surv(survival_enrolment, status) ~ current_group, data = test_df_enrollment)
-
-    the_plot <- ggsurvplot(fit, 
-    data = test_df_enrollment,
-    palette = c("#EF767A", "#7D7ABC"),
-    pval = T, pval.method = T,
-    conf.int = F,
-    title = paste(x, " LRT=", round(current_logrank_df$logrank_stat, 2), ", p=", round(current_logrank_df$pval, 3), sep = ""),
-    # surv.median.line = c("v"),
-    risk.table = "absolute",
-    ggtheme = theme_bw() + current_theme)$plot
-  })
-  names(plot_list) <- scores_to_test
-  return(list(cutpoint_df = rci_onset_reported_hr_values_df, log_rank = log_rank_stat_df, plots = plot_list))
-})
-names(enrollment_cutpoint_analysis_df_list) <- names(score_list)
-
+  enrollment_file <- file.path(save_dir, "03-05-saved-enrollment-cutpoint-analysis-data.rds")
+  enrollment_cutpoint_analysis_df_list <- readRDS(enrollment_file)
 
 selected_plots <- lapply(enrollment_cutpoint_analysis_df_list, function(x){
   x$plots[vapply(names(x$plots), function(y){

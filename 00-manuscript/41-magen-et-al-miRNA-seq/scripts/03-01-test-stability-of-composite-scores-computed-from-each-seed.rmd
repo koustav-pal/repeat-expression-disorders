@@ -11,19 +11,17 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+proj_root <- here()
+message("Project root:", proj_root, "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
 require("rtracklayer")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("matrixStats")
 require("glmnet")
@@ -37,7 +35,7 @@ source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "41-magen-et-al-miRNA-seq"
+analysis_path <- here("41-magen-et-al-miRNA-seq")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -59,7 +57,7 @@ dir.create(output_dir, recursive = T)
 discovery_clinical_df <- readRDS(file.path(save_dir, "01-07-discovery-clinical-with-mirna-counts-in-rcis.rds"))
 # cutpoint_analysis_results <- readRDS(file.path(save_dir, "02-01-cutpoint-analysis-results-for-enrollment-and-onset.rds"))
 
-discovery_data_list <- readRDS("41-magen-et-al-miRNA-seq/rdata_files/01-05-rci-counts-for-discovery-set.rds")
+discovery_data_list <- readRDS(here("41-magen-et-al-miRNA-seq/rdata_files/01-05-rci-counts-for-discovery-set.rds"))
 hash_pair_df <- discovery_data_list$mirna_rci_overlap
 rci_set <- unique(hash_pair_df$hash_id[hash_pair_df$hash_id %in% colnames(discovery_clinical_df)])
 all_models_list <- readRDS(file.path(save_dir, "02-02-save-all-iterated-models-for-creating-a-composite-score-using-rcis-nfl-and-mir181.rds"))
@@ -158,7 +156,7 @@ onset_cutpoint_analysis_df_list <- lapply(names(variable_list), function(x){
       setCutpoint2 = NULL)    
   }
 
-  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+  setwd(proj_root)
 
   message("Fetching cutpoints...")
   rci_onset_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x1){
@@ -320,7 +318,7 @@ enrollment_cutpoint_analysis_df_list <- mclapply(names(variable_list), function(
       setCutpoint2 = NULL)    
   }
 
-  setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+  setwd(proj_root)
 
   message("Fetching cutpoints...")
   rci_enrollment_reported_hr_values_df <-  do.call(rbind, lapply(scores_to_test, function(x1){

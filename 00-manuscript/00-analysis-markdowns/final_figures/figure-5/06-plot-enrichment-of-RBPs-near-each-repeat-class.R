@@ -1,20 +1,17 @@
-data_dir <- normalizePath("/scratch/projects/CFP03/CFP03-SF-111/koustav.pal")
-project_dir <- file.path(data_dir,
-    "0006-phase-condensation-of-repeats-in-neurons/")
-Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = "true")
-# save_dir <- file.path(project_dir, "rdata_files")
-sampleinfo_dir <- file.path(project_dir, "sampleinfo")
-analysis_dir <- file.path(project_dir, "analysis", "00-manuscript", "30-sequence-analysis-of-introns")
-setwd(analysis_dir)
+library("here")
+message("Project root:", here(), "\n")
+project_dir <- here()
+analysis_dir <- here("final-figures", "figure-5")
 analysis_save_dir <- file.path(analysis_dir, "rdata_files")
 analysis_input_dir <- file.path(analysis_dir, "input_files")
 analysis_plot_dir <- file.path(analysis_dir, "plots")
 analysis_slurm_dir <- file.path(analysis_dir, "rslurm")
-feature_ranges <- readRDS("../05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
-sig_result_list <- readRDS(file.path("../20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
+sig_result_list <- readRDS(here("20-import-significant-events/rdata_files/02-significantly-differentially-expressed-events.rds"))
 slurm_job_list <- readRDS(file.path(analysis_save_dir, "05-09-submit-jobs-to-compute-rbp-metaprofile.rds"))
-repeat_ranges_list <- readRDS("../final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds")
-sfpq_kd_rcis_df <- readRDS(file.path("../40-giulia-rbp-kd/rdata_files/04-06-introns-affected-by-SFPQKD-with-rloop-density-and-rci-penetrance.rds"))
+repeat_ranges_list <- readRDS(here("final-figures/figure-1/rdata_files/00-repeat-ranges-introns-exons-with-mapping-to-exons-and-introns.rds"))
+metaprofile_results_df <- readRDS(here("30-sequence-analysis-of-introns/rdata_files/10-00-rbp-metaprofile-across-all-rcis.rds"))
+sfpq_kd_rcis_df <- readRDS(here("40-giulia-rbp-kd/rdata_files/04-06-introns-affected-by-SFPQKD-with-rloop-density-and-rci-penetrance.rds"))
 sfpq_kd_rcis <- rownames(sfpq_kd_rcis_df)[sfpq_kd_rcis_df$rci_status == "RCI"]
 rloop_containing_sfpq_kd_rcis <- rownames(sfpq_kd_rcis_df)[sfpq_kd_rcis_df$rci_status == "RCI" & 
     sfpq_kd_rcis_df$rloop_status == "R-loop containing"]
@@ -48,16 +45,6 @@ sfpq_kd_rloop_rci_repeat_ranges <- repeat_ranges[sfpq_kd_rloop_rci_ranges$which_
 output_prefix = function(){
     return(format(Sys.Date(),"%Y-%m-%d"))
 }
-
-
-slurm_dir <- file.path(analysis_slurm_dir, "rbp_metaprofile")
-if(!dir.exists(slurm_dir)){
-    dir.create(slurm_dir, recursive = T)
-}
-setwd(slurm_dir)
-
-metaprofile_results_list <- get_slurm_out(slurm_job_list)
-metaprofile_results_df <- do.call(rbind, metaprofile_results_list)
 
 metaprofile_results_df$type <- factor(metaprofile_results_df$type, levels = c("upstream", "downstream"))
 unique_rbps <- unique(metaprofile_results_df$rbp)

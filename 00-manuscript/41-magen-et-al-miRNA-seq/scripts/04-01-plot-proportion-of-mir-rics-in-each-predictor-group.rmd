@@ -11,19 +11,17 @@ This document contains all of the data required for analysing the AnswerALS data
 
 ### 1.0 Package requirements
 
-- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript` and include required packages 
+- change to current project root directory and include required packages 
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 
-setwd("/nemo/lab/patanir/home/users/palk/Projects/0006-phase-condensation-of-repeats-in-neurons/analysis/00-manuscript/")
+library("here")
+proj_root <- here()
+message("Project root:", proj_root, "\n")
 require("HiCBricks")
 require("GenomicRanges")
 require("stringr")
 require("rtracklayer")
-# require("Biostrings")
-# require("rtracklayer")
-# require("GenomeInfoDb")
-# require("GenomicFeatures")
 require("ggplot2")
 require("matrixStats")
 require("glmnet")
@@ -37,7 +35,7 @@ source("41-magen-et-al-miRNA-seq/scripts/sources/models.R")
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 
-analysis_path <- "41-magen-et-al-miRNA-seq"
+analysis_path <- here("41-magen-et-al-miRNA-seq")
 save_dir <- file.path(analysis_path, "rdata_files")
 plot_dir <- file.path(analysis_path, "plots")
 input_dir <- file.path(analysis_path, "input_files")
@@ -75,7 +73,7 @@ keep_hash_pair_df <- hash_pair_df[hash_pair_df$hash_id %in% rci_set,]
 
 ```{r}
 
-feature_ranges <- readRDS("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds")
+feature_ranges <- readRDS(here("05-simulated-reads-differential-profiling/rdata_files/01-all-merged-exonic-and-intronic-segments-in-genes.rds"))
 keep_hash_pair_df$gene_id <- feature_ranges$gene_id[match(keep_hash_pair_df$hash_id, feature_ranges$hash_id)]
 
 ```
